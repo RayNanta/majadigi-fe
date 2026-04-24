@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../home/routes.dart';
-import '../../../welcome/routes.dart';
+import '../../routes.dart';
+import '../widgets/auth_form_widgets.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -82,7 +83,7 @@ class _SignInPageState extends State<SignInPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _TopBar(),
+                          const AuthTopBar(),
                           const SizedBox(height: 72),
                           Text(
                             'Masuk',
@@ -112,7 +113,7 @@ class _SignInPageState extends State<SignInPage> {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          _AuthInputField(
+                          AuthInputField(
                             controller: _emailController,
                             hintText: 'Masukkan alamat email',
                             keyboardType: TextInputType.emailAddress,
@@ -129,7 +130,7 @@ class _SignInPageState extends State<SignInPage> {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          _AuthInputField(
+                          AuthInputField(
                             controller: _passwordController,
                             hintText: 'Masukkan kata sandi',
                             obscureText: _obscurePassword,
@@ -200,78 +201,18 @@ class _SignInPageState extends State<SignInPage> {
                             ],
                           ),
                           const SizedBox(height: 52),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: _canSubmit
-                                  ? () => context.go(HomeRoutes.path)
-                                  : null,
-                              style: ButtonStyle(
-                                minimumSize: WidgetStateProperty.all(
-                                  const Size.fromHeight(74),
-                                ),
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                ),
-                                backgroundColor:
-                                    WidgetStateProperty.resolveWith((states) {
-                                      if (states.contains(
-                                        WidgetState.disabled,
-                                      )) {
-                                        return AppColors.disabled;
-                                      }
-
-                                      return AppColors.welcomeAccent;
-                                    }),
-                                foregroundColor:
-                                    WidgetStateProperty.resolveWith((states) {
-                                      if (states.contains(
-                                        WidgetState.disabled,
-                                      )) {
-                                        return Colors.white;
-                                      }
-
-                                      return Colors.white;
-                                    }),
-                                textStyle: WidgetStateProperty.all(
-                                  GoogleFonts.plusJakartaSans(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                elevation: WidgetStateProperty.all(0),
-                              ),
-                              child: const Text('Masuk'),
-                            ),
+                          AuthPrimaryButton(
+                            label: 'Masuk',
+                            onPressed: _canSubmit
+                                ? () => context.go(HomeRoutes.path)
+                                : null,
                           ),
                           const SizedBox(height: 42),
-                          Center(
-                            child: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                Text(
-                                  'Belum punya akun? ',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF2F3136),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => context.go(WelcomeRoutes.path),
-                                  child: Text(
-                                    'Daftar dulu',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.welcomeAccent,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          AuthFooterPrompt(
+                            promptText: 'Belum punya akun?',
+                            actionText: 'Daftar dulu',
+                            onPressed: () =>
+                                context.go(AuthRoutes.signUpStepOnePath),
                           ),
                           const Spacer(),
                         ],
@@ -281,165 +222,6 @@ class _SignInPageState extends State<SignInPage> {
                 );
               },
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: const [
-        Expanded(child: _BrandLockup()),
-        SizedBox(width: 16),
-        _LanguageChip(),
-      ],
-    );
-  }
-}
-
-class _BrandLockup extends StatelessWidget {
-  const _BrandLockup();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          'assets/logos/splash_logo.png',
-          width: 44,
-          height: 44,
-          fit: BoxFit.contain,
-        ),
-        const SizedBox(width: 10),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'MAJADIGI',
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.3,
-                  color: const Color(0xFF2D57C5),
-                ),
-              ),
-              Text(
-                'Majapahit Digital',
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 7,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.6,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.outline, width: 2),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.language_rounded,
-            size: 26,
-            color: Color(0xFF3D3F45),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            'Bahasa Indonesia',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF3D3F45),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AuthInputField extends StatelessWidget {
-  const _AuthInputField({
-    required this.controller,
-    required this.hintText,
-    required this.prefixIcon,
-    this.suffix,
-    this.keyboardType,
-    this.textInputAction,
-    this.obscureText = false,
-  });
-
-  final TextEditingController controller;
-  final String hintText;
-  final IconData prefixIcon;
-  final Widget? suffix;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final bool obscureText;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      obscureText: obscureText,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        color: const Color(0xFF2F3136),
-      ),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-          color: AppColors.outline,
-        ),
-        prefixIcon: Icon(prefixIcon, color: AppColors.outline, size: 28),
-        suffixIcon: suffix,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 22,
-          vertical: 24,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: AppColors.outline, width: 2),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(
-            color: AppColors.welcomeAccent,
-            width: 2.2,
           ),
         ),
       ),

@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../auth/routes.dart';
-import '../../../home/routes.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -94,7 +93,7 @@ class _WelcomeContent extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: () => context.go(HomeRoutes.path),
+            onPressed: () => context.go(AuthRoutes.signUpStepOnePath),
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.welcomeAccent,
               foregroundColor: Colors.white,
