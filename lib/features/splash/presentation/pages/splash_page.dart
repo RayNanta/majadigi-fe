@@ -2,12 +2,37 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../welcome/routes.dart';
 
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
+
+  @override
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  static const _navigationDelay = Duration(seconds: 2);
+
+  @override
+  void initState() {
+    super.initState();
+    _goToWelcome();
+  }
+
+  Future<void> _goToWelcome() async {
+    await Future<void>.delayed(_navigationDelay);
+
+    if (!mounted) {
+      return;
+    }
+
+    context.go(WelcomeRoutes.path);
+  }
 
   @override
   Widget build(BuildContext context) {
