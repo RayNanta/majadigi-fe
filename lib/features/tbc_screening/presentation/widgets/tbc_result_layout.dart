@@ -11,6 +11,8 @@ class TbcResultLayout extends StatelessWidget {
     required this.resultText,
     required this.resultColor,
     this.resultSubtitle,
+    required this.patientName,
+    required this.screeningDate,
     super.key,
   });
 
@@ -20,6 +22,8 @@ class TbcResultLayout extends StatelessWidget {
   final String resultText;
   final Color resultColor;
   final String? resultSubtitle;
+  final String patientName;
+  final String screeningDate;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +75,7 @@ class TbcResultLayout extends StatelessWidget {
                     illustration,
                     const SizedBox(height: 28),
                     Text(
-                      'Anggun Amalia',
+                      patientName,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
@@ -81,7 +85,7 @@ class TbcResultLayout extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '09 April 2026 (16.54)',
+                      screeningDate,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,

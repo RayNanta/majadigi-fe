@@ -2,7 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthStorage {
   static Future<String?> getToken() async {
-    return "6|JJMVwU3CVBVHognbALnXVb76E19A5UvOwwyoNthw81473d9e"; // TEMP
+    return "7|3AXRxjGEYon7JpQhDUlaOMube1EwQMJZVlytQrMz7a0659d8"; // TEMP
   }
 // static Future<void> saveToken(String token) async {
 //   final prefs = await SharedPreferences.getInstance();

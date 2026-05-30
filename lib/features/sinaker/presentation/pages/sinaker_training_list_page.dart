@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../services/sinaker_service.dart';
 
 class SinakerTrainingListPage extends StatefulWidget {
   const SinakerTrainingListPage({super.key});
@@ -12,54 +13,94 @@ class SinakerTrainingListPage extends StatefulWidget {
   State<SinakerTrainingListPage> createState() =>
       _SinakerTrainingListPageState();
 }
+class Training {
+  final int id;
+  final String namaPelatihan;
+  final String deskripsi;
+  final int trainingCenterId;
+  final DateTime tanggalMulai;
+  final DateTime tanggalSelesai;
+
+  Training({
+    required this.id,
+    required this.namaPelatihan,
+    required this.deskripsi,
+    required this.trainingCenterId,
+    required this.tanggalMulai,
+    required this.tanggalSelesai,
+  });
+
+  factory Training.fromJson(Map<String, dynamic> json) {
+    return Training(
+      id: json['id'],
+      namaPelatihan: json['nama_pelatihan'],
+      deskripsi: json['deskripsi'] ?? '',
+      trainingCenterId: json['training_center_id'],
+      tanggalMulai: DateTime.parse(json['tanggal_mulai']),
+      tanggalSelesai: DateTime.parse(json['tanggal_selesai']),
+    );
+  }
+}
+
+class TrainingCenter {
+  final int id;
+  final String nama;
+
+  TrainingCenter({
+    required this.id,
+    required this.nama,
+  });
+
+  factory TrainingCenter.fromJson(Map<String, dynamic> json) {
+    return TrainingCenter(
+      id: json['id'],
+      nama: json['nama'],
+    );
+  }
+}
 
 class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
-  static const _locations = [
-    'Jawa Timur',
-    'UPT BLK Surabaya',
-    'UPT BLK Malang',
-    'UPT BLK Sumenep',
-  ];
+  final _service = SinakerService();
 
-  static const _trainings = [
-    _TrainingItem(
-      routeName: RouteNames.homeSinakerTrainingRegistration,
-      category: 'PARIWISATA',
-      title: 'Pelatihan Barista Profesional & Manajemen Coffee Shop',
-      dateRange: '2 Mar 2026 - 26 Mar 2026',
-      location: 'UPT BLK Surabaya',
-      artwork: _TrainingArtwork.barista,
-      tagColor: Color(0xFFD9D6FF),
-      tagTextColor: Color(0xFF5C56D8),
-      isPopular: true,
-    ),
-    _TrainingItem(
-      category: 'KREATIF',
-      title: 'Graphic Design & UI/UX Foundations',
-      dateRange: '10 Mar 2026 - 05 Apr 2026',
-      location: 'UPT BLK Malang',
-      artwork: _TrainingArtwork.design,
-      tagColor: Color(0xFFFCE1FF),
-      tagTextColor: Color(0xFFB353C2),
-    ),
-    _TrainingItem(
-      category: 'TEKNIK ENERGI',
-      title: 'Pemasangan & Pemeliharaan Panel Surya (PLTS)',
-      dateRange: '15 Mar 2026 - 20 Apr 2026',
-      location: 'UPT BLK Sumenep',
-      artwork: _TrainingArtwork.solar,
-      tagColor: Color(0xFFDDF8E6),
-      tagTextColor: Color(0xFF319C59),
-    ),
-  ];
+
+  List<Map<String, dynamic>> _centers = [];
+  Map<int, String> _centerMap = {};
+
+  List<Training> _trainings = [];
+  bool _loading = true;
 
   late final TextEditingController _searchController;
-  String _selectedLocation = _locations.first;
+  Map<String, dynamic>? _selectedCenter;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController()..addListener(_refresh);
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final trainingsRes = await _service.getTrainings();
+      final centersRes = await _service.getTrainingCenter();
+
+      final centerMap = {
+        for (var c in centersRes)
+          c['id'] as int: c['nama'] as String
+      };
+
+      setState(() {
+        _trainings = trainingsRes;
+        _centers = centersRes;
+        _centerMap = centerMap;
+
+        _selectedCenter = null;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint("ERROR LOAD: $e");
+      setState(() => _loading = false);
+    }
   }
 
   @override
@@ -74,18 +115,70 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
     setState(() {});
   }
 
+
+  _TrainingItem _mapToItem(Training t) {
+    return _TrainingItem(
+      trainingId: t.id,
+      routeName: RouteNames.homeSinakerTrainingRegistration,
+      category: 'TRAINING',
+      title: t.namaPelatihan,
+      dateRange:
+      '${t.tanggalMulai.day} ${_month(t.tanggalMulai.month)} ${t.tanggalMulai.year}'
+          ' - '
+          '${t.tanggalSelesai.day} ${_month(t.tanggalSelesai.month)} ${t.tanggalSelesai.year}',
+      location: _centerMap[t.trainingCenterId] ?? 'Unknown',
+      artwork: _TrainingArtwork.barista,
+      tagColor: const Color(0xFFD9D6FF),
+      tagTextColor: const Color(0xFF5C56D8),
+    );
+  }
+
+  String _month(int m) {
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
+    ];
+    return months[m];
+  }
+
+  String _locationName(int id) {
+    switch (id) {
+      case 1:
+        return 'UPT BLK Surabaya';
+      case 2:
+        return 'UPT BLK Malang';
+      case 3:
+        return 'UPT BLK Sumenep';
+      default:
+        return 'Jawa Timur';
+    }
+  }
+
   List<_TrainingItem> get _visibleTrainings {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _trainings.where((item) {
+    final items = _trainings.map(_mapToItem).toList();
+
+    return items.where((item) {
       final matchesLocation =
-          _selectedLocation == 'Jawa Timur' ||
-          item.location == _selectedLocation;
+          _selectedCenter == null || item.location == _selectedCenter!['nama'];
+
       final matchesQuery =
           query.isEmpty ||
-          item.title.toLowerCase().contains(query) ||
-          item.category.toLowerCase().contains(query) ||
-          item.location.toLowerCase().contains(query);
+              item.title.toLowerCase().contains(query) ||
+              item.location.toLowerCase().contains(query);
+
       return matchesLocation && matchesQuery;
     }).toList();
   }
@@ -95,12 +188,11 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeSinakerMain);
   }
 
   void _pickLocation() async {
-    final selected = await showModalBottomSheet<String>(
+    final selected = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -108,78 +200,54 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
       ),
       builder: (context) {
         return SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 18, 24, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 56,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD6D9E1),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Pilih Wilayah',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1E2330),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                ..._locations.map(
-                  (location) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      location,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF3C414A),
-                      ),
-                    ),
-                    trailing: location == _selectedLocation
-                        ? const Icon(
-                            Icons.check_circle_rounded,
-                            color: AppColors.welcomeAccent,
-                          )
-                        : null,
-                    onTap: () => context.pop(location),
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text("Semua Training"),
+                trailing: _selectedCenter == null
+                    ? const Icon(Icons.check_circle,
+                    color: AppColors.welcomeAccent)
+                    : null,
+                onTap: () => context.pop(null),
+              ),
+
+              ..._centers.map((center) {
+                return ListTile(
+                  title: Text(center['nama']),
+                  trailing: _selectedCenter?['id'] == center['id']
+                      ? const Icon(Icons.check_circle,
+                      color: AppColors.welcomeAccent)
+                      : null,
+                  onTap: () => context.pop(center),
+                );
+              }),
+            ],
           ),
         );
       },
     );
 
-    if (selected != null && mounted) {
+    if (selected != null) {
       setState(() {
-        _selectedLocation = selected;
+        _selectedCenter = selected;
       });
     }
   }
 
   void _registerTraining(_TrainingItem item) {
-    if (item.routeName != null) {
-      context.pushNamed(item.routeName!);
-      return;
-    }
+    context.pushNamed(
+      RouteNames.homeSinakerTrainingRegistration,
+      extra: {
+        'training_id': item.trainingId,
+        'training_name': item.title,
+      },
+    );
+
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Pendaftaran ${item.title} akan kita lanjutkan berikutnya.',
-        ),
+        content: Text('Pendaftaran ${item.title}'),
       ),
     );
   }
@@ -202,12 +270,8 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
                 children: [
                   IconButton(
                     onPressed: _handleBack,
-                    style: IconButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(36, 36),
-                    ),
-                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
+                    icon: const Icon(Icons.arrow_back_rounded,
+                        color: Colors.white, size: 30),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -223,8 +287,11 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
                 ],
               ),
             ),
+
             Expanded(
-              child: CustomScrollView(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
@@ -236,44 +303,10 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
                             borderRadius: BorderRadius.circular(20),
                             child: TextField(
                               controller: _searchController,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF2F3136),
-                              ),
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Cari Laporan',
-                                hintStyle: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF66666D),
-                                ),
-                                suffixIcon: const Padding(
-                                  padding: EdgeInsets.only(right: 14),
-                                  child: Icon(
-                                    Icons.search_rounded,
-                                    size: 34,
-                                    color: Color(0xFF66666D),
-                                  ),
-                                ),
-                                suffixIconConstraints: const BoxConstraints(
-                                  minWidth: 56,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 18,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide.none,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.welcomeAccent,
-                                    width: 2,
-                                  ),
-                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(18),
                               ),
                             ),
                           ),
@@ -282,36 +315,17 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
                             color: const Color(0xFFF0F0F2),
                             borderRadius: BorderRadius.circular(20),
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
                               onTap: _pickLocation,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 18,
-                                ),
+                                padding: const EdgeInsets.all(18),
                                 child: Row(
                                   children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: Color(0xFF5D6168),
-                                      size: 24,
-                                    ),
+                                    const Icon(Icons.location_on_outlined),
                                     const SizedBox(width: 10),
                                     Expanded(
-                                      child: Text(
-                                        _selectedLocation,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF5D6168),
-                                        ),
-                                      ),
+                                      child: Text(_selectedCenter?['nama'] ?? 'Semua'),
                                     ),
-                                    const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Color(0xFF5D6168),
-                                      size: 28,
-                                    ),
+                                    const Icon(Icons.keyboard_arrow_down),
                                   ],
                                 ),
                               ),
@@ -321,40 +335,29 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
                       ),
                     ),
                   ),
+
                   if (trainings.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
+                    const SliverFillRemaining(
                       child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 36),
-                          child: Text(
-                            'Belum ada pelatihan yang cocok dengan pencarian ini.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ),
+                        child: Text(
+                            'Belum ada pelatihan yang cocok dengan pencarian ini.'),
                       ),
                     )
                   else
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(24, 22, 24, 28),
                       sliver: SliverList.separated(
-                        itemCount: trainings.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 28),
+                        itemCount: _visibleTrainings.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 28),
                         itemBuilder: (context, index) {
-                          final item = trainings[index];
+                          final item = _visibleTrainings[index]; // ✅ SUDAH MAP KE UI MODEL
                           return _TrainingCard(
                             item: item,
                             onRegister: () => _registerTraining(item),
                           );
                         },
                       ),
-                    ),
+                    )
                 ],
               ),
             ),
@@ -528,6 +531,7 @@ class _MetaRow extends StatelessWidget {
 
 class _TrainingItem {
   const _TrainingItem({
+    required this.trainingId,
     this.routeName,
     required this.category,
     required this.title,
@@ -539,6 +543,7 @@ class _TrainingItem {
     this.isPopular = false,
   });
 
+  final int trainingId;
   final String? routeName;
   final String category;
   final String title;

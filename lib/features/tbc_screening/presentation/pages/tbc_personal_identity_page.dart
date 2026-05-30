@@ -7,22 +7,32 @@ import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
 class TbcPersonalIdentityPage extends StatefulWidget {
-  const TbcPersonalIdentityPage({super.key});
+
+  final Map<String, dynamic> formData;
+
+  const TbcPersonalIdentityPage({
+    super.key,
+    required this.formData,
+  });
 
   @override
   State<TbcPersonalIdentityPage> createState() =>
       _TbcPersonalIdentityPageState();
 }
 
-class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
+class _TbcPersonalIdentityPageState
+    extends State<TbcPersonalIdentityPage> {
+
   late final TextEditingController _phoneController;
   late final TextEditingController _weightController;
   late final TextEditingController _heightController;
+  late final TextEditingController _ageController;
   late final TextEditingController _addressController;
 
   int? _selectedYear;
   int? _selectedMonth;
   int? _selectedDay;
+
   String? _selectedOccupation;
   String? _selectedCity;
   String? _selectedDistrict;
@@ -30,7 +40,7 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
 
   static final _yearOptions = List<int>.generate(
     DateTime.now().year - 1939,
-    (index) => DateTime.now().year - index,
+        (index) => DateTime.now().year - index,
   );
 
   static const _monthOptions = [
@@ -61,32 +71,28 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
     'Kota Surabaya',
     'Kota Malang',
     'Kabupaten Sidoarjo',
-    'Kabupaten Jember',
-    'Kabupaten Banyuwangi',
   ];
 
   static const _districtOptions = [
     'Klojen',
     'Lowokwaru',
     'Blimbing',
-    'Sukun',
-    'Kedungkandang',
   ];
 
   static const _villageOptions = [
     'Bareng',
-    'Rampal Celaket',
     'Dinoyo',
-    'Tulusrejo',
     'Mulyorejo',
   ];
 
   @override
   void initState() {
     super.initState();
+
     _phoneController = TextEditingController();
     _weightController = TextEditingController();
     _heightController = TextEditingController();
+    _ageController = TextEditingController();
     _addressController = TextEditingController();
   }
 
@@ -95,178 +101,232 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
     _phoneController.dispose();
     _weightController.dispose();
     _heightController.dispose();
+    _ageController.dispose();
     _addressController.dispose();
     super.dispose();
   }
 
   List<int> get _dayOptions {
-    if (_selectedYear == null || _selectedMonth == null) {
-      return List<int>.generate(31, (index) => index + 1);
+
+    if (_selectedYear == null ||
+        _selectedMonth == null) {
+
+      return List.generate(31, (i) => i + 1);
     }
 
-    final daysInMonth = DateTime(_selectedYear!, _selectedMonth! + 1, 0).day;
-    return List<int>.generate(daysInMonth, (index) => index + 1);
+    final days = DateTime(
+      _selectedYear!,
+      _selectedMonth! + 1,
+      0,
+    ).day;
+
+    return List.generate(days, (i) => i + 1);
   }
 
   int get _computedAge {
+
     if (_selectedYear == null ||
         _selectedMonth == null ||
         _selectedDay == null) {
+
       return 0;
     }
 
     final now = DateTime.now();
-    final birthDate = DateTime(_selectedYear!, _selectedMonth!, _selectedDay!);
-    var age = now.year - birthDate.year;
 
-    final hasHadBirthdayThisYear =
+    final birthDate = DateTime(
+      _selectedYear!,
+      _selectedMonth!,
+      _selectedDay!,
+    );
+
+    int age = now.year - birthDate.year;
+
+    final hasBirthday =
         now.month > birthDate.month ||
-        (now.month == birthDate.month && now.day >= birthDate.day);
+            (now.month == birthDate.month &&
+                now.day >= birthDate.day);
 
-    if (!hasHadBirthdayThisYear) {
-      age -= 1;
+    if (!hasBirthday) {
+      age--;
     }
 
-    return age < 0 ? 0 : age;
+    return age;
   }
 
   void _handleBack() {
-    if (Navigator.of(context).canPop()) {
-      context.pop();
-      return;
-    }
-
-    context.goNamed(RouteNames.homeTbcIdentityForm);
+    context.pop();
   }
 
   void _handleNext() {
-    context.pushNamed(RouteNames.homeTbcScreeningFormOne);
+
+    final fullData = {
+
+      ...widget.formData,
+
+      "no_telp":
+      _phoneController.text,
+
+      "tahun_lahir":
+      _selectedYear,
+
+      "bulan_lahir":
+      _selectedMonth,
+
+      "tanggal_lahir":
+      _selectedDay,
+
+      "umur":
+      _ageController.text,
+
+      "berat_badan":
+      _weightController.text,
+
+      "tinggi_badan":
+      _heightController.text,
+
+      "alamat":
+      _addressController.text,
+
+      "pekerjaan":
+      _selectedOccupation,
+
+      "kabupaten":
+      _selectedCity,
+
+      "kecamatan":
+      _selectedDistrict,
+
+      "kelurahan":
+      _selectedVillage,
+    };
+
+    context.pushNamed(
+      RouteNames.homeTbcScreeningFormOne,
+      extra: fullData,
+    );
   }
 
   Future<void> _selectYear() async {
-    final selectedValue = await _showOptionSheet<int>(
+
+    final result =
+    await _showOptionSheet<int>(
       title: 'Pilih Tahun',
       options: _yearOptions,
       currentValue: _selectedYear,
-      labelBuilder: (value) => value.toString(),
+      labelBuilder: (v) => v.toString(),
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedYear = selectedValue;
-      if (_selectedMonth != null &&
-          _selectedDay != null &&
-          !_dayOptions.contains(_selectedDay)) {
-        _selectedDay = null;
-      }
+      _selectedYear = result;
     });
   }
 
   Future<void> _selectMonth() async {
-    final selectedValue = await _showOptionSheet<int>(
+
+    final result =
+    await _showOptionSheet<int>(
       title: 'Pilih Bulan',
-      options: List<int>.generate(_monthOptions.length, (index) => index + 1),
+      options: List.generate(
+        _monthOptions.length,
+            (i) => i + 1,
+      ),
       currentValue: _selectedMonth,
-      labelBuilder: (value) => _monthOptions[value - 1],
+      labelBuilder:
+          (v) => _monthOptions[v - 1],
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedMonth = selectedValue;
-      if (_selectedDay != null && !_dayOptions.contains(_selectedDay)) {
-        _selectedDay = null;
-      }
+      _selectedMonth = result;
     });
   }
 
   Future<void> _selectDay() async {
-    final selectedValue = await _showOptionSheet<int>(
+
+    final result =
+    await _showOptionSheet<int>(
       title: 'Pilih Tanggal',
       options: _dayOptions,
       currentValue: _selectedDay,
-      labelBuilder: (value) => value.toString(),
+      labelBuilder: (v) => v.toString(),
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedDay = selectedValue;
+      _selectedDay = result;
     });
   }
 
   Future<void> _selectOccupation() async {
-    final selectedValue = await _showOptionSheet<String>(
+
+    final result =
+    await _showOptionSheet<String>(
       title: 'Pilih Pekerjaan',
       options: _occupationOptions,
       currentValue: _selectedOccupation,
-      labelBuilder: (value) => value,
+      labelBuilder: (v) => v,
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedOccupation = selectedValue;
+      _selectedOccupation = result;
     });
   }
 
   Future<void> _selectCity() async {
-    final selectedValue = await _showOptionSheet<String>(
+
+    final result =
+    await _showOptionSheet<String>(
       title: 'Pilih Kabupaten/Kota',
       options: _cityOptions,
       currentValue: _selectedCity,
-      labelBuilder: (value) => value,
+      labelBuilder: (v) => v,
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedCity = selectedValue;
+      _selectedCity = result;
     });
   }
 
   Future<void> _selectDistrict() async {
-    final selectedValue = await _showOptionSheet<String>(
+
+    final result =
+    await _showOptionSheet<String>(
       title: 'Pilih Kecamatan',
       options: _districtOptions,
       currentValue: _selectedDistrict,
-      labelBuilder: (value) => value,
+      labelBuilder: (v) => v,
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedDistrict = selectedValue;
+      _selectedDistrict = result;
     });
   }
 
   Future<void> _selectVillage() async {
-    final selectedValue = await _showOptionSheet<String>(
-      title: 'Pilih Kelurahan/Desa',
+
+    final result =
+    await _showOptionSheet<String>(
+      title: 'Pilih Kelurahan',
       options: _villageOptions,
       currentValue: _selectedVillage,
-      labelBuilder: (value) => value,
+      labelBuilder: (v) => v,
     );
 
-    if (selectedValue == null) {
-      return;
-    }
+    if (result == null) return;
 
     setState(() {
-      _selectedVillage = selectedValue;
+      _selectedVillage = result;
     });
   }
 
@@ -274,80 +334,84 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
     required String title,
     required List<T> options,
     required T? currentValue,
-    required String Function(T value) labelBuilder,
+    required String Function(T value)
+    labelBuilder,
   }) async {
+
     return showModalBottomSheet<T>(
       context: context,
+
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+
+      shape:
+      const RoundedRectangleBorder(
+        borderRadius:
+        BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
       ),
+
       builder: (context) {
-        final maxHeight = MediaQuery.sizeOf(context).height * 0.68;
 
         return SafeArea(
-          top: false,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 54,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD5D8DF),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Flexible(
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: options.map((option) {
-                        final isSelected = option == currentValue;
+          child: Padding(
+            padding:
+            const EdgeInsets.all(24),
 
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            labelBuilder(option),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? AppColors.welcomeAccent
-                                  : AppColors.textPrimary,
-                            ),
-                          ),
-                          trailing: isSelected
-                              ? const Icon(
-                                  Icons.check_rounded,
-                                  color: AppColors.welcomeAccent,
-                                )
-                              : null,
-                          onTap: () => context.pop(option),
-                        );
-                      }).toList(),
-                    ),
+            child: Column(
+              mainAxisSize:
+              MainAxisSize.min,
+
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+              children: [
+
+                Text(
+                  title,
+
+                  style:
+                  GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight:
+                    FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 16),
+
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+
+                    children:
+                    options.map((e) {
+
+                      final selected =
+                          e == currentValue;
+
+                      return ListTile(
+                        title: Text(
+                          labelBuilder(e),
+                        ),
+
+                        trailing:
+                        selected
+                            ? const Icon(
+                          Icons.check,
+                          color: AppColors
+                              .welcomeAccent,
+                        )
+                            : null,
+
+                        onTap: () {
+                          context.pop(e);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -357,218 +421,195 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
-      body: SafeArea(
-        bottom: false,
+      backgroundColor:
+      const Color(0xFFF7F9FF),
+
+      appBar: AppBar(
+        backgroundColor:
+        AppColors.welcomeAccent,
+
+        title: const Text(
+          'Formulir Identitas',
+        ),
+      ),
+
+      body: SingleChildScrollView(
+        padding:
+        const EdgeInsets.all(24),
+
         child: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+
           children: [
-            Container(
-              width: double.infinity,
-              color: AppColors.welcomeAccent,
-              padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: _handleBack,
-                    style: IconButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(36, 36),
-                    ),
-                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Formulir Identitas',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+
+            const SizedBox(height: 10),
+
+            _ProfileField(
+              label: 'No Telepon',
+              hintText: '08xxxxxxxxxx',
+              controller: _phoneController,
+              keyboardType:
+              TextInputType.phone,
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Identitas Anda',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.welcomeAccent,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    _ProfileField(
-                      label: 'No. Telepon/HP',
-                      hintText: 'Cth: 085678910111',
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Tahun Lahir',
-                      hintText: 'Pilih Tahun',
-                      value: _selectedYear?.toString(),
-                      onTap: _selectYear,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Bulan Lahir',
-                      hintText: 'Pilih Bulan',
-                      value: _selectedMonth == null
-                          ? null
-                          : _monthOptions[_selectedMonth! - 1],
-                      onTap: _selectMonth,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Tanggal Lahir',
-                      hintText: 'Pilih Tanggal',
-                      value: _selectedDay?.toString(),
-                      onTap: _selectDay,
-                    ),
-                    const SizedBox(height: 24),
-                    _ReadOnlyProfileField(
-                      label: 'Umur (Otomatis)',
-                      value: '$_computedAge Tahun',
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ProfileField(
-                            label: 'Berat Badan (Kg)',
-                            hintText: 'cth: 56',
-                            controller: _weightController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9.]'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _ProfileField(
-                            label: 'Tinggi Badan (Cm)',
-                            hintText: 'cth: 160',
-                            controller: _heightController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9.]'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _ProfileField(
-                      label: 'Alamat Domisili',
-                      hintText: 'Cth: Jl. Gubeng No. 12',
-                      controller: _addressController,
-                      keyboardType: TextInputType.streetAddress,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Pekerjaan',
-                      hintText: 'Pilih Pekerjaan',
-                      value: _selectedOccupation,
-                      onTap: _selectOccupation,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Kabupaten/Kota',
-                      hintText: 'Pilih Kabupaten/Kota',
-                      value: _selectedCity,
-                      onTap: _selectCity,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Kecamatan',
-                      hintText: 'Pilih Kecamatan',
-                      value: _selectedDistrict,
-                      onTap: _selectDistrict,
-                    ),
-                    const SizedBox(height: 24),
-                    _DropdownProfileField(
-                      label: 'Kelurahan/Desa',
-                      hintText: 'Pilih Kelurahan/Desa',
-                      value: _selectedVillage,
-                      onTap: _selectVillage,
-                    ),
-                    const SizedBox(height: 120),
-                  ],
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Tahun Lahir',
+              value:
+              _selectedYear?.toString(),
+              hintText: 'Pilih Tahun',
+              onTap: _selectYear,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Bulan Lahir',
+              value:
+              _selectedMonth == null
+                  ? null
+                  : _monthOptions[
+              _selectedMonth! - 1
+              ],
+              hintText: 'Pilih Bulan',
+              onTap: _selectMonth,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Tanggal Lahir',
+              value:
+              _selectedDay?.toString(),
+              hintText: 'Pilih Tanggal',
+              onTap: _selectDay,
+            ),
+
+            const SizedBox(height: 20),
+
+            _ProfileField(
+              label: 'Umur',
+              hintText: 'Masukkan umur',
+              controller: _ageController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            Row(
+              children: [
+
+                Expanded(
+                  child: _ProfileField(
+                    label: 'Berat Badan',
+                    hintText: '56',
+                    controller:
+                    _weightController,
+                    keyboardType:
+                    TextInputType.number,
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: _ProfileField(
+                    label: 'Tinggi Badan',
+                    hintText: '160',
+                    controller:
+                    _heightController,
+                    keyboardType:
+                    TextInputType.number,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            _ProfileField(
+              label: 'Alamat',
+              hintText: 'Masukkan alamat',
+              controller:
+              _addressController,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Pekerjaan',
+              value:
+              _selectedOccupation,
+              hintText:
+              'Pilih pekerjaan',
+              onTap:
+              _selectOccupation,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Kabupaten/Kota',
+              value:
+              _selectedCity,
+              hintText:
+              'Pilih kota',
+              onTap: _selectCity,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Kecamatan',
+              value:
+              _selectedDistrict,
+              hintText:
+              'Pilih kecamatan',
+              onTap:
+              _selectDistrict,
+            ),
+
+            const SizedBox(height: 20),
+
+            _DropdownField(
+              label: 'Kelurahan',
+              value:
+              _selectedVillage,
+              hintText:
+              'Pilih kelurahan',
+              onTap:
+              _selectVillage,
+            ),
+
+            const SizedBox(height: 40),
+
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+
+              child: FilledButton(
+                onPressed: _handleNext,
+
+                style:
+                FilledButton.styleFrom(
+                  backgroundColor:
+                  AppColors
+                      .welcomeAccent,
+                ),
+
+                child: const Text(
+                  'Selanjutnya',
                 ),
               ),
             ),
           ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
-          child: Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 60,
-                  child: OutlinedButton(
-                    onPressed: _handleBack,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.welcomeAccent,
-                      side: const BorderSide(
-                        color: AppColors.welcomeAccent,
-                        width: 1.8,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      textStyle: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    child: const Text('Sebelumnya'),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: SizedBox(
-                  height: 60,
-                  child: FilledButton(
-                    onPressed: _handleNext,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.welcomeAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      textStyle: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    child: const Text('Selanjutnya'),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -576,70 +617,51 @@ class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
 }
 
 class _ProfileField extends StatelessWidget {
+
   const _ProfileField({
     required this.label,
     required this.hintText,
     required this.controller,
     this.keyboardType,
-    this.inputFormatters,
+    this.inputFormatters
   });
 
+  final List<TextInputFormatter>? inputFormatters;
   final String label;
   final String hintText;
   final TextEditingController controller;
   final TextInputType? keyboardType;
-  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+
       children: [
-        Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF55585E),
-          ),
-        ),
-        const SizedBox(height: 14),
+
+        Text(label),
+
+        const SizedBox(height: 8),
+
         TextField(
           controller: controller,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF55585E),
-          ),
+          keyboardType:
+          keyboardType,
+
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: GoogleFonts.plusJakartaSans(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA9AAB0),
-            ),
             filled: true,
-            fillColor: const Color(0xFFF0F0F2),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 22,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(22),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(22),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(22),
-              borderSide: const BorderSide(
-                color: AppColors.welcomeAccent,
-                width: 1.8,
-              ),
+            fillColor:
+            const Color(0xFFF0F0F2),
+
+            border:
+            OutlineInputBorder(
+              borderRadius:
+              BorderRadius.circular(16),
+              borderSide:
+              BorderSide.none,
             ),
           ),
         ),
@@ -648,63 +670,55 @@ class _ProfileField extends StatelessWidget {
   }
 }
 
-class _DropdownProfileField extends StatelessWidget {
-  const _DropdownProfileField({
+class _DropdownField extends StatelessWidget {
+
+  const _DropdownField({
     required this.label,
-    required this.hintText,
     required this.value,
+    required this.hintText,
     required this.onTap,
   });
 
   final String label;
-  final String hintText;
   final String? value;
+  final String hintText;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+
       children: [
-        Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF55585E),
-          ),
-        ),
-        const SizedBox(height: 14),
-        Material(
-          color: const Color(0xFFF0F0F2),
-          borderRadius: BorderRadius.circular(22),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(22),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value ?? hintText,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: value == null
-                            ? const Color(0xFFA9AAB0)
-                            : const Color(0xFF55585E),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 30,
-                    color: Color(0xFF666870),
-                  ),
-                ],
-              ),
+
+        Text(label),
+
+        const SizedBox(height: 8),
+
+        InkWell(
+          onTap: onTap,
+
+          child: Container(
+            width: double.infinity,
+
+            padding:
+            const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 18,
+            ),
+
+            decoration: BoxDecoration(
+              color:
+              const Color(0xFFF0F0F2),
+
+              borderRadius:
+              BorderRadius.circular(16),
+            ),
+
+            child: Text(
+              value ?? hintText,
             ),
           ),
         ),
@@ -713,41 +727,47 @@ class _DropdownProfileField extends StatelessWidget {
   }
 }
 
-class _ReadOnlyProfileField extends StatelessWidget {
-  const _ReadOnlyProfileField({required this.label, required this.value});
+class _ReadOnlyField extends StatelessWidget {
+
+  const _ReadOnlyField({
+    required this.label,
+    required this.value,
+  });
 
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+
       children: [
-        Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF55585E),
-          ),
-        ),
-        const SizedBox(height: 14),
+
+        Text(label),
+
+        const SizedBox(height: 8),
+
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+
+          padding:
+          const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
+
           decoration: BoxDecoration(
-            color: const Color(0xFFF0F0F2),
-            borderRadius: BorderRadius.circular(22),
+            color:
+            const Color(0xFFF0F0F2),
+
+            borderRadius:
+            BorderRadius.circular(16),
           ),
-          child: Text(
-            value,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA9AAB0),
-            ),
-          ),
+
+          child: Text(value),
         ),
       ],
     );

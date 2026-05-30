@@ -4,84 +4,170 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../services/tbc_service.dart';
 
 class TbcScreeningFormOnePage extends StatefulWidget {
-  const TbcScreeningFormOnePage({super.key});
+  final Map<String, dynamic> screeningData;
+
+  const TbcScreeningFormOnePage({
+    super.key,
+    required this.screeningData,
+  });
 
   @override
   State<TbcScreeningFormOnePage> createState() =>
       _TbcScreeningFormOnePageState();
 }
 
-class _TbcScreeningFormOnePageState extends State<TbcScreeningFormOnePage> {
-  static const _questions = [
-    'Batuk lebih dari 2 minggu',
-    'Demam',
-    'Berkeringat malam hari tanpa aktivitas',
-    'Sesak nafas',
-    'Nyeri dada',
-    'Ada benjolan di leher/bawah rahang/ bawah telinga/ketiak',
-    'Batuk berdarah',
-    'Batuk kurang dari 2 minggu',
-    'Nafsu makan turun',
-    'Berat badan turun',
-  ];
+class _TbcScreeningFormOnePageState
+    extends State<TbcScreeningFormOnePage> {
 
-  late final Map<String, bool?> _answers;
+  final TbcService service = TbcService();
+
+  bool isLoading = true;
+
+  List<dynamic> symptoms = [];
+
+  /// key = symptom_id
+  /// value = ya/tidak
+  Map<int, String> answers = {};
 
   @override
   void initState() {
     super.initState();
-    _answers = {for (final question in _questions) question: null};
+    loadSymptoms();
+  }
+
+  Future<void> loadSymptoms() async {
+
+    try {
+
+      final result =
+      await service.getSymptoms();
+
+      setState(() {
+        symptoms = result;
+        isLoading = false;
+      });
+
+    } catch (e) {
+
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
   }
 
   void _handleBack() {
-    if (Navigator.of(context).canPop()) {
-      context.pop();
-      return;
-    }
-
-    context.goNamed(RouteNames.homeTbcPersonalIdentity);
+    context.pop();
   }
 
   void _handleNext() {
-    context.pushNamed(RouteNames.homeTbcScreeningFormTwo);
+
+    /// validasi semua pertanyaan wajib dijawab
+    if (answers.length != symptoms.length) {
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Semua pertanyaan harus dijawab',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final symptomAnswers =
+    answers.entries.map((e) {
+
+      return {
+        "id": e.key,
+        "answer": e.value,
+      };
+
+    }).toList();
+
+    final data = {
+      ...widget.screeningData,
+      "symptoms": symptomAnswers,
+    };
+
+    context.pushNamed(
+      RouteNames.homeTbcScreeningFormTwo,
+      extra: data,
+    );
   }
 
-  void _setAnswer(String question, bool value) {
+  void _setAnswer(
+      int symptomId,
+      String value,
+      ) {
+
     setState(() {
-      _answers[question] = value;
+      answers[symptomId] = value;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
+
       body: SafeArea(
         bottom: false,
+
         child: Column(
           children: [
+
+            /// HEADER
             Container(
               width: double.infinity,
+
               color: AppColors.welcomeAccent,
-              padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
+
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                18,
+                20,
+                18,
+              ),
+
               child: Row(
                 children: [
+
                   IconButton(
                     onPressed: _handleBack,
+
                     style: IconButton.styleFrom(
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(36, 36),
                     ),
-                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
+
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      size: 30,
+                    ),
                   ),
+
                   const SizedBox(width: 6),
+
                   Expanded(
                     child: Text(
                       'Formulir Skrining',
-                      style: GoogleFonts.plusJakartaSans(
+
+                      style:
+                      GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -91,59 +177,131 @@ class _TbcScreeningFormOnePageState extends State<TbcScreeningFormOnePage> {
                 ],
               ),
             ),
+
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+              child: isLoading
+                  ? const Center(
+                child:
+                CircularProgressIndicator(),
+              )
+                  : SingleChildScrollView(
+                padding:
+                const EdgeInsets.fromLTRB(
+                  24,
+                  24,
+                  24,
+                  28,
+                ),
+
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
                   children: [
+
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.center,
+
                       children: [
+
                         Expanded(
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(999),
-                            child: LinearProgressIndicator(
+                            borderRadius:
+                            BorderRadius.circular(
+                              999,
+                            ),
+
+                            child:
+                            LinearProgressIndicator(
                               value: 0.5,
                               minHeight: 8,
-                              backgroundColor: const Color(0xFFD8D8DA),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.welcomeAccent,
+
+                              backgroundColor:
+                              const Color(
+                                0xFFD8D8DA,
+                              ),
+
+                              valueColor:
+                              const AlwaysStoppedAnimation<
+                                  Color>(
+                                AppColors
+                                    .welcomeAccent,
                               ),
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 14),
+
                         Text(
                           'Formulir 1 dari 2',
-                          style: GoogleFonts.plusJakartaSans(
+
+                          style:
+                          GoogleFonts
+                              .plusJakartaSans(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.welcomeAccent,
+
+                            fontWeight:
+                            FontWeight.w500,
+
+                            color: AppColors
+                                .welcomeAccent,
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 30),
+
                     Text(
                       'Keluhan yang dirasakan',
-                      style: GoogleFonts.plusJakartaSans(
+
+                      style:
+                      GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.welcomeAccent,
+                        color:
+                        AppColors.welcomeAccent,
                       ),
                     ),
+
                     const SizedBox(height: 28),
-                    ..._questions.map((question) {
+
+                    ...symptoms.map((symptom) {
+
+                      final id = symptom['id'];
+
+                      final question =
+                      symptom['name'];
+
+                      final value =
+                      answers[id];
+
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: _ScreeningQuestionCard(
+                        padding:
+                        const EdgeInsets.only(
+                          bottom: 24,
+                        ),
+
+                        child:
+                        _ScreeningQuestionCard(
                           question: question,
-                          value: _answers[question],
-                          onChanged: (value) => _setAnswer(question, value),
+
+                          value: value,
+
+                          onChanged:
+                              (value) {
+
+                            _setAnswer(
+                              id,
+                              value,
+                            );
+                          },
                         ),
                       );
                     }),
+
                     const SizedBox(height: 120),
                   ],
                 ),
@@ -152,53 +310,85 @@ class _TbcScreeningFormOnePageState extends State<TbcScreeningFormOnePage> {
           ],
         ),
       ),
+
       bottomNavigationBar: SafeArea(
         top: false,
+
         child: Container(
           color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
+
+          padding: const EdgeInsets.fromLTRB(
+            24,
+            18,
+            24,
+            20,
+          ),
+
           child: Row(
             children: [
+
               Expanded(
                 child: SizedBox(
                   height: 60,
+
                   child: OutlinedButton(
                     onPressed: _handleBack,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.welcomeAccent,
+
+                    style:
+                    OutlinedButton.styleFrom(
+                      foregroundColor:
+                      AppColors
+                          .welcomeAccent,
+
                       side: const BorderSide(
-                        color: AppColors.welcomeAccent,
+                        color:
+                        AppColors
+                            .welcomeAccent,
+
                         width: 1.8,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      textStyle: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+
+                      shape:
+                      RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(
+                          20,
+                        ),
                       ),
                     ),
-                    child: const Text('Sebelumnya'),
+
+                    child:
+                    const Text('Sebelumnya'),
                   ),
                 ),
               ),
+
               const SizedBox(width: 16),
+
               Expanded(
                 child: SizedBox(
                   height: 60,
+
                   child: FilledButton(
                     onPressed: _handleNext,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.welcomeAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      textStyle: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+
+                    style:
+                    FilledButton.styleFrom(
+                      backgroundColor:
+                      AppColors
+                          .welcomeAccent,
+
+                      shape:
+                      RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(
+                          20,
+                        ),
                       ),
                     ),
-                    child: const Text('Selanjutnya'),
+
+                    child:
+                    const Text('Selanjutnya'),
                   ),
                 ),
               ),
@@ -211,6 +401,7 @@ class _TbcScreeningFormOnePageState extends State<TbcScreeningFormOnePage> {
 }
 
 class _ScreeningQuestionCard extends StatelessWidget {
+
   const _ScreeningQuestionCard({
     required this.question,
     required this.value,
@@ -218,38 +409,61 @@ class _ScreeningQuestionCard extends StatelessWidget {
   });
 
   final String question;
-  final bool? value;
-  final ValueChanged<bool> onChanged;
+
+  final String? value;
+
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+
       children: [
+
         Text(
           question,
-          style: GoogleFonts.plusJakartaSans(
+
+          style:
+          GoogleFonts.plusJakartaSans(
             fontSize: 18,
+
             fontWeight: FontWeight.w700,
+
             color: const Color(0xFF55585E),
           ),
         ),
+
         const SizedBox(height: 14),
+
         Row(
           children: [
+
             Expanded(
               child: _BinaryOptionCard(
                 label: 'Ya',
-                isSelected: value == true,
-                onTap: () => onChanged(true),
+
+                isSelected: value == 'ya',
+
+                onTap: () {
+                  onChanged('ya');
+                },
               ),
             ),
+
             const SizedBox(width: 16),
+
             Expanded(
               child: _BinaryOptionCard(
                 label: 'Tidak',
-                isSelected: value == false,
-                onTap: () => onChanged(false),
+
+                isSelected: value == 'tidak',
+
+                onTap: () {
+                  onChanged('tidak');
+                },
               ),
             ),
           ],
@@ -260,6 +474,7 @@ class _ScreeningQuestionCard extends StatelessWidget {
 }
 
 class _BinaryOptionCard extends StatelessWidget {
+
   const _BinaryOptionCard({
     required this.label,
     required this.isSelected,
@@ -267,40 +482,76 @@ class _BinaryOptionCard extends StatelessWidget {
   });
 
   final String label;
+
   final bool isSelected;
+
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+
     return Material(
-      color: isSelected ? const Color(0xFFE6F0FF) : const Color(0xFFF0F0F2),
-      borderRadius: BorderRadius.circular(20),
+      color: isSelected
+          ? const Color(0xFFE6F0FF)
+          : const Color(0xFFF0F0F2),
+
+      borderRadius:
+      BorderRadius.circular(20),
+
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+
+        borderRadius:
+        BorderRadius.circular(20),
+
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+          padding:
+          const EdgeInsets.symmetric(
+            horizontal: 22,
+            vertical: 24,
+          ),
+
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment:
+            MainAxisAlignment.center,
+
             children: [
+
               Icon(
                 isSelected
-                    ? Icons.radio_button_checked_rounded
-                    : Icons.radio_button_unchecked_rounded,
+                    ? Icons
+                    .radio_button_checked_rounded
+                    : Icons
+                    .radio_button_unchecked_rounded,
+
                 size: 30,
+
                 color: isSelected
-                    ? AppColors.welcomeAccent
-                    : const Color(0xFF9D9D9F),
+                    ? AppColors
+                    .welcomeAccent
+                    : const Color(
+                  0xFF9D9D9F,
+                ),
               ),
+
               const SizedBox(width: 10),
+
               Text(
                 label,
-                style: GoogleFonts.plusJakartaSans(
+
+                style:
+                GoogleFonts.plusJakartaSans(
                   fontSize: 18,
-                  fontWeight: FontWeight.w500,
+
+                  fontWeight:
+                  FontWeight.w500,
+
                   color: isSelected
-                      ? AppColors.welcomeAccent
-                      : const Color(0xFF9D9D9F),
+                      ? AppColors
+                      .welcomeAccent
+                      : const Color(
+                    0xFF9D9D9F,
+                  ),
                 ),
               ),
             ],

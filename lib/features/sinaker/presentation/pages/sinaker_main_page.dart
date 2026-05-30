@@ -22,7 +22,7 @@ class SinakerMainPage extends StatelessWidget {
       icon: Icons.storefront_outlined,
     ),
     _SinakerMenuItem(
-      routeName: RouteNames.homeSinakerTrainingRegistrationCheck,
+      routeName: RouteNames.homeSinakerTrainingRegistrationList,
       title: 'Cek Pendaftaran Pelatihan',
       subtitle: 'Cek pendaftaran pelatihan yang telah dilakukan',
       icon: Icons.verified_user_rounded,

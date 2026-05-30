@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:majadigi_mobile/features/sinaker/presentation/pages/sinaker_training_registration_list.dart';
+import 'package:majadigi_mobile/features/tbc_screening/presentation/pages/tbc_result_positive_page.dart';
 
 import 'presentation/pages/about_majadigi_page.dart';
 import '../../app/router/route_names.dart';
@@ -24,6 +27,7 @@ import '../sinaker/presentation/pages/sinaker_main_page.dart';
 import '../sinaker/presentation/pages/sinaker_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_center_sumenep_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_centers_page.dart';
+import '../sinaker/presentation/pages/sinaker_training_registration_list.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_check_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_list_page.dart';
@@ -54,6 +58,7 @@ final class HomeRoutes {
       '/layanan/sinaker/utama/cek-pendaftaran';
   static const sinakerTrainingRegistrationPath =
       '/layanan/sinaker/utama/pelatihan/barista';
+  static const sinakerTrainingRegistrationListPath = '/layanan/sinaker/utama/cek-list-pendaftaran';
   static const siskaperbapoPath = '/layanan/siskaper-bapo';
   static const siskaperbapoMainPath = '/layanan/siskaper-bapo/utama';
   static const siskaperbapoBawangMerahPath =
@@ -78,7 +83,9 @@ final class HomeRoutes {
   static const tbcScreeningFormTwoPath =
       '/layanan/skrining-tbc/form-identitas/identitas-anda/formulir-1/formulir-2';
   static const tbcResultNegativePath =
-      '/layanan/skrining-tbc/form-identitas/identitas-anda/formulir-1/formulir-2/hasil';
+      '/layanan/skrining-tbc/form-identitas/identitas-anda/formulir-1/formulir-2/hasil-negative';
+  static const tbcResultPositivePath =
+      '/layanan/skrining-tbc/form-identitas/identitas-anda/formulir-1/formulir-2/hasil-positive';
   static const profilePath = '/akun';
   static const personalDataPath = '/akun/data-diri';
   static const changePasswordPath = '/akun/ubah-kata-sandi';
@@ -118,11 +125,27 @@ final class HomeRoutes {
       name: RouteNames.homeSinakerMain,
       builder: (context, state) => const SinakerMainPage(),
     ),
+     GoRoute(
+       path: sinakerTrainingListPath,
+       name: RouteNames.homeSinakerTrainingList,
+       builder: (context, state) => const SinakerTrainingListPage(),
+     ),
     GoRoute(
-      path: sinakerTrainingListPath,
-      name: RouteNames.homeSinakerTrainingList,
-      builder: (context, state) => const SinakerTrainingListPage(),
+      path: sinakerTrainingRegistrationListPath,
+      name: RouteNames.homeSinakerTrainingRegistrationList,
+      builder: (context, state) => const SinakerTrainingRegistrationListPage(),
     ),
+    // GoRoute(
+    //   name: RouteNames.homeSinakerTrainingList,
+    //   path: '/layanan/sinaker/utama/pelatihan/:centerId',
+    //   builder: (context, state) {
+    //     final id = state.pathParameters['centerId'];
+    //     return SinakerTrainingListPage(
+    //       centerId: id != null ? int.parse(id) : null,
+    //       centerName: state.extra as String? ?? 'Daftar Pelatihan',
+    //     );
+    //   },
+    // ),
     GoRoute(
       path: sinakerTrainingCentersPath,
       name: RouteNames.homeSinakerTrainingCenters,
@@ -136,12 +159,23 @@ final class HomeRoutes {
     GoRoute(
       path: sinakerTrainingRegistrationCheckPath,
       name: RouteNames.homeSinakerTrainingRegistrationCheck,
-      builder: (context, state) => const SinakerTrainingRegistrationCheckPage(),
+      builder: (context, state) {
+        return SinakerTrainingRegistrationCheckPage(
+          participantId: state.extra as int,
+        );
+      },
     ),
     GoRoute(
       path: sinakerTrainingRegistrationPath,
       name: RouteNames.homeSinakerTrainingRegistration,
-      builder: (context, state) => const SinakerTrainingRegistrationPage(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+
+        return SinakerTrainingRegistrationPage(
+          trainingId: extra['training_id'] as int,
+          trainingName: extra['training_name'] as String,
+        );
+      },
     ),
     GoRoute(
       path: siskaperbapoPath,
@@ -214,24 +248,72 @@ final class HomeRoutes {
       builder: (context, state) => const TbcIdentityFormPage(),
     ),
     GoRoute(
-      path: tbcPersonalIdentityPath,
+      path: '/tbc-personal-identity',
       name: RouteNames.homeTbcPersonalIdentity,
-      builder: (context, state) => const TbcPersonalIdentityPage(),
+      builder: (context, state) {
+
+        final data =
+        state.extra as Map<String, dynamic>;
+
+        return TbcPersonalIdentityPage(
+          formData: data,
+        );
+      },
     ),
     GoRoute(
-      path: tbcScreeningFormOnePath,
+      path: '/tbc-screening-form-one',
       name: RouteNames.homeTbcScreeningFormOne,
-      builder: (context, state) => const TbcScreeningFormOnePage(),
+
+      builder: (context, state) {
+
+        final data =
+        state.extra as Map<String, dynamic>;
+
+        return TbcScreeningFormOnePage(
+          screeningData: data,
+        );
+      },
     ),
     GoRoute(
-      path: tbcScreeningFormTwoPath,
+      path: '/tbc-screening-form-two',
       name: RouteNames.homeTbcScreeningFormTwo,
-      builder: (context, state) => const TbcScreeningFormTwoPage(),
+      builder: (context, state) {
+
+        final screeningData =
+        state.extra as Map<String, dynamic>;
+
+        return TbcScreeningFormTwoPage(
+          screeningData: screeningData,
+        );
+      },
+    ),
+    GoRoute(
+      path: tbcResultPositivePath,
+      name: RouteNames.homeTbcResultPositive,
+
+      builder: (context, state) {
+
+        final data =
+        state.extra as Map<String, dynamic>;
+
+        return TbcResultPositivePage(
+          resultData: data,
+        );
+      },
     ),
     GoRoute(
       path: tbcResultNegativePath,
       name: RouteNames.homeTbcResultNegative,
-      builder: (context, state) => const TbcResultNegativePage(),
+
+      builder: (context, state) {
+
+        final data =
+        state.extra as Map<String, dynamic>;
+
+        return TbcResultNegativePage(
+          resultData: data,
+        );
+      },
     ),
     GoRoute(
       path: profilePath,

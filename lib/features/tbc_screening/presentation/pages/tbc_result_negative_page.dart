@@ -5,7 +5,13 @@ import '../../../../app/router/route_names.dart';
 import '../widgets/tbc_result_layout.dart';
 
 class TbcResultNegativePage extends StatelessWidget {
-  const TbcResultNegativePage({super.key});
+
+  final Map<String, dynamic> resultData;
+
+  const TbcResultNegativePage({
+    super.key,
+    required this.resultData,
+  });
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -28,6 +34,11 @@ class TbcResultNegativePage extends StatelessWidget {
       illustration: const TbcNegativeIllustration(),
       resultText: 'Anda Bukan Terduga TBC',
       resultColor: const Color(0xFF27B36A),
+      patientName:
+      resultData['nama_pasien'] ?? '-',
+
+      screeningDate:
+      resultData['screening_date'] ?? '-',
     );
   }
 }

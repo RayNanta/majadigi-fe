@@ -1,14 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/sinaker/services/sinaker_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
-class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
-  const SinakerTrainingRegistrationCheckPage({super.key});
+class TrainingRegistrationDetail {
+  final int id;
+  final String status;
 
-  void _handleBack(BuildContext context) {
+  final String nama;
+  final String nik;
+  final String noTelp;
+
+  final String trainingName;
+  final String centerName;
+
+  TrainingRegistrationDetail({
+    required this.id,
+    required this.status,
+    required this.nama,
+    required this.nik,
+    required this.noTelp,
+    required this.trainingName,
+    required this.centerName,
+  });
+
+  factory TrainingRegistrationDetail.fromJson(
+      Map<String, dynamic> json) {
+    return TrainingRegistrationDetail(
+      id: json['id'],
+      status: json['status'] ?? '',
+
+      nama: json['job_seeker']['nama'] ?? '',
+      nik: json['job_seeker']['nik'] ?? '',
+      noTelp: json['job_seeker']['no_telp'] ?? '',
+
+      trainingName:
+      json['training']['nama_pelatihan'] ?? '',
+
+      centerName:
+      json['training']['center']['nama'] ?? '',
+    );
+  }
+}
+
+class SinakerTrainingRegistrationCheckPage extends StatefulWidget {
+  final int participantId;
+
+  const SinakerTrainingRegistrationCheckPage({
+    super.key,
+    required this.participantId,
+  });
+
+  @override
+  State<SinakerTrainingRegistrationCheckPage> createState() =>
+      _SinakerTrainingRegistrationCheckPageState();
+}
+
+class _SinakerTrainingRegistrationCheckPageState
+    extends State<SinakerTrainingRegistrationCheckPage> {
+
+  final _service = SinakerService();
+
+  TrainingRegistrationDetail? detail;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetail();
+  }
+
+  Future<void> _loadDetail() async {
+    try {
+      final res = await _service.getTrainingRegistrationDetail(
+        widget.participantId,
+      );
+
+      setState(() {
+        detail = res;
+        loading = false;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+
+  void _handleBack() {
     if (Navigator.of(context).canPop()) {
       context.pop();
       return;
@@ -17,8 +102,121 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
     context.goNamed(RouteNames.homeSinakerMain);
   }
 
+  Widget _buildStatusTimeline(TrainingRegistrationDetail data) {
+    final status = data.status.toLowerCase();
+
+    if (status == 'diterima') {
+      return const Column(
+        children: [
+          _StatusStep(
+            title: 'Pendaftaran Diterima',
+            description: 'Formulir berhasil diterima sistem.',
+            icon: Icons.check_rounded,
+            state: _StatusStepState.completed,
+            isLast: false,
+          ),
+          SizedBox(height: 34),
+          _StatusStep(
+            title: 'Verifikasi Berkas',
+            description: 'Dokumen telah diverifikasi.',
+            icon: Icons.check_rounded,
+            state: _StatusStepState.completed,
+            isLast: false,
+          ),
+          SizedBox(height: 34),
+          _StatusStep(
+            title: 'Pengumuman Seleksi',
+            description: 'Selamat, Anda lolos seleksi pelatihan.',
+            footer: 'LOLOS',
+            icon: Icons.emoji_events_rounded,
+            state: _StatusStepState.completed,
+            isLast: true,
+          ),
+        ],
+      );
+    }
+
+    if (status == 'ditolak') {
+      return const Column(
+        children: [
+          _StatusStep(
+            title: 'Pendaftaran Diterima',
+            description: 'Formulir berhasil diterima sistem.',
+            icon: Icons.check_rounded,
+            state: _StatusStepState.completed,
+            isLast: false,
+          ),
+          SizedBox(height: 34),
+          _StatusStep(
+            title: 'Verifikasi Berkas',
+            description: 'Dokumen telah diverifikasi.',
+            icon: Icons.check_rounded,
+            state: _StatusStepState.completed,
+            isLast: false,
+          ),
+          SizedBox(height: 34),
+          _StatusStep(
+            title: 'Pengumuman Seleksi',
+            description: 'Mohon maaf, Anda belum lolos seleksi.',
+            footer: 'TIDAK LOLOS',
+            icon: Icons.close_rounded,
+            state: _StatusStepState.rejected,
+            isLast: true,
+          ),
+        ],
+      );
+    }
+
+    return const Column(
+      children: [
+        _StatusStep(
+          title: 'Pendaftaran Diterima',
+          description: 'Formulir berhasil diterima sistem.',
+          icon: Icons.check_rounded,
+          state: _StatusStepState.completed,
+          isLast: false,
+        ),
+        SizedBox(height: 34),
+        _StatusStep(
+          title: 'Verifikasi Berkas',
+          description: 'Tim admin sedang memverifikasi dokumen.',
+          footer: 'Sedang Berjalan',
+          icon: Icons.sync_rounded,
+          state: _StatusStepState.active,
+          isLast: false,
+        ),
+        SizedBox(height: 34),
+        _StatusStep(
+          title: 'Pengumuman Seleksi',
+          description: 'Menunggu hasil seleksi.',
+          icon: Icons.campaign_outlined,
+          state: _StatusStepState.upcoming,
+          isLast: true,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (detail == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Data tidak ditemukan'),
+        ),
+      );
+    }
+
+    final data = detail!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
       body: SafeArea(
@@ -32,7 +230,7 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => _handleBack(context),
+                    onPressed: () => _handleBack(),
                     style: IconButton.styleFrom(
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.zero,
@@ -103,7 +301,7 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Bambang Pamungkas',
+                                        data.nama,
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 27,
                                           fontWeight: FontWeight.w800,
@@ -113,7 +311,7 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'NIK: 3578021908920001',
+                                        'NIK: ${data.nik}',
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w700,
@@ -133,15 +331,15 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: _InfoColumn(
-                                  label: 'GELOMBANG',
-                                  value: 'Batch 24 - 2024',
+                                  label: 'PELATIHAN',
+                                  value: data.trainingName,
                                 ),
                               ),
                               const SizedBox(width: 18),
                               Expanded(
                                 child: _InfoColumn(
                                   label: 'LOKASI',
-                                  value: 'UPT BLK\nSurabaya',
+                                  value: data.centerName,
                                 ),
                               ),
                             ],
@@ -166,38 +364,7 @@ class SinakerTrainingRegistrationCheckPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Column(
-                        children: [
-                          _StatusStep(
-                            title: 'Pendaftaran Diterima',
-                            description:
-                                'Formulir pendaftaran telah masuk ke sistem pada 12 Oktober 2023.',
-                            footer: '12 Okt, 09:42 WIB',
-                            icon: Icons.check_rounded,
-                            state: _StatusStepState.completed,
-                            isLast: false,
-                          ),
-                          SizedBox(height: 34),
-                          _StatusStep(
-                            title: 'Verifikasi Berkas',
-                            description:
-                                'Tim admin sedang meninjau dokumen pendukung Anda.',
-                            footer: 'Sedang Berjalan',
-                            icon: Icons.sync_rounded,
-                            state: _StatusStepState.active,
-                            isLast: false,
-                          ),
-                          SizedBox(height: 34),
-                          _StatusStep(
-                            title: 'Pengumuman Seleksi',
-                            description:
-                                'Hasil akhir seleksi akan diumumkan pada tanggal 25 Oktober 2023.',
-                            icon: Icons.campaign_outlined,
-                            state: _StatusStepState.upcoming,
-                            isLast: true,
-                          ),
-                        ],
-                      ),
+                      child: _buildStatusTimeline(data),
                     ),
                   ],
                 ),
@@ -245,7 +412,7 @@ class _InfoColumn extends StatelessWidget {
   }
 }
 
-enum _StatusStepState { completed, active, upcoming }
+enum _StatusStepState { completed, active, upcoming, rejected }
 
 class _StatusStep extends StatelessWidget {
   const _StatusStep({
@@ -268,18 +435,21 @@ class _StatusStep extends StatelessWidget {
     _StatusStepState.completed => AppColors.welcomeAccent,
     _StatusStepState.active => const Color(0xFFD6E7FF),
     _StatusStepState.upcoming => const Color(0xFFE8EEFF),
+    _StatusStepState.rejected => Colors.red,
   };
 
   Color get _circleColor => switch (state) {
     _StatusStepState.completed => AppColors.welcomeAccent,
     _StatusStepState.active => const Color(0xFFEAF2FF),
     _StatusStepState.upcoming => const Color(0xFFF2F6FF),
+    _StatusStepState.rejected => const Color(0xFFFFEBEE),
   };
 
   Color get _iconColor => switch (state) {
     _StatusStepState.completed => Colors.white,
     _StatusStepState.active => AppColors.welcomeAccent,
     _StatusStepState.upcoming => const Color(0xFF8DBAFF),
+    _StatusStepState.rejected => Colors.red
   };
 
   Color get _titleColor => switch (state) {
@@ -296,6 +466,7 @@ class _StatusStep extends StatelessWidget {
     _StatusStepState.completed => AppColors.welcomeAccent,
     _StatusStepState.active => AppColors.welcomeAccent,
     _StatusStepState.upcoming => const Color(0xFFB4B8C2),
+    _StatusStepState.rejected => Colors.red
   };
 
   @override

@@ -13,6 +13,7 @@ final class RouteNames {
   static const homeTbcScreening = 'homeTbcScreening';
   static const homeSinaker = 'homeSinaker';
   static const homeSinakerMain = 'homeSinakerMain';
+  static const homeSinakerTrainingListAll = 'homeSinakerTrainingListAll';
   static const homeSinakerTrainingList = 'homeSinakerTrainingList';
   static const homeSinakerTrainingCenters = 'homeSinakerTrainingCenters';
   static const homeSinakerTrainingCenterSumenep =
@@ -21,6 +22,7 @@ final class RouteNames {
       'homeSinakerTrainingRegistrationCheck';
   static const homeSinakerTrainingRegistration =
       'homeSinakerTrainingRegistration';
+  static const homeSinakerTrainingRegistrationList = 'homeSinakerTrainingRegistrationList';
   static const homeSiskaperbapo = 'homeSiskaperbapo';
   static const homeSiskaperbapoMain = 'homeSiskaperbapoMain';
   static const homeSiskaperbapoBawangMerah = 'homeSiskaperbapoBawangMerah';
@@ -37,6 +39,7 @@ final class RouteNames {
   static const homeTbcPersonalIdentity = 'homeTbcPersonalIdentity';
   static const homeTbcScreeningFormOne = 'homeTbcScreeningFormOne';
   static const homeTbcScreeningFormTwo = 'homeTbcScreeningFormTwo';
+  static const homeTbcResultPositive = 'homeTbcResultPositive';
   static const homeTbcResultNegative = 'homeTbcResultNegative';
   static const homeProfile = 'homeProfile';
   static const homePersonalData = 'homePersonalData';
@@ -45,4 +48,8 @@ final class RouteNames {
   static const homeAboutJatim = 'homeAboutJatim';
   static const homeTermsConditions = 'homeTermsConditions';
   static const homeAboutMajadigi = 'homeAboutMajadigi';
+
+
+
+
 }

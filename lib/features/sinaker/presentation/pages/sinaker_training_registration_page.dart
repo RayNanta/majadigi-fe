@@ -4,9 +4,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../services/sinaker_service.dart';
+
 
 class SinakerTrainingRegistrationPage extends StatefulWidget {
-  const SinakerTrainingRegistrationPage({super.key});
+  final int trainingId;
+  final String trainingName;
+
+  const SinakerTrainingRegistrationPage({
+    super.key,
+    required this.trainingId,
+    required this.trainingName,
+  });
 
   @override
   State<SinakerTrainingRegistrationPage> createState() =>
@@ -15,6 +24,10 @@ class SinakerTrainingRegistrationPage extends StatefulWidget {
 
 class _SinakerTrainingRegistrationPageState
     extends State<SinakerTrainingRegistrationPage> {
+
+  final _service = SinakerService();
+
+  bool _isLoading = false;
   late final TextEditingController _nameController;
   late final TextEditingController _nikController;
   late final TextEditingController _whatsAppController;
@@ -60,15 +73,67 @@ class _SinakerTrainingRegistrationPageState
     context.goNamed(RouteNames.homeSinakerTrainingList);
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_isFormComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Lengkapi semua data pendaftaran terlebih dahulu.'),
+          content: Text(
+            'Lengkapi semua data pendaftaran terlebih dahulu.',
+          ),
         ),
       );
       return;
     }
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final result = await _service.joinTraining({
+        'training_id': widget.trainingId,
+        'nama': _nameController.text,
+        'nik': _nikController.text,
+        'no_telp': _whatsAppController.text,
+      });
+
+      if (result['success'] == true) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+          ),
+        );
+
+        context.pop();
+      } else {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'] ?? 'Gagal mendaftar pelatihan',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $e'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -123,7 +188,7 @@ class _SinakerTrainingRegistrationPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pelatihan Barista Profesional &\nManajemen Coffee Shop',
+                      widget.trainingName,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
@@ -212,7 +277,7 @@ class _SinakerTrainingRegistrationPageState
           child: SizedBox(
             height: 70,
             child: FilledButton(
-              onPressed: _submit,
+              onPressed: _isLoading ? null : _submit,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
                 disabledBackgroundColor: AppColors.welcomeAccent.withValues(
@@ -226,7 +291,16 @@ class _SinakerTrainingRegistrationPageState
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Daftar'),
+              child: _isLoading
+                  ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+                  : const Text('Daftar'),
             ),
           ),
         ),
