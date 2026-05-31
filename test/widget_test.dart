@@ -37,7 +37,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Daftar'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Masuk'), findsOneWidget);
 
-    final daftarButton = find.widgetWithText(FilledButton, 'Daftar');
+    final daftarButton = find.text('Daftar').first;
     await tester.ensureVisible(daftarButton);
     await tester.tap(daftarButton);
     await tester.pumpAndSettle();
@@ -205,6 +205,1526 @@ void main() {
     expect(find.text('Skrining TBC Mandiri'), findsOneWidget);
     expect(find.text('Unduh Layanan'), findsOneWidget);
     expect(find.text('Manfaat'), findsOneWidget);
+  });
+
+  testWidgets('opens rsud saiful anwar page from home layanan saya tile', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final rsudTile = find.text('RSUD Saiful\nAnwar');
+    await tester.dragUntilVisible(
+      rsudTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(rsudTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('RSUD SAIFUL ANWAR'), findsWidgets);
+    expect(find.text('Pembaruan Real-time'), findsOneWidget);
+    expect(find.text('Lihat Hitungan Real-time'), findsOneWidget);
+  });
+
+  testWidgets('opens bapenda jatim page from home layanan saya tile', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bapendaTile = find.text('Bapenda\nJatim');
+    await tester.dragUntilVisible(
+      bapendaTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(bapendaTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('BAPENDA JATIM'), findsWidgets);
+    expect(find.text('Manfaat'), findsOneWidget);
+    expect(find.text('Masukan No. Polisi'), findsOneWidget);
+  });
+
+  testWidgets(
+    'opens rsud saiful anwar main page from overview download button',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.path,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final rsudTile = find.text('RSUD Saiful\nAnwar');
+      await tester.dragUntilVisible(
+        rsudTile,
+        find.byType(CustomScrollView),
+        const Offset(0, -220),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(rsudTile);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Terakhir Diperbarui'), findsOneWidget);
+      expect(find.text('Senin, 24 Mei 2024'), findsOneWidget);
+      expect(find.text('Ketersediaan Ruang'), findsOneWidget);
+      expect(find.text('R. SEMERU'), findsOneWidget);
+      expect(find.text('R. ICU KAPUAS B'), findsOneWidget);
+    },
+  );
+
+  testWidgets('opens bapenda jatim main page from overview download button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bapendaTile = find.text('Bapenda\nJatim');
+    await tester.dragUntilVisible(
+      bapendaTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(bapendaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fitur Utama'), findsOneWidget);
+    expect(
+      find.text('Informasi Pajak Kendaraan Bermotor (PKB)'),
+      findsOneWidget,
+    );
+    final njkbTitle = find.textContaining('Info Nilai Jual Kendaraan Bermotor');
+    await tester.dragUntilVisible(
+      njkbTitle,
+      find.byType(Scrollable).first,
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+
+    expect(njkbTitle, findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Selengkapnya'), findsWidgets);
+  });
+
+  testWidgets('opens informasi pkb form from bapenda main page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bapendaTile = find.text('Bapenda\nJatim');
+    await tester.dragUntilVisible(
+      bapendaTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(bapendaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final pkbButton = find.widgetWithText(FilledButton, 'Selengkapnya').first;
+    await tester.dragUntilVisible(
+      pkbButton,
+      find.byType(Scrollable).first,
+      const Offset(0, -180),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(pkbButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Informasi PKB'), findsWidgets);
+    expect(find.text('Data Kendaraan'), findsOneWidget);
+    expect(find.text('Plat Nomor Kendaraan'), findsOneWidget);
+    expect(find.text('5 Digit Terakhir Nomor Rangka'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).at(0), 'N 3315 TAK');
+    await tester.enterText(find.byType(TextField).at(1), '12345');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Cari Data'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Identitas Kendaraan'), findsOneWidget);
+    expect(find.text('Biaya Penul Tahunan'), findsOneWidget);
+    expect(find.text('Biaya Penul 5 Tahunan'), findsOneWidget);
+    expect(find.text('N 3315 TAK'), findsWidgets);
+    expect(find.text('AKTIF'), findsOneWidget);
+  });
+
+  testWidgets('opens informasi njkb form from bapenda main page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bapendaTile = find.text('Bapenda\nJatim');
+    await tester.dragUntilVisible(
+      bapendaTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -220),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(bapendaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final njkbTitle = find.textContaining('Info Nilai Jual Kendaraan Bermotor');
+    await tester.dragUntilVisible(
+      njkbTitle,
+      find.byType(Scrollable).first,
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+
+    final njkbButton = find.widgetWithText(FilledButton, 'Selengkapnya').last;
+    await tester.tap(njkbButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Informasi NJKB'), findsWidgets);
+    expect(find.text('Jenis Kendaraan'), findsOneWidget);
+    expect(find.text('Merk Kendaraan'), findsOneWidget);
+    expect(find.text('Tahun Kendaraan'), findsOneWidget);
+    expect(find.text('Model Kendaraan'), findsOneWidget);
+    expect(find.text('Tipe Kendaraan'), findsOneWidget);
+
+    Future<void> selectNjkbDropdown(int index, String itemText) async {
+      final dropdown = find.byType(DropdownButtonFormField<String>).at(index);
+
+      await tester.ensureVisible(dropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(dropdown, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(itemText).last);
+      await tester.pumpAndSettle();
+    }
+
+    await selectNjkbDropdown(0, 'Sepeda Motor');
+    await selectNjkbDropdown(1, 'Honda');
+    await selectNjkbDropdown(2, '2025');
+    await selectNjkbDropdown(3, 'Beat');
+    await selectNjkbDropdown(4, 'CBS');
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Cari Data'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Informasi NJKB'), findsWidgets);
+    expect(find.text('Identitas Kendaraan'), findsOneWidget);
+    expect(find.text('Penerimaan Negara Bukan Pajak'), findsOneWidget);
+    expect(find.text('SEPEDA MOTOR'), findsOneWidget);
+    expect(find.text('HONDA'), findsOneWidget);
+    expect(find.text('110CC'), findsOneWidget);
+  });
+
+  testWidgets('installs and opens sidita page from layanan grid', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('✓ Terpasang'), findsWidgets);
+
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('SIDITA'), findsWidgets);
+    expect(find.text('Unduh Layanan'), findsOneWidget);
+    expect(find.text('Data dan informasi valid'), findsOneWidget);
+    expect(find.text('Pilih Destinasi'), findsOneWidget);
+  });
+
+  testWidgets('installs and opens islamic center page from layanan grid', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('✓ Terpasang'), findsWidgets);
+
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('ISLAMIC CENTER JAWA TIMUR'), findsOneWidget);
+    expect(find.text('Booking Instan'), findsOneWidget);
+    expect(find.text('Konfirmasi Pembayaran'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Unduh Layanan'), findsOneWidget);
+  });
+
+  testWidgets('opens islamic center main page from overview download button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pilih Fasilitas Sesuai Kebutuhan Anda'), findsOneWidget);
+    expect(find.text('Aula'), findsOneWidget);
+    final asramaText = find.text('Asrama');
+    await tester.dragUntilVisible(
+      asramaText,
+      find.byType(Scrollable),
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+    expect(asramaText, findsOneWidget);
+
+    final ruanganMasjidText = find.text('Ruangan Masjid');
+    await tester.dragUntilVisible(
+      ruanganMasjidText,
+      find.byType(Scrollable),
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+    expect(ruanganMasjidText, findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Lihat Detail'), findsWidgets);
+  });
+
+  testWidgets('opens islamic center aula detail page from main page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Aula'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Aula'), findsWidgets);
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Hall Utama'), findsOneWidget);
+    expect(find.text('Beri Ulasan'), findsOneWidget);
+    expect(find.text('Ulasan'), findsOneWidget);
+  });
+
+  testWidgets('opens islamic center asrama detail page from main page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final asramaButton = find.byKey(const ValueKey('facility-detail-Asrama'));
+    await tester.dragUntilVisible(
+      asramaButton,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(asramaButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Asrama'), findsWidgets);
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Kamar 2 Bed'), findsOneWidget);
+    expect(find.text('Beri Ulasan'), findsOneWidget);
+    expect(find.text('Ulasan'), findsOneWidget);
+  });
+
+  testWidgets('opens islamic center masjid detail page from main page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final masjidButton = find.byKey(
+      const ValueKey('facility-detail-Ruangan Masjid'),
+    );
+    await tester.dragUntilVisible(
+      masjidButton,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(masjidButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Masjid'), findsWidgets);
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Ruang VIP Masjid'), findsOneWidget);
+    expect(find.text('Beri Ulasan'), findsOneWidget);
+    expect(find.text('Ulasan'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Kirim Ulasan'), findsOneWidget);
+  });
+
+  testWidgets('opens islamic center masjid room list from lihat semua button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final masjidButton = find.byKey(
+      const ValueKey('facility-detail-Ruangan Masjid'),
+    );
+    await tester.dragUntilVisible(
+      masjidButton,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(masjidButton);
+    await tester.pumpAndSettle();
+
+    final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+    await tester.ensureVisible(seeAllButton);
+    await tester.tap(seeAllButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ruangan Masjid'), findsWidgets);
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Ruang VIP Masjid'), findsOneWidget);
+
+    final akadNikahPetugas = find.textContaining('Akad Nikah');
+    await tester.dragUntilVisible(
+      akadNikahPetugas,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+
+    expect(akadNikahPetugas, findsOneWidget);
+
+    final areaLuarMasjid = find.text('Area Luar Masjid');
+    await tester.dragUntilVisible(
+      areaLuarMasjid,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+
+    expect(areaLuarMasjid, findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Detail Pemesanan'), findsWidgets);
+  });
+
+  testWidgets(
+    'opens islamic center masjid booking form from room detail pemesanan button',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.servicesPath,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final islamicCenterTile = find.text('Islamic\nCenter');
+      await tester.ensureVisible(islamicCenterTile);
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+      await tester.pumpAndSettle();
+
+      final masjidButton = find.byKey(
+        const ValueKey('facility-detail-Ruangan Masjid'),
+      );
+      await tester.dragUntilVisible(
+        masjidButton,
+        find.byType(Scrollable).first,
+        const Offset(0, -260),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(masjidButton);
+      await tester.pumpAndSettle();
+
+      final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+      await tester.ensureVisible(seeAllButton);
+      await tester.tap(seeAllButton);
+      await tester.pumpAndSettle();
+
+      final detailButton = find
+          .widgetWithText(FilledButton, 'Detail Pemesanan')
+          .first;
+      await tester.dragUntilVisible(
+        detailButton,
+        find.byType(Scrollable).first,
+        const Offset(0, -220),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(detailButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Booking Masjid'), findsOneWidget);
+      expect(find.text('Data Pemesanan'), findsOneWidget);
+      expect(find.text('Nama Lengkap'), findsOneWidget);
+      expect(find.text('Tanggal'), findsOneWidget);
+      expect(find.text('Sesi'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Pesan'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).first, 'Ray Nanta');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('24 Mei 2026').last);
+      await tester.pumpAndSettle();
+
+      final sesiLabel = find.text('Sesi');
+      await tester.dragUntilVisible(
+        sesiLabel,
+        find.byType(Scrollable).first,
+        const Offset(0, -180),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Pagi').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Pesan'));
+      await tester.pump();
+
+      expect(
+        find.textContaining('Data pemesanan Ruang VIP Masjid siap diproses.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('opens islamic center asrama room list from lihat semua button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final asramaButton = find.byKey(const ValueKey('facility-detail-Asrama'));
+    await tester.dragUntilVisible(
+      asramaButton,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(asramaButton);
+    await tester.pumpAndSettle();
+
+    final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+    await tester.ensureVisible(seeAllButton);
+    await tester.tap(seeAllButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Kamar 2 Bed'), findsOneWidget);
+
+    final kamar4Bed = find.text('Kamar 4 Bed');
+    await tester.dragUntilVisible(
+      kamar4Bed,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    expect(kamar4Bed, findsOneWidget);
+
+    final kamar6Bed = find.text('Kamar 6 Bed');
+    await tester.dragUntilVisible(
+      kamar6Bed,
+      find.byType(Scrollable).first,
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+
+    expect(kamar6Bed, findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Detail Pemesanan'), findsWidgets);
+  });
+
+  testWidgets(
+    'opens islamic center asrama booking form from room detail pemesanan button',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.servicesPath,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final islamicCenterTile = find.text('Islamic\nCenter');
+      await tester.ensureVisible(islamicCenterTile);
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+      await tester.pumpAndSettle();
+
+      final asramaButton = find.byKey(const ValueKey('facility-detail-Asrama'));
+      await tester.dragUntilVisible(
+        asramaButton,
+        find.byType(Scrollable).first,
+        const Offset(0, -260),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(asramaButton);
+      await tester.pumpAndSettle();
+
+      final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+      await tester.ensureVisible(seeAllButton);
+      await tester.tap(seeAllButton);
+      await tester.pumpAndSettle();
+
+      final detailButton = find
+          .widgetWithText(FilledButton, 'Detail Pemesanan')
+          .first;
+      await tester.dragUntilVisible(
+        detailButton,
+        find.byType(Scrollable).first,
+        const Offset(0, -220),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(detailButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Booking Asrama'), findsOneWidget);
+      expect(find.text('Data Pemesanan'), findsOneWidget);
+      expect(find.text('Nama Lengkap'), findsOneWidget);
+      expect(find.text('Tanggal'), findsOneWidget);
+      expect(find.text('Fasilitas'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Pesan'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).first, 'Ray Nanta');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('24 Mei 2026').last);
+      await tester.pumpAndSettle();
+
+      final karpetText = find.text('Karpet');
+      await tester.dragUntilVisible(
+        karpetText,
+        find.byType(Scrollable).first,
+        const Offset(0, -180),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(karpetText);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Pesan'));
+      await tester.pump();
+
+      expect(
+        find.textContaining('Data pemesanan Kamar 2 Bed siap diproses.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('opens islamic center aula room list from lihat semua button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final islamicCenterTile = find.text('Islamic\nCenter');
+    await tester.ensureVisible(islamicCenterTile);
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(islamicCenterTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Aula'));
+    await tester.pumpAndSettle();
+
+    final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+    await tester.ensureVisible(seeAllButton);
+    await tester.tap(seeAllButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pilihan Ruangan'), findsOneWidget);
+    expect(find.text('Hall Utama'), findsOneWidget);
+
+    final ruangRapatText = find.text('Ruang Rapat');
+    await tester.dragUntilVisible(
+      ruangRapatText,
+      find.byType(Scrollable).first,
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+    expect(ruangRapatText, findsOneWidget);
+
+    final ruangVipText = find.text('Ruang VIP');
+    await tester.dragUntilVisible(
+      ruangVipText,
+      find.byType(Scrollable).first,
+      const Offset(0, -240),
+    );
+    await tester.pumpAndSettle();
+    expect(ruangVipText, findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Detail Pemesanan'), findsWidgets);
+  });
+
+  testWidgets(
+    'opens islamic center booking form from room detail pemesanan button',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.servicesPath,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final islamicCenterTile = find.text('Islamic\nCenter');
+      await tester.ensureVisible(islamicCenterTile);
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(islamicCenterTile);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Aula'));
+      await tester.pumpAndSettle();
+
+      final seeAllButton = find.widgetWithText(TextButton, 'Lihat Semua').first;
+      await tester.ensureVisible(seeAllButton);
+      await tester.tap(seeAllButton);
+      await tester.pumpAndSettle();
+
+      final detailButton = find
+          .widgetWithText(FilledButton, 'Detail Pemesanan')
+          .first;
+      await tester.dragUntilVisible(
+        detailButton,
+        find.byType(Scrollable).first,
+        const Offset(0, -220),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(detailButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Booking Aula'), findsOneWidget);
+      expect(find.text('Data Pemesanan'), findsOneWidget);
+      expect(find.text('Nama Lengkap'), findsOneWidget);
+      expect(find.text('Tanggal'), findsOneWidget);
+      expect(find.text('Sesi'), findsOneWidget);
+      expect(find.text('Fasilitas'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Pesan'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).first, 'Ray Nanta');
+      await tester.pumpAndSettle();
+
+      final karpetText = find.text('Karpet');
+      await tester.dragUntilVisible(
+        karpetText,
+        find.byType(Scrollable).first,
+        const Offset(0, -180),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(karpetText);
+      await tester.pumpAndSettle();
+      expect(find.text('Ray Nanta'), findsOneWidget);
+    },
+  );
+
+  testWidgets('opens sidita main page from overview download button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Apa yang Anda Perlukan?'), findsOneWidget);
+    expect(find.text('Destinasi\nWisata'), findsOneWidget);
+    expect(find.text('Akomodasi'), findsOneWidget);
+    expect(find.text('Event'), findsOneWidget);
+    expect(find.text('Wisatawan'), findsOneWidget);
+  });
+
+  testWidgets('opens khas jatim page from services catalog tile', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final khasJatimTile = find.text('Khas\nJatim');
+    await tester.ensureVisible(khasJatimTile);
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('KHAS JATIM'), findsWidgets);
+    expect(find.text('Pendataan\nTerpadu'), findsOneWidget);
+    expect(find.text('Standar\nUNESCO'), findsOneWidget);
+    expect(find.text('Lihat Koleksi Digital'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Unduh Layanan'), findsOneWidget);
+  });
+
+  testWidgets('opens khas jatim main page from overview download button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final khasJatimTile = find.text('Khas\nJatim');
+    await tester.ensureVisible(khasJatimTile);
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fitur Utama'), findsOneWidget);
+    expect(find.text('Naskah Kuno Jawa Timur'), findsOneWidget);
+    final pendaftaranFinder = find.textContaining('Daftarkan koleksi Anda');
+    await tester.scrollUntilVisible(
+      pendaftaranFinder,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Pendaftaran Naskah'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Telusuri'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Daftar'), findsOneWidget);
+  });
+
+  testWidgets('opens khas jatim manuscripts page and shows filter panel', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final khasJatimTile = find.text('Khas\nJatim');
+    await tester.ensureVisible(khasJatimTile);
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final telusuriButton = find.widgetWithText(FilledButton, 'Telusuri');
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(telusuriButton);
+    await tester.pumpAndSettle();
+    await tester.tap(telusuriButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Naskah Kuno Jawa Timur'), findsWidgets);
+    expect(find.text('Serat Sri\nSedana'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Lihat Detail'), findsWidgets);
+
+    await tester.tap(find.byKey(const Key('khas-jatim-filter-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Filter Pencarian'), findsOneWidget);
+    expect(find.text('Kategori'), findsOneWidget);
+    expect(find.text('Asal Daerah'), findsOneWidget);
+    expect(find.text('Tahun Penulisan'), findsOneWidget);
+    expect(find.text('Aksara'), findsOneWidget);
+    expect(find.text('Bahasa'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Terapkan Filter'),
+      findsOneWidget,
+    );
+    expect(find.text('Reset Filter'), findsOneWidget);
+  });
+
+  testWidgets('opens khas jatim manuscripts pagination page two safely', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final khasJatimTile = find.text('Khas\nJatim');
+    await tester.ensureVisible(khasJatimTile);
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+    await tester.tap(khasJatimTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final telusuriButton = find.widgetWithText(FilledButton, 'Telusuri');
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(telusuriButton);
+    await tester.pumpAndSettle();
+    await tester.tap(telusuriButton);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('›'));
+    await tester.tap(find.text('›'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kidung\nTantu Panggelaran'), findsOneWidget);
+    expect(find.text('Naskah Arkeologi\nMalang'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Lihat Detail'), findsWidgets);
+  });
+
+  testWidgets('opens serat sri sedana detail page from manuscripts list', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.khasJatimManuscriptsPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Serat Sri\nSedana'), findsOneWidget);
+
+    final detailButton = find
+        .widgetWithText(FilledButton, 'Lihat Detail')
+        .first;
+    await tester.ensureVisible(detailButton);
+    await tester.tap(detailButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Serat Sri Sedana'), findsWidgets);
+    expect(find.text('Keterangan: Klik gambar untuk membaca'), findsOneWidget);
+    expect(find.text('SUMBER / PEMILIK'), findsOneWidget);
+    expect(
+      find.widgetWithText(OutlinedButton, 'Kirim Komentar'),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Tambahkan komentar...'),
+      'Riset yang sangat membantu.',
+    );
+    await tester.pumpAndSettle();
+
+    final submitCommentButton = find.widgetWithText(
+      OutlinedButton,
+      'Kirim Komentar',
+    );
+    await tester.ensureVisible(submitCommentButton);
+    await tester.tap(submitCommentButton);
+    await tester.pump();
+
+    expect(
+      find.textContaining('Komentar untuk Serat Sri Sedana berhasil dikirim.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens khas jatim registration page and submits form', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.khasJatimRegistrationPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Pendaftaran Naskah Kuno'), findsWidgets);
+    expect(find.text('Identitas Pemilik'), findsOneWidget);
+    expect(find.text('Keterangan Naskah'), findsOneWidget);
+
+    final schemeOption = find.text('Skema 3: Pendaftaran (Registrasi)');
+    await tester.ensureVisible(schemeOption);
+    await tester.tap(schemeOption);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Masukkan nama sesuai KTP'),
+      'Anggun Amalia',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Masukkan nomor telepon'),
+      '081234567890',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Masukkan alamat lengkap'),
+      'Jl. Surabaya No. 1',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Contoh: Serat Centhini'),
+      'Serat Centhini',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Abad ke-18 / Tahun 1750'),
+      'Abad ke-18 / Tahun 1750',
+    );
+    await tester.pumpAndSettle();
+
+    final scriptDropdown = find.byType(DropdownButtonFormField<String>).at(0);
+    await tester.ensureVisible(scriptDropdown);
+    await tester.tap(scriptDropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kawi').last);
+    await tester.pumpAndSettle();
+
+    final languageDropdown = find.byType(DropdownButtonFormField<String>).at(1);
+    await tester.ensureVisible(languageDropdown);
+    await tester.tap(languageDropdown);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Indonesia').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('khas-jatim-file-button')));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Kirim'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Kirim'));
+    await tester.pump();
+
+    expect(
+      find.textContaining('Pendaftaran naskah "Serat Centhini"'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens sidita destinasi wisata page from sidita main menu', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final destinasiMenu = find.text('Destinasi\nWisata');
+    await tester.ensureVisible(destinasiMenu);
+    await tester.tap(destinasiMenu);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Destinasi Wisata'), findsOneWidget);
+    expect(find.text('Cari Destinasi Wisata'), findsOneWidget);
+    expect(find.text('Destinasi Malang'), findsOneWidget);
+    expect(find.text('Gunung Bromo'), findsOneWidget);
+    expect(find.text('Jatim Park 3'), findsOneWidget);
+    expect(find.text('Kampung Jodipan'), findsOneWidget);
+  });
+
+  testWidgets('opens sidita accommodations page from sidita main menu', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final akomodasiMenu = find.text('Akomodasi');
+    await tester.ensureVisible(akomodasiMenu.first);
+    await tester.tap(akomodasiMenu.first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Akomodasi'), findsWidgets);
+    expect(find.text('Rekomendasi Utama'), findsOneWidget);
+    expect(find.text('The Singhasari\nResort'), findsOneWidget);
+    expect(find.text('Properti Terpopuler'), findsOneWidget);
+    expect(find.text('Grand City Hall Surabaya'), findsOneWidget);
+    expect(find.text('Oak Tree Glamping'), findsOneWidget);
+    expect(find.text('Jaya Sands Resort'), findsOneWidget);
+  });
+
+  testWidgets(
+    'opens the singhasari resort detail page from sidita accommodations',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.servicesPath,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final siditaTile = find.text('SIDITA');
+      await tester.ensureVisible(siditaTile);
+      await tester.tap(siditaTile);
+      await tester.pumpAndSettle();
+      await tester.tap(siditaTile);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+      await tester.pumpAndSettle();
+
+      final akomodasiMenu = find.text('Akomodasi');
+      await tester.ensureVisible(akomodasiMenu.first);
+      await tester.tap(akomodasiMenu.first);
+      await tester.pumpAndSettle();
+
+      final singhasariCard = find.text('The Singhasari\nResort');
+      await tester.ensureVisible(singhasariCard);
+      await tester.tap(singhasariCard);
+      await tester.pumpAndSettle();
+
+      expect(find.text('The Singhasari Resort'), findsWidgets);
+      expect(find.text('Galeri Foto'), findsOneWidget);
+      expect(find.text('Tentang Resort'), findsOneWidget);
+      expect(find.text('Fasilitas Utama'), findsOneWidget);
+      expect(find.text('Open in Maps'), findsOneWidget);
+    },
+  );
+
+  testWidgets('opens gunung bromo detail page from sidita destinations list', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final destinasiMenu = find.text('Destinasi\nWisata');
+    await tester.ensureVisible(destinasiMenu);
+    await tester.tap(destinasiMenu);
+    await tester.pumpAndSettle();
+
+    final detailButton = find.widgetWithText(FilledButton, 'Detail').first;
+    await tester.ensureVisible(detailButton);
+    await tester.tap(detailButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tentang Gunung Bromo'), findsOneWidget);
+    expect(find.text('Beri Ulasan'), findsOneWidget);
+    expect(find.text('Ulasan Wisatawan'), findsOneWidget);
+    expect(find.text('IDR 250k'), findsOneWidget);
+  });
+
+  testWidgets('opens sidita event page from sidita main menu', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final eventMenu = find.text('Event');
+    await tester.ensureVisible(eventMenu.last);
+    await tester.tap(eventMenu.last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Event Mendatang'), findsOneWidget);
+    expect(find.text('Cari Event'), findsOneWidget);
+    expect(find.text('Pasar Djadoel Ahad Legi'), findsOneWidget);
+    expect(find.text('Kurma Festival'), findsOneWidget);
+    expect(find.text('Gebyar Ekraf'), findsOneWidget);
+  });
+
+  testWidgets('opens sidita wisatawan page from sidita main menu', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final wisatawanMenu = find.text('Wisatawan');
+    await tester.ensureVisible(wisatawanMenu.last);
+    await tester.tap(wisatawanMenu.last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Wisatawan'), findsWidgets);
+    expect(find.text('COMING SOON'), findsOneWidget);
+  });
+
+  testWidgets('opens pasar djadoel detail page from sidita event list', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.servicesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final siditaTile = find.text('SIDITA');
+    await tester.ensureVisible(siditaTile);
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(siditaTile);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Unduh Layanan'));
+    await tester.pumpAndSettle();
+
+    final eventMenu = find.text('Event');
+    await tester.ensureVisible(eventMenu.last);
+    await tester.tap(eventMenu.last);
+    await tester.pumpAndSettle();
+
+    final pasarCard = find.text('Pasar Djadoel Ahad Legi');
+    await tester.ensureVisible(pasarCard);
+    await tester.tap(pasarCard);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tentang Pasar Djadoel'), findsOneWidget);
+    expect(find.text('Kabupaten Ngawi'), findsOneWidget);
+    expect(find.text('Open in Maps'), findsOneWidget);
+    expect(find.text('01 Jan - 31 Dec 2024'), findsOneWidget);
   });
 
   testWidgets('opens nomor darurat page from home layanan saya tile', (
@@ -769,6 +2289,48 @@ void main() {
     expect(find.text('Cara Kerja'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Unduh Layanan'), findsOneWidget);
   });
+
+  testWidgets(
+    'opens islamic center page from layanan saya after installation',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.path,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Layanan'));
+      await tester.pumpAndSettle();
+
+      final islamicCenterTileOnServices = find.text('Islamic\nCenter');
+      await tester.ensureVisible(islamicCenterTileOnServices);
+      await tester.tap(islamicCenterTileOnServices);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Beranda'));
+      await tester.pumpAndSettle();
+
+      final islamicCenterTileOnHome = find.text('Islamic\nCenter').last;
+      await tester.dragUntilVisible(
+        islamicCenterTileOnHome,
+        find.byType(CustomScrollView),
+        const Offset(0, -220),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(islamicCenterTileOnHome);
+      await tester.pumpAndSettle();
+
+      expect(find.text('ISLAMIC CENTER JAWA TIMUR'), findsOneWidget);
+      expect(find.text('Jadwal Transparan'), findsOneWidget);
+      expect(find.text('Lengkapi Data Diri'), findsOneWidget);
+    },
+  );
 
   testWidgets('opens klinik hoaks main page from overview download button', (
     WidgetTester tester,
@@ -1503,6 +3065,89 @@ void main() {
 
     expect(find.text('Skrining TBC Mandiri'), findsOneWidget);
     expect(find.text('Online 24 jam'), findsOneWidget);
+  });
+
+  testWidgets('opens rsud saiful anwar page from daftar layanan saya', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final lainnyaLabel = find.text('Lainnya').first;
+    await tester.dragUntilVisible(
+      lainnyaLabel,
+      find.byType(CustomScrollView),
+      const Offset(0, -280),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(lainnyaLabel);
+    await tester.pumpAndSettle();
+
+    final rsudTile = find.text('RSUD Saiful Anwar');
+    await tester.dragUntilVisible(
+      rsudTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(rsudTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('RSUD SAIFUL ANWAR'), findsWidgets);
+    expect(find.text('Pembaruan Real-time'), findsOneWidget);
+    expect(find.text('Lihat Hitungan Real-time'), findsOneWidget);
+  });
+
+  testWidgets('opens bapenda jatim page from daftar layanan saya', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final lainnyaLabel = find.text('Lainnya').first;
+    await tester.dragUntilVisible(
+      lainnyaLabel,
+      find.byType(CustomScrollView),
+      const Offset(0, -280),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(lainnyaLabel);
+    await tester.pumpAndSettle();
+
+    final bapendaTile = find.text('Bapenda Jatim');
+    await tester.dragUntilVisible(
+      bapendaTile,
+      find.byType(CustomScrollView),
+      const Offset(0, -260),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(bapendaTile);
+    await tester.pumpAndSettle();
+
+    expect(find.text('BAPENDA JATIM'), findsWidgets);
+    expect(find.text('Manfaat'), findsOneWidget);
+    expect(
+      find.text('Info Nilai Jual Kendaraan Bermotor (NJKB)'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('opens nomor darurat page from daftar layanan saya', (

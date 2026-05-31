@@ -13,6 +13,12 @@ import 'presentation/pages/service_list_page.dart';
 import 'presentation/pages/terms_conditions_page.dart';
 import '../emergency_numbers/presentation/pages/emergency_numbers_page.dart';
 import '../emergency_numbers/presentation/pages/emergency_numbers_main_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_main_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_njkb_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_njkb_result_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_pkb_page.dart';
+import '../bapenda_jatim/presentation/pages/bapenda_jatim_pkb_result_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_clinic_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_clinic_main_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_latest_report_detail_page.dart';
@@ -20,6 +26,33 @@ import '../hoax_clinic/presentation/pages/hoax_latest_reports_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_result_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_aula_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_aula_booking_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_aula_rooms_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_asrama_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_asrama_booking_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_asrama_rooms_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_masjid_booking_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_masjid_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_masjid_rooms_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_main_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_main_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_manuscripts_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_registration_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_serat_sri_sedana_page.dart';
+import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_main_page.dart';
+import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_page.dart';
+import '../sidita/presentation/pages/sidita_accommodations_page.dart';
+import '../sidita/presentation/pages/sidita_bromo_detail_page.dart';
+import '../sidita/presentation/pages/sidita_destinations_page.dart';
+import '../sidita/presentation/pages/sidita_events_page.dart';
+import '../sidita/presentation/pages/sidita_main_page.dart';
+import '../sidita/presentation/pages/sidita_pasar_djadoel_page.dart';
+import '../sidita/presentation/pages/sidita_page.dart';
+import '../sidita/presentation/pages/sidita_singhasari_page.dart';
+import '../sidita/presentation/pages/sidita_travelers_page.dart';
 import '../sinaker/presentation/pages/sinaker_main_page.dart';
 import '../sinaker/presentation/pages/sinaker_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_center_sumenep_page.dart';
@@ -44,6 +77,53 @@ final class HomeRoutes {
   static const servicesPath = '/layanan';
   static const myServicesPath = '/layanan-saya';
   static const tbcScreeningPath = '/layanan/skrining-tbc';
+  static const bapendaJatimPath = '/layanan/bapenda-jatim';
+  static const bapendaJatimMainPath = '/layanan/bapenda-jatim/utama';
+  static const bapendaJatimPkbPath =
+      '/layanan/bapenda-jatim/utama/informasi-pkb';
+  static const bapendaJatimPkbResultPath =
+      '/layanan/bapenda-jatim/utama/informasi-pkb/hasil';
+  static const bapendaJatimNjkbPath =
+      '/layanan/bapenda-jatim/utama/informasi-njkb';
+  static const bapendaJatimNjkbResultPath =
+      '/layanan/bapenda-jatim/utama/informasi-njkb/hasil';
+  static const islamicCenterPath = '/layanan/islamic-center';
+  static const islamicCenterMainPath = '/layanan/islamic-center/utama';
+  static const islamicCenterAulaPath = '/layanan/islamic-center/utama/aula';
+  static const islamicCenterAulaRoomsPath =
+      '/layanan/islamic-center/utama/aula/ruangan';
+  static const islamicCenterAulaBookingPath =
+      '/layanan/islamic-center/utama/aula/pemesanan';
+  static const islamicCenterAsramaPath = '/layanan/islamic-center/utama/asrama';
+  static const islamicCenterAsramaRoomsPath =
+      '/layanan/islamic-center/utama/asrama/ruangan';
+  static const islamicCenterAsramaBookingPath =
+      '/layanan/islamic-center/utama/asrama/pemesanan';
+  static const islamicCenterMasjidPath = '/layanan/islamic-center/utama/masjid';
+  static const islamicCenterMasjidRoomsPath =
+      '/layanan/islamic-center/utama/masjid/ruangan';
+  static const islamicCenterMasjidBookingPath =
+      '/layanan/islamic-center/utama/masjid/pemesanan';
+  static const khasJatimPath = '/layanan/khas-jatim';
+  static const khasJatimMainPath = '/layanan/khas-jatim/utama';
+  static const khasJatimManuscriptsPath = '/layanan/khas-jatim/utama/naskah';
+  static const khasJatimRegistrationPath =
+      '/layanan/khas-jatim/utama/pendaftaran';
+  static const khasJatimSeratSriSedanaPath =
+      '/layanan/khas-jatim/utama/naskah/serat-sri-sedana';
+  static const rsudSaifulAnwarPath = '/layanan/rsud-saiful-anwar';
+  static const rsudSaifulAnwarMainPath = '/layanan/rsud-saiful-anwar/utama';
+  static const siditaPath = '/layanan/sidita';
+  static const siditaMainPath = '/layanan/sidita/utama';
+  static const siditaDestinationsPath = '/layanan/sidita/utama/destinasi';
+  static const siditaAccommodationsPath = '/layanan/sidita/utama/akomodasi';
+  static const siditaTravelersPath = '/layanan/sidita/utama/wisatawan';
+  static const siditaSinghasariPath =
+      '/layanan/sidita/utama/akomodasi/the-singhasari-resort';
+  static const siditaBromoPath = '/layanan/sidita/utama/destinasi/bromo';
+  static const siditaEventsPath = '/layanan/sidita/utama/event';
+  static const siditaPasarDjadoelPath =
+      '/layanan/sidita/utama/event/pasar-djadoel';
   static const sinakerPath = '/layanan/sinaker';
   static const sinakerMainPath = '/layanan/sinaker/utama';
   static const sinakerTrainingListPath = '/layanan/sinaker/utama/pelatihan';
@@ -107,6 +187,191 @@ final class HomeRoutes {
       path: tbcScreeningPath,
       name: RouteNames.homeTbcScreening,
       builder: (context, state) => const TbcScreeningPage(),
+    ),
+    GoRoute(
+      path: bapendaJatimPath,
+      name: RouteNames.homeBapendaJatim,
+      builder: (context, state) => const BapendaJatimPage(),
+    ),
+    GoRoute(
+      path: bapendaJatimMainPath,
+      name: RouteNames.homeBapendaJatimMain,
+      builder: (context, state) => const BapendaJatimMainPage(),
+    ),
+    GoRoute(
+      path: bapendaJatimPkbPath,
+      name: RouteNames.homeBapendaJatimPkb,
+      builder: (context, state) => const BapendaJatimPkbPage(),
+    ),
+    GoRoute(
+      path: bapendaJatimPkbResultPath,
+      name: RouteNames.homeBapendaJatimPkbResult,
+      builder: (context, state) => BapendaJatimPkbResultPage(
+        plateNumber: state.uri.queryParameters['plate'],
+      ),
+    ),
+    GoRoute(
+      path: bapendaJatimNjkbPath,
+      name: RouteNames.homeBapendaJatimNjkb,
+      builder: (context, state) => const BapendaJatimNjkbPage(),
+    ),
+    GoRoute(
+      path: bapendaJatimNjkbResultPath,
+      name: RouteNames.homeBapendaJatimNjkbResult,
+      builder: (context, state) {
+        final payload = state.extra is Map<String, String>
+            ? state.extra! as Map<String, String>
+            : const <String, String>{};
+
+        return BapendaJatimNjkbResultPage(
+          vehicleType: payload['vehicleType'],
+          brand: payload['brand'],
+          year: payload['year'],
+          model: payload['model'],
+          trim: payload['trim'],
+        );
+      },
+    ),
+    GoRoute(
+      path: islamicCenterPath,
+      name: RouteNames.homeIslamicCenter,
+      builder: (context, state) => const IslamicCenterPage(),
+    ),
+    GoRoute(
+      path: islamicCenterMainPath,
+      name: RouteNames.homeIslamicCenterMain,
+      builder: (context, state) => const IslamicCenterMainPage(),
+    ),
+    GoRoute(
+      path: islamicCenterAulaPath,
+      name: RouteNames.homeIslamicCenterAula,
+      builder: (context, state) => const IslamicCenterAulaPage(),
+    ),
+    GoRoute(
+      path: islamicCenterAulaRoomsPath,
+      name: RouteNames.homeIslamicCenterAulaRooms,
+      builder: (context, state) => const IslamicCenterAulaRoomsPage(),
+    ),
+    GoRoute(
+      path: islamicCenterAulaBookingPath,
+      name: RouteNames.homeIslamicCenterAulaBooking,
+      builder: (context, state) => IslamicCenterAulaBookingPage(
+        roomName: state.uri.queryParameters['room'],
+      ),
+    ),
+    GoRoute(
+      path: islamicCenterAsramaPath,
+      name: RouteNames.homeIslamicCenterAsrama,
+      builder: (context, state) => const IslamicCenterAsramaPage(),
+    ),
+    GoRoute(
+      path: islamicCenterAsramaRoomsPath,
+      name: RouteNames.homeIslamicCenterAsramaRooms,
+      builder: (context, state) => const IslamicCenterAsramaRoomsPage(),
+    ),
+    GoRoute(
+      path: islamicCenterAsramaBookingPath,
+      name: RouteNames.homeIslamicCenterAsramaBooking,
+      builder: (context, state) => IslamicCenterAsramaBookingPage(
+        roomName: state.uri.queryParameters['room'],
+      ),
+    ),
+    GoRoute(
+      path: islamicCenterMasjidPath,
+      name: RouteNames.homeIslamicCenterMasjid,
+      builder: (context, state) => const IslamicCenterMasjidPage(),
+    ),
+    GoRoute(
+      path: islamicCenterMasjidRoomsPath,
+      name: RouteNames.homeIslamicCenterMasjidRooms,
+      builder: (context, state) => const IslamicCenterMasjidRoomsPage(),
+    ),
+    GoRoute(
+      path: islamicCenterMasjidBookingPath,
+      name: RouteNames.homeIslamicCenterMasjidBooking,
+      builder: (context, state) => IslamicCenterMasjidBookingPage(
+        roomName: state.uri.queryParameters['room'],
+      ),
+    ),
+    GoRoute(
+      path: khasJatimPath,
+      name: RouteNames.homeKhasJatim,
+      builder: (context, state) => const KhasJatimPage(),
+    ),
+    GoRoute(
+      path: khasJatimMainPath,
+      name: RouteNames.homeKhasJatimMain,
+      builder: (context, state) => const KhasJatimMainPage(),
+    ),
+    GoRoute(
+      path: khasJatimManuscriptsPath,
+      name: RouteNames.homeKhasJatimManuscripts,
+      builder: (context, state) => const KhasJatimManuscriptsPage(),
+    ),
+    GoRoute(
+      path: khasJatimRegistrationPath,
+      name: RouteNames.homeKhasJatimRegistration,
+      builder: (context, state) => const KhasJatimRegistrationPage(),
+    ),
+    GoRoute(
+      path: khasJatimSeratSriSedanaPath,
+      name: RouteNames.homeKhasJatimSeratSriSedana,
+      builder: (context, state) => const KhasJatimSeratSriSedanaPage(),
+    ),
+    GoRoute(
+      path: rsudSaifulAnwarPath,
+      name: RouteNames.homeRsudSaifulAnwar,
+      builder: (context, state) => const RsudSaifulAnwarPage(),
+    ),
+    GoRoute(
+      path: rsudSaifulAnwarMainPath,
+      name: RouteNames.homeRsudSaifulAnwarMain,
+      builder: (context, state) => const RsudSaifulAnwarMainPage(),
+    ),
+    GoRoute(
+      path: siditaPath,
+      name: RouteNames.homeSidita,
+      builder: (context, state) => const SiditaPage(),
+    ),
+    GoRoute(
+      path: siditaMainPath,
+      name: RouteNames.homeSiditaMain,
+      builder: (context, state) => const SiditaMainPage(),
+    ),
+    GoRoute(
+      path: siditaDestinationsPath,
+      name: RouteNames.homeSiditaDestinations,
+      builder: (context, state) => const SiditaDestinationsPage(),
+    ),
+    GoRoute(
+      path: siditaAccommodationsPath,
+      name: RouteNames.homeSiditaAccommodations,
+      builder: (context, state) => const SiditaAccommodationsPage(),
+    ),
+    GoRoute(
+      path: siditaTravelersPath,
+      name: RouteNames.homeSiditaTravelers,
+      builder: (context, state) => const SiditaTravelersPage(),
+    ),
+    GoRoute(
+      path: siditaSinghasariPath,
+      name: RouteNames.homeSiditaSinghasari,
+      builder: (context, state) => const SiditaSinghasariPage(),
+    ),
+    GoRoute(
+      path: siditaBromoPath,
+      name: RouteNames.homeSiditaBromo,
+      builder: (context, state) => const SiditaBromoDetailPage(),
+    ),
+    GoRoute(
+      path: siditaEventsPath,
+      name: RouteNames.homeSiditaEvents,
+      builder: (context, state) => const SiditaEventsPage(),
+    ),
+    GoRoute(
+      path: siditaPasarDjadoelPath,
+      name: RouteNames.homeSiditaPasarDjadoel,
+      builder: (context, state) => const SiditaPasarDjadoelPage(),
     ),
     GoRoute(
       path: sinakerPath,
