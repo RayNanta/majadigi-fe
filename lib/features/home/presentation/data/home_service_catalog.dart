@@ -5,10 +5,10 @@ import '../models/home_service_item.dart';
 const allCatalogServices = <HomeServiceItem>[
   HomeServiceItem(
     id: 'destinasi-wisata',
-    title: 'Destinasi\nWisata',
+    title: 'SIDITA',
     category: 'Pariwisata',
-    subtitle: 'Dinas Kebudayaan dan Pariwisata',
-    badgeText: 'DW',
+    subtitle: 'Sistem Informasi Daya Tarik Wisata Jawa Timur',
+    badgeText: 'SID',
     accentColor: Color(0xFF0EA5A4),
     badgeBackground: Color(0xFFE6FFFB),
     catalogTab: HomeCatalogTab.services,
@@ -24,13 +24,13 @@ const allCatalogServices = <HomeServiceItem>[
     catalogTab: HomeCatalogTab.services,
   ),
   HomeServiceItem(
-    id: 'naskah-kuno',
-    title: 'Naskah\nKuno',
+    id: 'khas-jatim',
+    title: 'Khas\nJatim',
     category: 'Pendidikan',
     subtitle: 'Dinas Perpustakaan dan Kearsipan',
-    badgeText: 'NK',
-    accentColor: Color(0xFF2563EB),
-    badgeBackground: Color(0xFFEEF4FF),
+    badgeText: 'KJ',
+    accentColor: Color(0xFF16A34A),
+    badgeBackground: Color(0xFFEFFBF2),
     catalogTab: HomeCatalogTab.services,
   ),
   HomeServiceItem(
@@ -168,7 +168,7 @@ const allCatalogServices = <HomeServiceItem>[
 const recommendedHomeServiceIds = <String>[
   'destinasi-wisata',
   'islamic-center',
-  'naskah-kuno',
+  'khas-jatim',
   'klinik-hoaks',
 ];
 
