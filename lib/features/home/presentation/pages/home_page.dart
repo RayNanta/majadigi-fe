@@ -97,12 +97,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _handleCatalogServiceAdded(String id) {
-    ref.read(homeSelectedServiceIdsProvider.notifier).addService(id);
-  }
-
   Future<void> _openServiceCatalogBottomSheet() async {
-    await showModalBottomSheet<void>(
+    final selectedServiceId = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -111,10 +107,22 @@ class _HomePageState extends ConsumerState<HomePage> {
         return _ServiceCatalogBottomSheet(
           services: allCatalogServices,
           selectedServiceIds: ref.read(homeSelectedServiceIdsProvider),
-          onAddService: _handleCatalogServiceAdded,
         );
       },
     );
+
+    if (!mounted || selectedServiceId == null) {
+      return;
+    }
+
+    final selectedServiceIds = ref.read(homeSelectedServiceIdsProvider);
+    final routeName = routeNameForHomeServiceId(
+      selectedServiceId,
+      isInstalled: selectedServiceIds.contains(selectedServiceId),
+    );
+    if (routeName != null) {
+      context.pushNamed(routeName);
+    }
   }
 
   void _handleMyServiceTap(HomeServiceItem item) {
@@ -128,7 +136,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       return;
     }
 
-    final routeName = routeNameForHomeServiceId(item.id);
+    final selectedServiceIds = ref.read(homeSelectedServiceIdsProvider);
+    final routeName = routeNameForHomeServiceId(
+      item.id,
+      isInstalled: selectedServiceIds.contains(item.id),
+    );
     if (routeName != null) {
       context.pushNamed(routeName);
       return;
@@ -547,12 +559,10 @@ class _ServiceCatalogBottomSheet extends StatefulWidget {
   const _ServiceCatalogBottomSheet({
     required this.services,
     required this.selectedServiceIds,
-    required this.onAddService,
   });
 
   final List<HomeServiceItem> services;
   final Set<String> selectedServiceIds;
-  final ValueChanged<String> onAddService;
 
   @override
   State<_ServiceCatalogBottomSheet> createState() =>
@@ -606,15 +616,19 @@ class _ServiceCatalogBottomSheetState
       return;
     }
 
-    setState(() {
-      _selectedIds.add(service.id);
-    });
-    widget.onAddService(service.id);
+    Navigator.of(context).pop(service.id);
+  }
+
+  void _handleOpenNawaBhakti(HomeServiceItem service) {
+    Navigator.of(context).pop(service.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final gridChildAspectRatio = _selectedTab == HomeCatalogTab.nawaBhakti
+        ? 0.52
+        : 0.56;
 
     return FractionallySizedBox(
       heightFactor: 0.78,
@@ -762,11 +776,11 @@ class _ServiceCatalogBottomSheetState
                             padding: const EdgeInsets.only(bottom: 12),
                             itemCount: _visibleServices.length,
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
                                   mainAxisSpacing: 28,
                                   crossAxisSpacing: 14,
-                                  childAspectRatio: 0.56,
+                                  childAspectRatio: gridChildAspectRatio,
                                 ),
                             itemBuilder: (context, index) {
                               final service = _visibleServices[index];
@@ -775,6 +789,7 @@ class _ServiceCatalogBottomSheetState
                                 item: service,
                                 isAdded: _selectedIds.contains(service.id),
                                 onAdd: () => _handleAddService(service),
+                                onOpen: () => _handleOpenNawaBhakti(service),
                               );
                             },
                           ),
@@ -827,62 +842,78 @@ class _CatalogServiceTile extends StatelessWidget {
     required this.item,
     required this.isAdded,
     required this.onAdd,
+    required this.onOpen,
   });
 
   final HomeServiceItem item;
   final bool isAdded;
   final VoidCallback onAdd;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _ServiceBadge(
-          item: item,
-          size: 86,
-          badgeFontSize: item.badgeText != null && item.badgeText!.length > 3
-              ? 20
-              : 24,
-          iconSize: 34,
-        ),
-        const SizedBox(height: 14),
-        Text(
-          item.title,
-          maxLines: 3,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.25,
-            color: const Color(0xFF111111),
-          ),
-        ),
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: isAdded ? null : onAdd,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: SizedBox(
-              width: double.infinity,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  isAdded ? 'Ditambahkan' : '+ Tambah',
-                  maxLines: 1,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isAdded
-                        ? const Color(0xFF0F766E)
-                        : AppColors.welcomeAccent,
+    final isNawaBhakti = item.catalogTab == HomeCatalogTab.nawaBhakti;
+    final actionLabel = isNawaBhakti
+        ? 'Buka'
+        : (isAdded ? 'Ditambahkan' : '+ Tambah');
+    final actionColor = isNawaBhakti
+        ? AppColors.welcomeAccent
+        : (isAdded ? const Color(0xFF0F766E) : AppColors.welcomeAccent);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: isNawaBhakti ? onOpen : null,
+        child: Column(
+          children: [
+            _ServiceBadge(
+              item: item,
+              size: 86,
+              badgeFontSize:
+                  item.badgeText != null && item.badgeText!.length > 3
+                  ? 20
+                  : 24,
+              iconSize: 34,
+            ),
+            const SizedBox(height: 14),
+            Text(
+              item.title,
+              maxLines: 3,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                height: 1.25,
+                color: const Color(0xFF111111),
+              ),
+            ),
+            const SizedBox(height: 6),
+            InkWell(
+              onTap: isNawaBhakti ? onOpen : (isAdded ? null : onAdd),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      actionLabel,
+                      maxLines: 1,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: actionColor,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

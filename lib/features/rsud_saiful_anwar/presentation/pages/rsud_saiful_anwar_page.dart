@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class RsudSaifulAnwarPage extends StatelessWidget {
   const RsudSaifulAnwarPage({super.key});
@@ -55,6 +56,7 @@ class RsudSaifulAnwarPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'rsud-saiful-anwar');
     context.pushNamed(RouteNames.homeRsudSaifulAnwarMain);
   }
 

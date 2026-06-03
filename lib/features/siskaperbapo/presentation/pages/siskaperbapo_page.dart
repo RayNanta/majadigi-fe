@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class SiskaperbapoPage extends StatelessWidget {
   const SiskaperbapoPage({super.key});
@@ -60,6 +61,7 @@ class SiskaperbapoPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'siskaper-bapo');
     context.pushNamed(RouteNames.homeSiskaperbapoMain);
   }
 

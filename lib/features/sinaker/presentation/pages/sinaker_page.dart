@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class SinakerPage extends StatelessWidget {
   const SinakerPage({super.key});
@@ -61,6 +62,7 @@ class SinakerPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'sinaker');
     context.pushNamed(RouteNames.homeSinakerMain);
   }
 

@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class SiditaDestinationsPage extends StatefulWidget {
+final _siditaDestinationsProvider =
+    FutureProvider.autoDispose<List<_SiditaDestinationItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _SiditaDestinationsPageState._allDestinations;
+    });
+
+class SiditaDestinationsPage extends ConsumerStatefulWidget {
   const SiditaDestinationsPage({super.key});
 
   @override
-  State<SiditaDestinationsPage> createState() => _SiditaDestinationsPageState();
+  ConsumerState<SiditaDestinationsPage> createState() =>
+      _SiditaDestinationsPageState();
 }
 
-class _SiditaDestinationsPageState extends State<SiditaDestinationsPage> {
+class _SiditaDestinationsPageState
+    extends ConsumerState<SiditaDestinationsPage> {
   static const _regions = ['Malang', 'Batu', 'Surabaya'];
 
   static const _allDestinations = [
@@ -101,10 +111,11 @@ class _SiditaDestinationsPageState extends State<SiditaDestinationsPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<_SiditaDestinationItem> _visibleDestinations(
+    List<_SiditaDestinationItem> destinations,
+  ) {
     final query = _searchController.text.trim().toLowerCase();
-    final destinations = _allDestinations.where((item) {
+    return destinations.where((item) {
       if (item.region != _selectedRegion) {
         return false;
       }
@@ -116,6 +127,11 @@ class _SiditaDestinationsPageState extends State<SiditaDestinationsPage> {
       return item.title.toLowerCase().contains(query) ||
           item.location.toLowerCase().contains(query);
     }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final destinationsAsync = ref.watch(_siditaDestinationsProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
@@ -222,29 +238,57 @@ class _SiditaDestinationsPageState extends State<SiditaDestinationsPage> {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    ...destinations.map(
-                      (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 28),
-                        child: _DestinationCard(
-                          item: item,
-                          onDetailPressed: () => _openDestinationDetail(item),
-                        ),
-                      ),
-                    ),
-                    if (destinations.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 36),
-                        child: Center(
-                          child: Text(
-                            'Belum ada destinasi yang cocok.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
-                            ),
+                    ...destinationsAsync.when<List<Widget>>(
+                      loading: () => const [
+                        LazyCardSkeleton(height: 520),
+                        SizedBox(height: 28),
+                        LazyCardSkeleton(height: 520),
+                      ],
+                      error: (error, stackTrace) => [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28),
+                          child: LazyLoadErrorState(
+                            message: 'Destinasi gagal dimuat.',
+                            onRetry: () {
+                              ref.invalidate(_siditaDestinationsProvider);
+                            },
                           ),
                         ),
-                      ),
+                      ],
+                      data: (allDestinations) {
+                        final destinations = _visibleDestinations(
+                          allDestinations,
+                        );
+                        if (destinations.isEmpty) {
+                          return [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 36),
+                              child: Center(
+                                child: Text(
+                                  'Belum ada destinasi yang cocok.',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ];
+                        }
+
+                        return destinations.map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 28),
+                            child: _DestinationCard(
+                              item: item,
+                              onDetailPressed: () =>
+                                  _openDestinationDetail(item),
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
                   ],
                 ),
               ),

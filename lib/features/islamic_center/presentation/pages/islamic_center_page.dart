@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class IslamicCenterPage extends StatelessWidget {
   const IslamicCenterPage({super.key});
@@ -58,6 +59,7 @@ class IslamicCenterPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'islamic-center');
     context.pushNamed(RouteNames.homeIslamicCenterMain);
   }
 

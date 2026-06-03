@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class KhasJatimPage extends StatelessWidget {
   const KhasJatimPage({super.key});
@@ -67,6 +68,7 @@ class KhasJatimPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'khas-jatim');
     context.pushNamed(RouteNames.homeKhasJatimMain);
   }
 

@@ -67,13 +67,81 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
   }
 
   void _handleServiceTap(HomeServiceItem item) {
-    final routeName = routeNameForHomeServiceId(item.id);
+    final routeName = routeNameForHomeServiceId(item.id, isInstalled: true);
     if (routeName != null) {
       context.pushNamed(routeName);
       return;
     }
 
     _showComingSoon('${item.displayTitle} akan segera tersedia.');
+  }
+
+  Future<void> _confirmRemoveService(HomeServiceItem item) async {
+    final shouldRemove = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: Text(
+            'Hapus layanan?',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111111),
+            ),
+          ),
+          content: Text(
+            'Layanan ${item.displayTitle} akan dihapus dari aplikasi. Kamu bisa memasangnya lagi kapan saja dari katalog layanan.',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textMuted,
+              height: 1.55,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Hapus',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE11D48),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldRemove != true || !mounted) {
+      return;
+    }
+
+    ref.read(homeSelectedServiceIdsProvider.notifier).removeService(item.id);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${item.displayTitle} berhasil dihapus dari layanan saya.',
+        ),
+      ),
+    );
   }
 
   @override
@@ -209,6 +277,9 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
                             onTap: () => _handleServiceTap(
                               visibleServices[serviceIndex],
                             ),
+                            onLongPress: () => _confirmRemoveService(
+                              visibleServices[serviceIndex],
+                            ),
                           );
                         }, childCount: visibleServices.length * 2 - 1),
                       ),
@@ -224,10 +295,15 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
 }
 
 class _ServiceListCard extends StatelessWidget {
-  const _ServiceListCard({required this.item, required this.onTap});
+  const _ServiceListCard({
+    required this.item,
+    required this.onTap,
+    required this.onLongPress,
+  });
 
   final HomeServiceItem item;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +312,7 @@ class _ServiceListCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(24),
         child: Container(
           padding: const EdgeInsets.all(20),

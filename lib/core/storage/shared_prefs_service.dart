@@ -31,5 +31,7 @@ class SharedPreferencesService {
     return setInt(StorageKeys.launchCount, value);
   }
 
-  Future<bool> clearSession() => _preferences.remove(StorageKeys.authToken);
+  Future<void> clearSession() async {
+    await _preferences.remove(StorageKeys.authToken);
+  }
 }

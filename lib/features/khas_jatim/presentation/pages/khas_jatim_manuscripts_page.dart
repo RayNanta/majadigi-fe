@@ -1,21 +1,30 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class KhasJatimManuscriptsPage extends StatefulWidget {
+final _khasJatimManuscriptsProvider =
+    FutureProvider.autoDispose<List<_ManuscriptItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _KhasJatimManuscriptsPageState._manuscripts;
+    });
+
+class KhasJatimManuscriptsPage extends ConsumerStatefulWidget {
   const KhasJatimManuscriptsPage({super.key});
 
   @override
-  State<KhasJatimManuscriptsPage> createState() =>
+  ConsumerState<KhasJatimManuscriptsPage> createState() =>
       _KhasJatimManuscriptsPageState();
 }
 
-class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
+class _KhasJatimManuscriptsPageState
+    extends ConsumerState<KhasJatimManuscriptsPage> {
   static const _pageSize = 6;
   static const _manuscripts = [
     _ManuscriptItem(
@@ -191,25 +200,25 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
   String? _selectedLanguage;
   int _currentPage = 1;
 
-  List<String> get _categories =>
-      _manuscripts.map((item) => item.category).toSet().toList()..sort();
+  List<String> _categories(List<_ManuscriptItem> manuscripts) =>
+      manuscripts.map((item) => item.category).toSet().toList()..sort();
 
-  List<String> get _regions =>
-      _manuscripts.map((item) => item.region).toSet().toList()..sort();
+  List<String> _regions(List<_ManuscriptItem> manuscripts) =>
+      manuscripts.map((item) => item.region).toSet().toList()..sort();
 
-  List<String> get _years =>
-      _manuscripts.map((item) => item.year).toSet().toList()..sort();
+  List<String> _years(List<_ManuscriptItem> manuscripts) =>
+      manuscripts.map((item) => item.year).toSet().toList()..sort();
 
-  List<String> get _scripts =>
-      _manuscripts.map((item) => item.script).toSet().toList()..sort();
+  List<String> _scripts(List<_ManuscriptItem> manuscripts) =>
+      manuscripts.map((item) => item.script).toSet().toList()..sort();
 
-  List<String> get _languages =>
-      _manuscripts.map((item) => item.language).toSet().toList()..sort();
+  List<String> _languages(List<_ManuscriptItem> manuscripts) =>
+      manuscripts.map((item) => item.language).toSet().toList()..sort();
 
-  List<_ManuscriptItem> get _filteredItems {
+  List<_ManuscriptItem> _filteredItems(List<_ManuscriptItem> manuscripts) {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _manuscripts.where((item) {
+    return manuscripts.where((item) {
       final matchesQuery =
           query.isEmpty ||
           item.title.toLowerCase().contains(query) ||
@@ -235,26 +244,26 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
     }).toList();
   }
 
-  int get _totalPages =>
-      math.max(1, (_filteredItems.length / _pageSize).ceil());
+  int _totalPages(List<_ManuscriptItem> filteredItems) =>
+      math.max(1, (filteredItems.length / _pageSize).ceil());
 
-  List<_ManuscriptItem> get _currentItems {
+  List<_ManuscriptItem> _currentItems(List<_ManuscriptItem> filteredItems) {
     final start = (_currentPage - 1) * _pageSize;
-    final end = math.min(start + _pageSize, _filteredItems.length);
+    final end = math.min(start + _pageSize, filteredItems.length);
 
-    if (start >= _filteredItems.length) {
+    if (start >= filteredItems.length) {
       return const [];
     }
 
-    return _filteredItems.sublist(start, end);
+    return filteredItems.sublist(start, end);
   }
 
-  int get _rangeStart =>
-      _filteredItems.isEmpty ? 0 : ((_currentPage - 1) * _pageSize) + 1;
+  int _rangeStart(List<_ManuscriptItem> filteredItems) =>
+      filteredItems.isEmpty ? 0 : ((_currentPage - 1) * _pageSize) + 1;
 
-  int get _rangeEnd => _filteredItems.isEmpty
+  int _rangeEnd(List<_ManuscriptItem> filteredItems) => filteredItems.isEmpty
       ? 0
-      : math.min(_currentPage * _pageSize, _filteredItems.length);
+      : math.min(_currentPage * _pageSize, filteredItems.length);
 
   @override
   void initState() {
@@ -326,13 +335,31 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
   }
 
   void _changePage(int page) {
+    final manuscripts = ref
+        .read(_khasJatimManuscriptsProvider)
+        .maybeWhen(
+          data: (items) => items,
+          orElse: () => const <_ManuscriptItem>[],
+        );
+    final totalPages = _totalPages(_filteredItems(manuscripts));
+
     setState(() {
-      _currentPage = page.clamp(1, _totalPages);
+      _currentPage = page.clamp(1, totalPages).toInt();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final manuscriptsAsync = ref.watch(_khasJatimManuscriptsProvider);
+    final manuscripts = manuscriptsAsync.maybeWhen(
+      data: (items) => items,
+      orElse: () => const <_ManuscriptItem>[],
+    );
+    final filteredItems = _filteredItems(manuscripts);
+    final currentItems = _currentItems(filteredItems);
+    final totalPages = _totalPages(filteredItems);
+    final isInitialLoading = manuscriptsAsync.isLoading && manuscripts.isEmpty;
+    final loadError = manuscriptsAsync.hasError && manuscripts.isEmpty;
     final filterPanelWidth = MediaQuery.of(context).size.width * 0.82;
 
     return Scaffold(
@@ -384,7 +411,9 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          'Menampilkan $_rangeStart-$_rangeEnd dari ${_filteredItems.length} hasil',
+                          isInitialLoading
+                              ? 'Memuat naskah kuno...'
+                              : 'Menampilkan ${_rangeStart(filteredItems)}-${_rangeEnd(filteredItems)} dari ${filteredItems.length} hasil',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -392,32 +421,45 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _currentItems.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 18,
-                                mainAxisSpacing: 26,
-                                mainAxisExtent: 458,
-                              ),
-                          itemBuilder: (context, index) {
-                            final item = _currentItems[index];
+                        if (isInitialLoading) ...[
+                          const LazyCardSkeleton(height: 458),
+                          const SizedBox(height: 26),
+                          const LazyCardSkeleton(height: 458),
+                        ] else if (loadError) ...[
+                          LazyLoadErrorState(
+                            message:
+                                'Data naskah kuno belum berhasil dimuat. Silakan coba lagi.',
+                            onRetry: () =>
+                                ref.invalidate(_khasJatimManuscriptsProvider),
+                          ),
+                        ] else ...[
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: currentItems.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 18,
+                                  mainAxisSpacing: 26,
+                                  mainAxisExtent: 458,
+                                ),
+                            itemBuilder: (context, index) {
+                              final item = currentItems[index];
 
-                            return _ManuscriptCard(
-                              item: item,
-                              onDetailTap: () => _openDetail(item),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 26),
-                        _PaginationBar(
-                          currentPage: _currentPage,
-                          totalPages: _totalPages,
-                          onPageSelected: _changePage,
-                        ),
+                              return _ManuscriptCard(
+                                item: item,
+                                onDetailTap: () => _openDetail(item),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 26),
+                          _PaginationBar(
+                            currentPage: _currentPage,
+                            totalPages: totalPages,
+                            onPageSelected: _changePage,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -482,7 +524,7 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                                   _FilterField(
                                     label: 'Kategori',
                                     value: _selectedCategory,
-                                    options: _categories,
+                                    options: _categories(manuscripts),
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedCategory = value;
@@ -492,7 +534,7 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                                   _FilterField(
                                     label: 'Asal Daerah',
                                     value: _selectedRegion,
-                                    options: _regions,
+                                    options: _regions(manuscripts),
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedRegion = value;
@@ -502,7 +544,7 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                                   _FilterField(
                                     label: 'Tahun Penulisan',
                                     value: _selectedYear,
-                                    options: _years,
+                                    options: _years(manuscripts),
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedYear = value;
@@ -512,7 +554,7 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                                   _FilterField(
                                     label: 'Aksara',
                                     value: _selectedScript,
-                                    options: _scripts,
+                                    options: _scripts(manuscripts),
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedScript = value;
@@ -522,7 +564,7 @@ class _KhasJatimManuscriptsPageState extends State<KhasJatimManuscriptsPage> {
                                   _FilterField(
                                     label: 'Bahasa',
                                     value: _selectedLanguage,
-                                    options: _languages,
+                                    options: _languages(manuscripts),
                                     onChanged: (value) {
                                       setState(() {
                                         _selectedLanguage = value;

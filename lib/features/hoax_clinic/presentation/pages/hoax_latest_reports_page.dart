@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class HoaxLatestReportsPage extends StatefulWidget {
+final _hoaxLatestReportsProvider =
+    FutureProvider.autoDispose<List<_LatestReportItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _HoaxLatestReportsPageState._reports;
+    });
+
+class HoaxLatestReportsPage extends ConsumerStatefulWidget {
   const HoaxLatestReportsPage({super.key});
 
   @override
-  State<HoaxLatestReportsPage> createState() => _HoaxLatestReportsPageState();
+  ConsumerState<HoaxLatestReportsPage> createState() =>
+      _HoaxLatestReportsPageState();
 }
 
-class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
+class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
   static const _featuredReport = _FeaturedHoaxReport(
     badge: 'HOAKS',
     meta: '10 Menit yang lalu • 12 Okt 2023',
@@ -78,12 +87,12 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
 
   String get _query => _searchController.text.trim().toLowerCase();
 
-  List<_LatestReportItem> get _filteredReports {
+  List<_LatestReportItem> _filteredReports(List<_LatestReportItem> reports) {
     if (_query.isEmpty) {
-      return _reports;
+      return reports;
     }
 
-    return _reports.where((item) {
+    return reports.where((item) {
       return item.title.toLowerCase().contains(_query) ||
           item.category.toLowerCase().contains(_query) ||
           item.footer.toLowerCase().contains(_query);
@@ -120,7 +129,7 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredReports = _filteredReports;
+    final reportsAsync = ref.watch(_hoaxLatestReportsProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
@@ -223,53 +232,79 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
                       ),
                       const SizedBox(height: 22),
                     ],
-                    if (filteredReports.isEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 28,
+                    ...reportsAsync.when<List<Widget>>(
+                      loading: () => const [
+                        LazyCardSkeleton(height: 148),
+                        SizedBox(height: 22),
+                        LazyCardSkeleton(height: 148),
+                        SizedBox(height: 22),
+                        LazyCardSkeleton(height: 148),
+                      ],
+                      error: (error, stackTrace) => [
+                        LazyLoadErrorState(
+                          message:
+                              'Laporan terkini belum berhasil dimuat. Silakan coba lagi.',
+                          onRetry: () =>
+                              ref.invalidate(_hoaxLatestReportsProvider),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF111827,
-                              ).withValues(alpha: 0.035),
-                              blurRadius: 14,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'Belum ada laporan yang cocok dengan pencarianmu.',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            height: 1.6,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      )
-                    else
-                      ...filteredReports.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 22),
-                          child: _CompactReportCard(
-                            item: item,
-                            onTap: () {
-                              if (item.opensDetail) {
-                                _openDetail(context);
-                                return;
-                              }
+                      ],
+                      data: (reports) {
+                        final filteredReports = _filteredReports(reports);
 
-                              _showPlaceholder(context, 'Detail laporan');
-                            },
-                          ),
-                        ),
-                      ),
+                        if (filteredReports.isEmpty) {
+                          return [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 28,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(28),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF111827,
+                                    ).withValues(alpha: 0.035),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                'Belum ada laporan yang cocok dengan pencarianmu.',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.6,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ),
+                          ];
+                        }
+
+                        return filteredReports
+                            .map(
+                              (item) => Padding(
+                                padding: const EdgeInsets.only(bottom: 22),
+                                child: _CompactReportCard(
+                                  item: item,
+                                  onTap: () {
+                                    if (item.opensDetail) {
+                                      _openDetail(context);
+                                      return;
+                                    }
+
+                                    _showPlaceholder(context, 'Detail laporan');
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList();
+                      },
+                    ),
                   ],
                 ),
               ),

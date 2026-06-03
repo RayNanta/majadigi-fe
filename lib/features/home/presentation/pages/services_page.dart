@@ -73,12 +73,10 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
   }
 
   void _handleServiceTap(HomeServiceItem service, bool isInstalled) {
-    if (!isInstalled) {
-      ref.read(homeSelectedServiceIdsProvider.notifier).addService(service.id);
-      return;
-    }
-
-    final routeName = routeNameForHomeServiceId(service.id);
+    final routeName = routeNameForHomeServiceId(
+      service.id,
+      isInstalled: isInstalled,
+    );
     if (routeName != null) {
       context.pushNamed(routeName);
       return;

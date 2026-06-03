@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class SiskaperbapoMainPage extends StatefulWidget {
+final _siskaperbapoCommoditiesProvider =
+    FutureProvider.autoDispose<List<_CommodityItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _SiskaperbapoMainPageState._items;
+    });
+
+class SiskaperbapoMainPage extends ConsumerStatefulWidget {
   const SiskaperbapoMainPage({super.key});
 
   @override
-  State<SiskaperbapoMainPage> createState() => _SiskaperbapoMainPageState();
+  ConsumerState<SiskaperbapoMainPage> createState() =>
+      _SiskaperbapoMainPageState();
 }
 
-class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
+class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
   static const _categories = [
     'Semua',
     'Bumbu Dapur',
@@ -93,10 +102,10 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
     setState(() {});
   }
 
-  List<_CommodityItem> get _visibleItems {
+  List<_CommodityItem> _visibleItems(List<_CommodityItem> commodities) {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _items.where((item) {
+    return commodities.where((item) {
       final matchesCategory =
           _selectedCategory == 'Semua' || item.category == _selectedCategory;
       final matchesQuery =
@@ -131,7 +140,7 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final items = _visibleItems;
+    final commoditiesAsync = ref.watch(_siskaperbapoCommoditiesProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
@@ -251,45 +260,73 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
                       ),
                     ),
                   ),
-                  if (items.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Text(
-                            'Komoditas untuk pencarian ini belum tersedia.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
+                  ...commoditiesAsync.when<List<Widget>>(
+                    loading: () => const [
+                      SliverLazyCardSkeletonList(
+                        padding: EdgeInsets.fromLTRB(24, 6, 24, 28),
+                        itemCount: 4,
+                        itemHeight: 220,
+                      ),
+                    ],
+                    error: (error, stackTrace) => [
+                      SliverLazyLoadErrorState(
+                        message:
+                            'Data komoditas belum berhasil dimuat. Silakan coba lagi.',
+                        onRetry: () =>
+                            ref.invalidate(_siskaperbapoCommoditiesProvider),
+                      ),
+                    ],
+                    data: (commodities) {
+                      final items = _visibleItems(commodities);
+
+                      if (items.isEmpty) {
+                        return [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                ),
+                                child: Text(
+                                  'Komoditas untuk pencarian ini belum tersedia.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
+                        ];
+                      }
+
+                      return [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
+                          sliver: SliverGrid.builder(
+                            itemCount: items.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 18,
+                                  crossAxisSpacing: 18,
+                                  mainAxisExtent: 348,
+                                ),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return _CommodityCard(
+                                item: item,
+                                onTap: () => _showCommodityDetail(item),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
-                      sliver: SliverGrid.builder(
-                        itemCount: items.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 18,
-                              crossAxisSpacing: 18,
-                              mainAxisExtent: 348,
-                            ),
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return _CommodityCard(
-                            item: item,
-                            onTap: () => _showCommodityDetail(item),
-                          );
-                        },
-                      ),
-                    ),
+                      ];
+                    },
+                  ),
                 ],
               ),
             ),

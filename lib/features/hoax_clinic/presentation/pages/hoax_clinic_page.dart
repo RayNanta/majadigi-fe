@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class HoaxClinicPage extends StatelessWidget {
   const HoaxClinicPage({super.key});
@@ -18,6 +19,7 @@ class HoaxClinicPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'klinik-hoaks');
     context.pushNamed(RouteNames.homeHoaxClinicMain);
   }
 

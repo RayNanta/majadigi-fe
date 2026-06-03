@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class SiditaEventsPage extends StatefulWidget {
+final _siditaEventsProvider =
+    FutureProvider.autoDispose<List<_SiditaEventItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _SiditaEventsPageState._events;
+    });
+
+class SiditaEventsPage extends ConsumerStatefulWidget {
   const SiditaEventsPage({super.key});
 
   @override
-  State<SiditaEventsPage> createState() => _SiditaEventsPageState();
+  ConsumerState<SiditaEventsPage> createState() => _SiditaEventsPageState();
 }
 
-class _SiditaEventsPageState extends State<SiditaEventsPage> {
+class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
   static const _regions = ['Jawa Timur', 'Malang', 'Surabaya'];
 
   static const _events = [
@@ -99,10 +107,9 @@ class _SiditaEventsPageState extends State<SiditaEventsPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<_SiditaEventItem> _visibleEvents(List<_SiditaEventItem> events) {
     final query = _searchController.text.trim().toLowerCase();
-    final visibleEvents = _events.where((event) {
+    return events.where((event) {
       if (_selectedRegion != 'Jawa Timur' && event.region != _selectedRegion) {
         return false;
       }
@@ -115,6 +122,11 @@ class _SiditaEventsPageState extends State<SiditaEventsPage> {
           event.location.toLowerCase().contains(query) ||
           event.category.toLowerCase().contains(query);
     }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final eventsAsync = ref.watch(_siditaEventsProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
@@ -221,29 +233,54 @@ class _SiditaEventsPageState extends State<SiditaEventsPage> {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    ...visibleEvents.map(
-                      (event) => Padding(
-                        padding: const EdgeInsets.only(bottom: 26),
-                        child: _EventCard(
-                          item: event,
-                          onTap: () => _openEventDetail(event),
-                        ),
-                      ),
-                    ),
-                    if (visibleEvents.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 36),
-                        child: Center(
-                          child: Text(
-                            'Belum ada event yang cocok.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
-                            ),
+                    ...eventsAsync.when<List<Widget>>(
+                      loading: () => const [
+                        LazyCardSkeleton(height: 430),
+                        SizedBox(height: 26),
+                        LazyCardSkeleton(height: 430),
+                      ],
+                      error: (error, stackTrace) => [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28),
+                          child: LazyLoadErrorState(
+                            message: 'Event gagal dimuat.',
+                            onRetry: () {
+                              ref.invalidate(_siditaEventsProvider);
+                            },
                           ),
                         ),
-                      ),
+                      ],
+                      data: (events) {
+                        final visibleEvents = _visibleEvents(events);
+                        if (visibleEvents.isEmpty) {
+                          return [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 36),
+                              child: Center(
+                                child: Text(
+                                  'Belum ada event yang cocok.',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ];
+                        }
+
+                        return visibleEvents.map((event) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 26),
+                            child: _EventCard(
+                              item: event,
+                              onTap: () => _openEventDetail(event),
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
                   ],
                 ),
               ),
