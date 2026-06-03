@@ -1,36 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
-class IslamicCenterMainPage extends StatelessWidget {
+class FacilityModel {
+  final int id;
+  final String name;
+  final String slug;
+  final String description;
+  final String? thumbnail;
+  final double averageRating;
+  final int totalReviews;
+
+  FacilityModel({
+    required this.id,
+    required this.name,
+    required this.slug,
+    required this.description,
+    this.thumbnail,
+    required this.averageRating,
+    required this.totalReviews,
+  });
+
+  factory FacilityModel.fromJson(
+      Map<String, dynamic> json,
+      ) {
+    return FacilityModel(
+      id: int.tryParse(
+        json['id']?.toString() ?? '0',
+      ) ??
+          0,
+
+      name: json['name']?.toString() ?? '',
+
+      slug: json['slug']?.toString() ?? '',
+
+      description:
+      json['description']?.toString() ?? '',
+
+      thumbnail: json['thumbnail']?.toString(),
+
+      averageRating: double.tryParse(
+        json['average_rating']?.toString() ?? '0',
+      ) ??
+          0.0,
+
+      totalReviews: int.tryParse(
+        json['total_reviews']?.toString() ?? '0',
+      ) ??
+          0,
+    );
+  }
+}
+
+class IslamicCenterMainPage extends StatefulWidget {
   const IslamicCenterMainPage({super.key});
 
-  static const _facilities = [
-    _FacilityItem(
-      title: 'Aula',
-      description:
-          'Ruang pertemuan megah untuk seminar, wisuda, dan acara skala besar.',
-      tags: ['Hall Utama', 'Kapasitas 500+'],
-      routeName: RouteNames.homeIslamicCenterAula,
-    ),
-    _FacilityItem(
-      title: 'Asrama',
-      description:
-          'Hunian nyaman dan strategis untuk peserta kegiatan menginap.',
-      tags: ['Kamar 2 Bed', 'Full AC'],
-      routeName: RouteNames.homeIslamicCenterAsrama,
-    ),
-    _FacilityItem(
-      title: 'Ruangan Masjid',
-      description:
-          'Ruang serbaguna masjid untuk pengajian dan pertemuan tertutup.',
-      tags: ['Ruang VIP', 'Audio System'],
-      routeName: RouteNames.homeIslamicCenterMasjid,
-    ),
-  ];
+  @override
+  State<IslamicCenterMainPage> createState() =>
+      _IslamicCenterMainPageState();
+
+}
+
+class _IslamicCenterMainPageState
+    extends State<IslamicCenterMainPage> {
+
+  final _service = IslamicCenterService();
+
+  List<FacilityModel> facilities = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadFacilities();
+  }
+
+  Future<void> loadFacilities() async {
+    try {
+      final result =
+      await _service.getFacilities();
+
+      setState(() {
+        facilities = result;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -94,7 +159,7 @@ class IslamicCenterMainPage extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-                itemCount: _facilities.length + 1,
+                itemCount: facilities.length + 1,
                 separatorBuilder: (_, index) =>
                     SizedBox(height: index == 0 ? 24 : 28),
                 itemBuilder: (context, index) {
@@ -110,17 +175,17 @@ class IslamicCenterMainPage extends StatelessWidget {
                     );
                   }
 
-                  final item = _facilities[index - 1];
-                  return _FacilityCard(
-                    item: item,
-                    onTap: () {
-                      final routeName = item.routeName;
-                      if (routeName != null) {
-                        context.pushNamed(routeName);
-                        return;
-                      }
+                  final facility = facilities[index - 1];
 
-                      _showPlaceholder(context, item.title);
+                  return _FacilityCard(
+                    facility: facility,
+                    onTap: () {
+                      context.pushNamed(
+                        RouteNames.homeIslamicCenterDetail,
+                        pathParameters: {
+                          'id': facility.id.toString(),
+                        },
+                      );
                     },
                   );
                 },
@@ -132,6 +197,8 @@ class IslamicCenterMainPage extends StatelessWidget {
     );
   }
 }
+
+
 
 class _FacilityItem {
   const _FacilityItem({
@@ -148,9 +215,12 @@ class _FacilityItem {
 }
 
 class _FacilityCard extends StatelessWidget {
-  const _FacilityCard({required this.item, required this.onTap});
+  const _FacilityCard({
+    required this.facility,
+    required this.onTap,
+  });
 
-  final _FacilityItem item;
+  final FacilityModel facility;
   final VoidCallback onTap;
 
   @override
@@ -185,7 +255,14 @@ class _FacilityCard extends StatelessWidget {
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(28),
                         ),
-                        child: Image.asset(
+                        child: facility.thumbnail != null
+                            ? Image.network(
+                          facility.thumbnail!,
+                          width: double.infinity,
+                          height: 270,
+                          fit: BoxFit.cover,
+                        )
+                            : Image.asset(
                           'assets/images/dummy_image.png',
                           width: double.infinity,
                           height: 270,
@@ -201,10 +278,12 @@ class _FacilityCard extends StatelessWidget {
                           textColor: AppColors.welcomeAccent,
                         ),
                       ),
-                      const Positioned(
+                      Positioned(
                         top: 16,
                         right: 18,
-                        child: _RatingChip(),
+                        child: _RatingChip(
+                          rating: facility.averageRating,
+                        ),
                       ),
                     ],
                   ),
@@ -215,7 +294,7 @@ class _FacilityCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.title,
+                        facility.name,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
@@ -224,7 +303,7 @@ class _FacilityCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        item.description,
+                        facility.slug ?? '-',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -235,17 +314,23 @@ class _FacilityCard extends StatelessWidget {
                       const SizedBox(height: 18),
                       Wrap(
                         spacing: 12,
-                        runSpacing: 12,
-                        children: item.tags
-                            .map((tag) => _TagChip(label: tag))
-                            .toList(),
+                        children: [
+                          _TagChip(
+                            label:
+                            '${facility.averageRating.toStringAsFixed(1)} ⭐',
+                          ),
+                          _TagChip(
+                            label:
+                            '${facility.totalReviews} Ulasan',
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 22),
                       SizedBox(
                         width: double.infinity,
                         height: 62,
                         child: FilledButton(
-                          key: ValueKey('facility-detail-${item.title}'),
+                          key: ValueKey('facility-detail-${facility.name}'),
                           onPressed: onTap,
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.welcomeAccent,
@@ -305,7 +390,11 @@ class _OverlayPill extends StatelessWidget {
 }
 
 class _RatingChip extends StatelessWidget {
-  const _RatingChip();
+  const _RatingChip({
+    required this.rating,
+  });
+
+  final double rating;
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +410,7 @@ class _RatingChip extends StatelessWidget {
           const Icon(Icons.star_rounded, size: 18, color: Color(0xFFFCD34D)),
           const SizedBox(width: 6),
           Text(
-            '4.9',
+            rating.toStringAsFixed(1),
             style: GoogleFonts.plusJakartaSans(
               fontSize: 17,
               fontWeight: FontWeight.w700,

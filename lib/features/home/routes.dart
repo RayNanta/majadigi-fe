@@ -29,7 +29,7 @@ import '../hoax_clinic/presentation/pages/hoax_latest_reports_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_result_page.dart';
-import '../islamic_center/presentation/pages/islamic_center_aula_page.dart';
+import '../islamic_center/presentation/pages/islamic_center_detail_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_aula_booking_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_aula_rooms_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_asrama_page.dart';
@@ -93,10 +93,10 @@ final class HomeRoutes {
       '/layanan/bapenda-jatim/utama/informasi-njkb/hasil';
   static const islamicCenterPath = '/layanan/islamic-center';
   static const islamicCenterMainPath = '/layanan/islamic-center/utama';
-  static const islamicCenterAulaPath = '/layanan/islamic-center/utama/aula';
+  static const islamicCenterFacilityDetailPath = '/layanan/islamic-center/utama/detail/:id';
   static const islamicCenterAulaRoomsPath =
-      '/layanan/islamic-center/utama/aula/ruangan';
-  static const islamicCenterAulaBookingPath =
+      '/layanan/islamic-center/utama/aula/ruangan/:facilityId';
+  static const islamicCenterBookingPath =
       '/layanan/islamic-center/utama/aula/pemesanan';
   static const islamicCenterAsramaPath = '/layanan/islamic-center/utama/asrama';
   static const islamicCenterAsramaRoomsPath =
@@ -250,21 +250,39 @@ final class HomeRoutes {
       builder: (context, state) => const IslamicCenterMainPage(),
     ),
     GoRoute(
-      path: islamicCenterAulaPath,
-      name: RouteNames.homeIslamicCenterAula,
-      builder: (context, state) => const IslamicCenterAulaPage(),
+      path: islamicCenterFacilityDetailPath,
+      name: RouteNames.homeIslamicCenterDetail,
+      builder: (context, state) {
+        final id = int.parse(
+          state.pathParameters['id']!,
+        );
+
+        return IslamicCenterDetailPage(
+          facilityId: id,
+        );
+      },
     ),
     GoRoute(
       path: islamicCenterAulaRoomsPath,
       name: RouteNames.homeIslamicCenterAulaRooms,
-      builder: (context, state) => const IslamicCenterAulaRoomsPage(),
+      builder: (context, state) {
+        return IslamicCenterAulaRoomsPage(
+            facilityId: int.parse(
+                state.pathParameters['facilityId']!,
+            ),
+        );
+      },
     ),
     GoRoute(
-      path: islamicCenterAulaBookingPath,
-      name: RouteNames.homeIslamicCenterAulaBooking,
-      builder: (context, state) => IslamicCenterAulaBookingPage(
-        roomName: state.uri.queryParameters['room'],
-      ),
+      path: islamicCenterBookingPath,
+      name: RouteNames.homeIslamicCenterBooking,
+      builder: (context, state){
+        return IslamicCenterBookingPage(
+          roomId: int.parse(
+            state.uri.queryParameters['roomId']!,
+          ),
+        );
+      }
     ),
     GoRoute(
       path: islamicCenterAsramaPath,

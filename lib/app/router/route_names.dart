@@ -25,9 +25,9 @@ final class RouteNames {
   static const homeKhasJatimSeratSriSedana = 'homeKhasJatimSeratSriSedana';
   static const homeIslamicCenter = 'homeIslamicCenter';
   static const homeIslamicCenterMain = 'homeIslamicCenterMain';
-  static const homeIslamicCenterAula = 'homeIslamicCenterAula';
+  static const homeIslamicCenterDetail = 'homeIslamicCenterDetail';
   static const homeIslamicCenterAulaRooms = 'homeIslamicCenterAulaRooms';
-  static const homeIslamicCenterAulaBooking = 'homeIslamicCenterAulaBooking';
+  static const homeIslamicCenterBooking = 'homeIslamicCenterBooking';
   static const homeIslamicCenterAsrama = 'homeIslamicCenterAsrama';
   static const homeIslamicCenterAsramaRooms = 'homeIslamicCenterAsramaRooms';
   static const homeIslamicCenterAsramaBooking =

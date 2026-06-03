@@ -1,45 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_service.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
-class IslamicCenterAulaBookingPage extends StatefulWidget {
-  const IslamicCenterAulaBookingPage({super.key, this.roomName});
 
-  final String? roomName;
+
+class IslamicCenterBookingPage extends StatefulWidget {
+  const IslamicCenterBookingPage({
+    super.key,
+    required this.roomId,
+  });
+
+  final int roomId;
 
   @override
-  State<IslamicCenterAulaBookingPage> createState() =>
-      _IslamicCenterAulaBookingPageState();
+  State<IslamicCenterBookingPage> createState() =>
+      _IslamicCenterBookingPageState();
 }
 
-class _IslamicCenterAulaBookingPageState
-    extends State<IslamicCenterAulaBookingPage> {
-  final _fullNameController = TextEditingController();
-  String? _selectedDate;
-  String? _selectedSession;
-  final Set<String> _selectedFacilities = {};
+class _IslamicCenterBookingPageState
+    extends State<IslamicCenterBookingPage> {
 
-  static const _dates = [
-    '24 Mei 2026',
-    '25 Mei 2026',
-    '26 Mei 2026',
-    '27 Mei 2026',
-  ];
+  final IslamicCenterService _service =
+  IslamicCenterService();
+
+  Map<String, dynamic>? room;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRoom();
+  }
+
+  Future<void> loadRoom() async {
+    try {
+      final result = await _service.getRoomDetail(
+        widget.roomId,
+      );
+
+      setState(() {
+        room = result;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  final _fullNameController = TextEditingController();
+  DateTime? _selectedDate;
+  String? _selectedSession;
+  final Set<int> _selectedFacilities = {};
 
   static const _sessions = ['Pagi', 'Siang', 'Sore', 'Full Day'];
-
-  static const _facilities = [
-    'Karpet',
-    'Kursi',
-    'Genset',
-    'AC',
-    'Kamar Rias',
-    'Mimbar',
-    'Meja & Kursi Penerima Tamu',
-  ];
 
   bool get _canSubmit =>
       _fullNameController.text.trim().isNotEmpty &&
@@ -55,19 +76,68 @@ class _IslamicCenterAulaBookingPageState
     context.goNamed(RouteNames.homeIslamicCenterAulaRooms);
   }
 
-  void _handleSubmit() {
-    final roomLabel = widget.roomName ?? 'Aula';
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            'Data pemesanan $roomLabel siap diproses.',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
-          ),
+  Future<void> _handleSubmit() async {
+    try {
+      final response = await _service.createBooking({
+        'full_name': _fullNameController.text.trim(),
+        'facility_room_id': widget.roomId,
+        'booking_date': DateFormat('yyyy-MM-dd').format(_selectedDate!),
+        'session': _selectedSession,
+        'facilities': _selectedFacilities.toList(),
+      });
+
+      final roomName = room?['name'] ?? 'Ruangan';
+
+      final facilities = room!['facilities'] as List<dynamic>;
+      final selectedFacilityNames = facilities
+          .where((facility) =>
+          _selectedFacilities.contains(facility['id']))
+          .map((facility) => facility['name'].toString())
+          .toList();
+
+      final fasilitasText = selectedFacilityNames.join(', ');
+      final message = '''
+    Assalamu'alaikum Admin Islamic Center
+    
+Saya telah melakukan booking ruangan dengan detail berikut:
+    
+ 📍 Nama Ruangan : $roomName
+    
+ 👤 Nama Pemesan : ${_fullNameController.text}
+ 📅 Tanggal Booking : ${DateFormat('dd MMMM yyyy', 'id_ID').format(_selectedDate!)}
+ 🕒 Sesi : $_selectedSession
+    
+ 🏢 Fasilitas :
+ ${fasilitasText.isEmpty ? '-' : fasilitasText}
+    
+    Terima kasih.
+    ''';
+
+      const phone = '6281267783531';
+
+      final waUrl = Uri.parse(
+        'https://wa.me/$phone?text=${Uri.encodeComponent(message)}',
+      );
+
+      await launchUrl(
+        waUrl,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Booking berhasil dibuat'),
         ),
       );
-  }
+      
+      print(response);
+
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+      }
 
   @override
   void dispose() {
@@ -77,6 +147,23 @@ class _IslamicCenterAulaBookingPageState
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (room == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Room tidak ditemukan'),
+        ),
+      );
+    }
+    final facilities =
+    room!['facilities'] as List<dynamic>;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
       body: SafeArea(
@@ -146,13 +233,44 @@ class _IslamicCenterAulaBookingPageState
                     const SizedBox(height: 28),
                     const _FieldLabel('Tanggal'),
                     const SizedBox(height: 14),
-                    _BookingDropdownField(
-                      value: _selectedDate,
-                      hintText: 'Pilih tanggal',
-                      items: _dates,
-                      onChanged: (value) => setState(() {
-                        _selectedDate = value;
-                      }),
+
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2035),
+                        );
+
+                        if (picked != null) {
+                          setState(() {
+                            _selectedDate = picked;
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 22,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F1F4),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Text(
+                          _selectedDate == null
+                              ? 'Pilih tanggal'
+                              : DateFormat('dd MMMM yyyy').format(_selectedDate!),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            color: _selectedDate == null
+                                ? const Color(0xFF8F949C)
+                                : const Color(0xFF2A2E35),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 28),
                     const _FieldLabel('Sesi'),
@@ -168,25 +286,32 @@ class _IslamicCenterAulaBookingPageState
                     const SizedBox(height: 30),
                     const _FieldLabel('Fasilitas'),
                     const SizedBox(height: 18),
+
                     Wrap(
                       spacing: 18,
                       runSpacing: 18,
-                      children: _facilities.map((facility) {
-                        final isWide = facility == 'Meja & Kursi Penerima Tamu';
-                        final isSelected = _selectedFacilities.contains(
-                          facility,
+                      children: facilities.map((facility) {
+                        final facilityId = facility['id'];
+                        final facilityName = facility['name'];
+
+                        final isSelected =
+                        _selectedFacilities.contains(
+                          facilityId,
                         );
+
                         return _FacilityOptionTile(
-                          label: facility,
+                          label: facilityName,
                           isSelected: isSelected,
-                          isWide: isWide,
-                          onTap: () => setState(() {
-                            if (isSelected) {
-                              _selectedFacilities.remove(facility);
-                            } else {
-                              _selectedFacilities.add(facility);
-                            }
-                          }),
+                          isWide: false,
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                _selectedFacilities.remove(facilityId);
+                              } else {
+                                _selectedFacilities.add(facilityId);
+                              }
+                            });
+                          },
                         );
                       }).toList(),
                     ),

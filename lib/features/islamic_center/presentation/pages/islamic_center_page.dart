@@ -155,7 +155,7 @@ class IslamicCenterPage extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Unduh Layanan'),
+              child: const Text('Selanjutnya'),
             ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/rsud_saiful_anwar/services/rsud_saiful_anwar_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -16,57 +17,59 @@ class RsudSaifulAnwarMainPage extends StatefulWidget {
 class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
   static const _classOptions = ['Kelas', 'VIP', 'Rawat Inap', 'ICU', 'HCU'];
 
-  static const _rooms = [
-    _RoomAvailability(
-      badgeText: 'INSTALASI RAWAT INAP',
-      badgeBackground: Color(0xFFE8F1FF),
-      badgeColor: Color(0xFF2563EB),
-      name: 'R. SEMERU',
-      classLabel: 'I, II, III',
-      occupied: 42,
-      available: 18,
-      icon: Icons.bed_rounded,
-      progressValue: 0.30,
-      progressColor: Color(0xFF2DB36B),
-    ),
-    _RoomAvailability(
-      badgeText: 'HIGH CARE UNIT',
-      badgeBackground: Color(0xFFFFE7EF),
-      badgeColor: Color(0xFFE11D48),
-      name: 'R. HCU SARANGAN',
-      classLabel: 'HCU',
-      occupied: 12,
-      available: 2,
-      icon: Icons.monitor_heart_outlined,
-      progressValue: 0.17,
-      progressColor: Color(0xFF2DB36B),
-    ),
-    _RoomAvailability(
-      badgeText: 'VIP / SUPER VIP',
-      badgeBackground: Color(0xFFF6E9FF),
-      badgeColor: Color(0xFF9333EA),
-      name: 'R. BUGENVILE',
-      classLabel: 'VIP',
-      occupied: 28,
-      available: 5,
-      icon: Icons.star_border_rounded,
-      progressValue: 0.18,
-      progressColor: Color(0xFF2DB36B),
-    ),
-    _RoomAvailability(
-      badgeText: 'INTENSIVE CARE UNIT',
-      badgeBackground: Color(0xFFFFE8ED),
-      badgeColor: Color(0xFFE11D48),
-      name: 'R. ICU KAPUAS B',
-      classLabel: 'ICU',
-      occupied: 18,
-      available: 0,
-      icon: Icons.medical_services_outlined,
-      progressValue: 1.0,
-      progressColor: Color(0xFFE11D48),
-      warningText: 'Antrian penuh untuk ruangan ini.',
-    ),
-  ];
+  List<dynamic> roomCategories = [];
+
+  int? selectedCategory;
+
+  final RsudService _service = RsudService();
+
+  List<dynamic> rooms = [];
+
+  bool isLoading = true;
+
+  int totalBed = 0;
+  int availableBed = 0;
+  int occupiedBed = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+
+    try {
+      final result = await _service.getAvailability();
+
+      print('RESULT:');
+      print(result);
+
+      setState(() {
+        totalBed = int.tryParse(
+          result['summary']['total_beds'].toString(),
+        ) ?? 0;
+
+        availableBed = int.tryParse(
+          result['summary']['available_bed'].toString(),
+        ) ?? 0;
+
+        occupiedBed = int.tryParse(
+          result['summary']['occupied_beds'].toString(),
+        ) ?? 0;
+
+        roomCategories = result['room_categories'];
+        rooms = result['data'];
+      });
+    } catch (e) {
+      print('ERROR: $e');
+    }
+    finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   String _selectedClass = _classOptions.first;
 
@@ -81,14 +84,23 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final visibleRooms = _rooms.where((room) {
-      if (_selectedClass == 'Kelas') {
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final visibleRooms = rooms.where((room) {
+      if (selectedCategory == null) {
         return true;
       }
 
-      final selected = _selectedClass.toLowerCase();
-      return room.badgeText.toLowerCase().contains(selected) ||
-          room.classLabel.toLowerCase().contains(selected);
+      return int.tryParse(
+        room['room_category_id'].toString(),
+      ) == selectedCategory;
     }).toList();
 
     return Scaffold(
@@ -174,10 +186,10 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                     ),
                     const SizedBox(height: 24),
                     Row(
-                      children: const [
+                      children: [
                         Expanded(
                           child: _SummaryCard(
-                            value: '966',
+                            value: totalBed.toString(),
                             label: 'TOTAL',
                             valueColor: Color(0xFF1668F7),
                           ),
@@ -185,7 +197,7 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                         SizedBox(width: 14),
                         Expanded(
                           child: _SummaryCard(
-                            value: '340',
+                            value: availableBed.toString(),
                             label: 'TERSEDIA',
                             valueColor: Color(0xFF2DB36B),
                           ),
@@ -193,7 +205,7 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                         SizedBox(width: 14),
                         Expanded(
                           child: _SummaryCard(
-                            value: '595',
+                            value: occupiedBed.toString(),
                             label: 'TERISI',
                             valueColor: Color(0xFFFF0D57),
                           ),
@@ -218,36 +230,29 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedClass,
-                          icon: const Icon(
-                            Icons.expand_more_rounded,
-                            color: Color(0xFF5D6068),
-                            size: 28,
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF555962),
-                          ),
-                          items: _classOptions.map((option) {
-                            return DropdownMenuItem<String>(
-                              value: option,
-                              child: Text(option),
-                            );
-                          }).toList(),
+                        child: DropdownButton<int?>(
+                          value: selectedCategory,
+                          items: [
+                            const DropdownMenuItem<int?>(
+                              value: null,
+                              child: Text('Semua Kategori'),
+                            ),
+                            ...roomCategories.map(
+                                  (category) => DropdownMenuItem<int?>(
+                                    value: int.tryParse(
+                                    category['id'].toString(),
+                            ),
+                                child: Text(category['name']),
+                              ),
+                            ),
+                          ],
                           onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-
                             setState(() {
-                              _selectedClass = value;
+                              selectedCategory = value;
                             });
                           },
-                        ),
-                      ),
+                        )
+                      )
                     ),
                     const SizedBox(height: 24),
                     ...visibleRooms.map(
@@ -348,12 +353,30 @@ class _RoomAvailability {
 }
 
 class _RoomCard extends StatelessWidget {
-  const _RoomCard({required this.item});
+  final Map<String, dynamic> item;
 
-  final _RoomAvailability item;
+  const _RoomCard({
+    required this.item,
+  });
 
   @override
   Widget build(BuildContext context) {
+
+    final total =
+        int.tryParse(item['total_beds'].toString()) ?? 0;
+
+    final occupied =
+        int.tryParse(item['occupied_beds'].toString()) ?? 0;
+
+    final available = total - occupied;
+
+
+    final progress =
+    total > 0
+        ? available / total
+        : 0.0;
+
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
@@ -384,21 +407,21 @@ class _RoomCard extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: item.badgeBackground,
+                        color: const Color(0xFFE8F1FF),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        item.badgeText,
+                        item['category']?['name']?.toString() ?? '-',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          color: item.badgeColor,
+                          color: AppColors.welcomeAccent,
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      item.name,
+                      item['name'],
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
@@ -415,8 +438,8 @@ class _RoomCard extends StatelessWidget {
                   color: Color(0xFFE8F1FF),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  item.icon,
+                child: const Icon(
+                  Icons.bed_rounded,
                   size: 34,
                   color: AppColors.welcomeAccent,
                 ),
@@ -431,27 +454,29 @@ class _RoomCard extends StatelessWidget {
               Expanded(
                 child: _MetricColumn(
                   label: 'KELAS',
-                  value: item.classLabel,
+                  value: item['class_name']?.toString() ?? '-',
                   valueColor: const Color(0xFF2B2E35),
                 ),
               ),
               Expanded(
                 child: _MetricColumn(
                   label: 'TERISI',
-                  value: '${item.occupied}',
+                  value: item['occupied_bed'].toString(),
                   valueColor: const Color(0xFFE11D48),
                 ),
               ),
               Expanded(
                 child: _AvailabilityMetric(
-                  available: item.available,
-                  progressValue: item.progressValue,
-                  progressColor: item.progressColor,
+                  available: available,
+                  progressValue: progress,
+                  progressColor: available > 0
+                      ? const Color(0xFF2DB36B)
+                      : const Color(0xFFE11D48),
                 ),
               ),
             ],
           ),
-          if (item.warningText != null) ...[
+          if (available == 0) ...[
             const SizedBox(height: 18),
             Container(
               width: double.infinity,
@@ -470,7 +495,7 @@ class _RoomCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      item.warningText!,
+                      'Tidak ada tempat tidur tersedia',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -90,12 +91,17 @@ class _EmergencyNumbersMainPageState
     context.goNamed(RouteNames.homeEmergencyNumbers);
   }
 
-  void _showDialPlaceholder(String phone) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Menghubungi $phone'),
-      ),
-    );
+  Future<void> _hubungiNomor(String phone) async {
+    final Uri telUrl = Uri(scheme: 'tel', path: '$phone');
+    if (await canLaunchUrl(telUrl)) {
+      await launchUrl(telUrl);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat memanggil $phone')),
+        );
+      }
+    }
   }
 
   IconData getIcon(String kategori) {
@@ -290,7 +296,7 @@ class _EmergencyNumbersMainPageState
                               getBackgroundColor(kategori),
 
                               onCallPressed: () =>
-                                  _showDialPlaceholder(
+                                  _hubungiNomor(
                                     contact['nomor_telepon'],
                                   ),
                             ),

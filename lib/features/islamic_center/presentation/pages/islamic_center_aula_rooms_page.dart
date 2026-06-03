@@ -1,36 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
-class IslamicCenterAulaRoomsPage extends StatelessWidget {
-  const IslamicCenterAulaRoomsPage({super.key});
+class IslamicCenterAulaRoomsPage extends StatefulWidget {
+  final int facilityId;
 
-  static const _rooms = [
-    _RoomItem(
-      title: 'Hall Utama',
-      price: 'Rp10.000.000',
-      description:
-          'Ruangan termegah kami dengan kapasitas masif, cocok untuk resepsi pernikahan, seminar internasional, dan pertemuan akbar komunitas.',
-      capacity: '2000 Orang',
-    ),
-    _RoomItem(
-      title: 'Ruang Rapat',
-      price: 'Rp2.000.000',
-      description:
-          'Ideal untuk pertemuan korporasi, rapat organisasi, atau workshop dengan atmosfer yang tenang dan profesional.',
-      capacity: '150 Orang',
-    ),
-    _RoomItem(
-      title: 'Ruang VIP',
-      price: 'Rp1.500.000',
-      description:
-          'Ruang tunggu eksklusif bagi tamu khusus atau ruang privat untuk pertemuan terbatas dengan tingkat privasi tinggi.',
-      capacity: '25 Orang',
-    ),
-  ];
+  const IslamicCenterAulaRoomsPage({
+    super.key,
+    required this.facilityId,
+  });
+
+  @override
+  State<IslamicCenterAulaRoomsPage> createState() =>
+      _IslamicCenterAulaRoomsPageState();
+}
+
+class _IslamicCenterAulaRoomsPageState
+    extends State<IslamicCenterAulaRoomsPage> {
+
+  final IslamicCenterService _service =
+  IslamicCenterService();
+
+  bool isLoading = true;
+
+  List<dynamic> rooms = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadRooms();
+  }
+
+  Future<void> loadRooms() async {
+    try {
+      final facility =
+      await _service.getFacilityDetail(
+        widget.facilityId,
+      );
+
+      setState(() {
+        rooms = facility['rooms'] ?? [];
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -38,7 +60,7 @@ class IslamicCenterAulaRoomsPage extends StatelessWidget {
       return;
     }
 
-    context.goNamed(RouteNames.homeIslamicCenterAula);
+    context.goNamed(RouteNames.homeIslamicCenterDetail);
   }
 
   @override
@@ -81,7 +103,7 @@ class IslamicCenterAulaRoomsPage extends StatelessWidget {
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-                itemCount: _rooms.length + 1,
+                itemCount: rooms.length + 1,
                 separatorBuilder: (_, index) =>
                     SizedBox(height: index == 0 ? 18 : 22),
                 itemBuilder: (context, index) {
@@ -96,12 +118,14 @@ class IslamicCenterAulaRoomsPage extends StatelessWidget {
                     );
                   }
 
-                  final room = _rooms[index - 1];
+                  final room = rooms[index - 1];
                   return _RoomDetailCard(
                     room: room,
                     onTap: () => context.pushNamed(
-                      RouteNames.homeIslamicCenterAulaBooking,
-                      queryParameters: {'room': room.title},
+                      RouteNames.homeIslamicCenterBooking,
+                      queryParameters: {
+                        'roomId': room['id'].toString(),
+                      },
                     ),
                   );
                 },
@@ -114,25 +138,16 @@ class IslamicCenterAulaRoomsPage extends StatelessWidget {
   }
 }
 
-class _RoomItem {
-  const _RoomItem({
-    required this.title,
-    required this.price,
-    required this.description,
-    required this.capacity,
-  });
-
-  final String title;
-  final String price;
-  final String description;
-  final String capacity;
-}
 
 class _RoomDetailCard extends StatelessWidget {
-  const _RoomDetailCard({required this.room, required this.onTap});
-
-  final _RoomItem room;
+  final Map<String, dynamic> room;
   final VoidCallback onTap;
+
+  const _RoomDetailCard({
+    required this.room,
+    required this.onTap,
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +215,7 @@ class _RoomDetailCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    room.title,
+                    room['name'] ?? '-',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -219,7 +234,7 @@ class _RoomDetailCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    room.price,
+                    'Rp ${room['price'] ?? 0}',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -228,7 +243,7 @@ class _RoomDetailCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    room.description,
+                    room['description'] ?? '-',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -256,7 +271,7 @@ class _RoomDetailCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        room.capacity,
+                        '${room['capacity'] ?? 0} Orang',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

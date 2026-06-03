@@ -1,42 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 
-class IslamicCenterAulaPage extends StatelessWidget {
-  const IslamicCenterAulaPage({super.key});
 
-  static const _rooms = [
-    _RoomOption(
-      name: 'Hall Utama',
-      price: 'Rp10.000.000',
-      description:
-          'Ruangan termegah kami dengan kapasitas masif, cocok untuk resepsi pernikahan, seminar internasional, dan pertemuan akbar komunitas.',
-      capacity: '2000 Orang',
-    ),
-    _RoomOption(
-      name: 'Hall Madya',
-      price: 'Rp7.500.000',
-      description:
-          'Ruangan menengah untuk pelatihan intensif, workshop, dan acara formal berskala komunitas.',
-      capacity: '800 Orang',
-    ),
-  ];
 
-  static const _reviews = [
-    _ReviewItem(
-      name: 'Alex Rivera',
-      review:
-          'The sunrise was absolutely breathtaking. Make sure to bring a warm jacket, it\'s freezing before dawn!',
-    ),
-    _ReviewItem(
-      name: 'Nadia Putri',
-      review:
-          'Ruangannya luas, akustiknya nyaman, dan sangat cocok untuk acara resmi maupun semi formal.',
-    ),
-  ];
+class IslamicCenterDetailPage extends StatefulWidget {
+  final int facilityId;
+
+  const IslamicCenterDetailPage({
+    super.key,
+    required this.facilityId,
+  });
+
+  @override
+  State<IslamicCenterDetailPage> createState() =>
+      _IslamicCenterDetailPageState();
+}
+
+class _IslamicCenterDetailPageState
+    extends State<IslamicCenterDetailPage> {
+
+  final IslamicCenterService _service =
+  IslamicCenterService();
+
+  Map<String, dynamic>? facility;
+
+  bool isLoading = true;
+
+  int selectedRating = 0;
+
+  final TextEditingController reviewController =
+  TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadDetail();
+  }
+
+  Future<void> loadDetail() async {
+    try {
+      final result = await _service.getFacilityDetail(
+        widget.facilityId,
+      );
+
+      setState(() {
+        facility = result;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -62,6 +84,28 @@ class IslamicCenterAulaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (facility == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Data tidak ditemukan'),
+        ),
+      );
+    }
+
+    final rooms =
+        facility!['rooms'] ?? [];
+
+    final reviews =
+        facility!['reviews'] ?? [];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FF),
       body: SafeArea(
@@ -86,7 +130,7 @@ class IslamicCenterAulaPage extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Aula',
+                      facility!['name'],
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -105,7 +149,14 @@ class IslamicCenterAulaPage extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(28),
-                      child: Image.asset(
+                      child: facility!['thumbnail'] != null
+                          ? Image.network(
+                        facility!['thumbnail'],
+                        width: double.infinity,
+                        height: 380,
+                        fit: BoxFit.cover,
+                      )
+                          : Image.asset(
                         'assets/images/dummy_image.png',
                         width: double.infinity,
                         height: 380,
@@ -130,7 +181,7 @@ class IslamicCenterAulaPage extends StatelessWidget {
                         ],
                       ),
                       child: Text(
-                        'Aula utama di Islamic Center Jawa Timur menghadirkan ruang luas dengan kapasitas besar yang dirancang untuk berbagai kebutuhan acara. Dilengkapi fasilitas modern serta tata ruang yang fleksibel, aula ini sangat ideal untuk seminar, pelatihan, resepsi, hingga pertemuan berskala besar. Suasana yang nyaman dan representatif menjadikannya pilihan tepat untuk menyelenggarakan kegiatan formal maupun semi-formal dengan kesan profesional.',
+                        facility!['description'] ?? '-',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -145,6 +196,9 @@ class IslamicCenterAulaPage extends StatelessWidget {
                       actionLabel: 'Lihat Semua',
                       onTap: () => context.pushNamed(
                         RouteNames.homeIslamicCenterAulaRooms,
+                        pathParameters: {
+                          'facilityId':widget.facilityId.toString()
+                        }
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -152,16 +206,16 @@ class IslamicCenterAulaPage extends StatelessWidget {
                       height: 520,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _rooms.length,
+                        itemCount: rooms.length,
                         separatorBuilder: (_, index) =>
                             const SizedBox(width: 16),
                         itemBuilder: (context, index) {
-                          final room = _rooms[index];
+                          final room = rooms[index];
                           return _RoomCard(
                             room: room,
                             onTap: () => context.pushNamed(
-                              RouteNames.homeIslamicCenterAulaBooking,
-                              queryParameters: {'room': room.name},
+                              RouteNames.homeIslamicCenterBooking,
+                              queryParameters: {'roomId': room['id'].toString()},
                             ),
                           );
                         },
@@ -195,16 +249,22 @@ class IslamicCenterAulaPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const _RatingRow(),
+                          _RatingRow(
+                            rating: selectedRating,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedRating = value;
+                              });
+                            },
+                          ),
                           const SizedBox(height: 22),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Tambahkan komentar...',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textMuted,
+                          TextField(
+                            controller: reviewController,
+                            maxLines: 4,
+                            decoration: InputDecoration(
+                              hintText: 'Tambahkan komentar...',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
                             ),
                           ),
@@ -213,10 +273,53 @@ class IslamicCenterAulaPage extends StatelessWidget {
                             width: double.infinity,
                             height: 62,
                             child: FilledButton(
-                              onPressed: () => _showPlaceholder(
-                                context,
-                                'Fitur submit review aula akan kita lanjutkan berikutnya.',
-                              ),
+                              onPressed: () async {
+                                if (selectedRating == 0) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Pilih rating terlebih dahulu'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                if (reviewController.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Ulasan tidak boleh kosong'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  await _service.submitReview(
+                                    facilityId: widget.facilityId,
+                                    rating: selectedRating,
+                                    review: reviewController.text.trim(),
+                                  );
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Review berhasil dikirim'),
+                                    ),
+                                  );
+
+                                  reviewController.clear();
+
+                                  setState(() {
+                                    selectedRating = 0;
+                                  });
+
+                                  await loadDetail();
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.toString()),
+                                    ),
+                                  );
+                                }
+                              },
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.welcomeAccent,
                                 shape: RoundedRectangleBorder(
@@ -247,11 +350,11 @@ class IslamicCenterAulaPage extends StatelessWidget {
                       height: 280,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _reviews.length,
+                        itemCount: reviews.length,
                         separatorBuilder: (_, index) =>
                             const SizedBox(width: 16),
                         itemBuilder: (context, index) {
-                          return _ReviewCard(review: _reviews[index]);
+                          return _ReviewCard(review: reviews[index]);
                         },
                       ),
                     ),
@@ -331,7 +434,7 @@ class _SectionHeader extends StatelessWidget {
 class _RoomCard extends StatelessWidget {
   const _RoomCard({required this.room, required this.onTap});
 
-  final _RoomOption room;
+  final Map<String, dynamic> room;
   final VoidCallback onTap;
 
   @override
@@ -353,8 +456,8 @@ class _RoomCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            room.name,
+        Text(
+            '${room['name'] ?? '-'}',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -373,7 +476,7 @@ class _RoomCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            room.price,
+            'Rp ${room['price'] ?? 0}',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -382,7 +485,7 @@ class _RoomCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            room.description,
+            '${room['description'] ?? '-'}',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -410,7 +513,7 @@ class _RoomCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                room.capacity,
+                '${room['capacity'] ?? 0} Orang',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -445,23 +548,38 @@ class _RoomCard extends StatelessWidget {
 }
 
 class _RatingRow extends StatelessWidget {
-  const _RatingRow();
+  final int rating;
+  final ValueChanged<int> onChanged;
+
+  const _RatingRow({
+    required this.rating,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(5, (index) {
-        final isFilled = index < 4;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Icon(
-            Icons.star_rounded,
-            size: 38,
-            color: isFilled ? const Color(0xFFF59E0B) : const Color(0xFFD1D5DB),
-          ),
-        );
-      }),
+      children: List.generate(
+        5,
+            (index) {
+          final star = index + 1;
+
+          return GestureDetector(
+            onTap: () => onChanged(star),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Icon(
+                Icons.star_rounded,
+                size: 38,
+                color: star <= rating
+                    ? const Color(0xFFF59E0B)
+                    : const Color(0xFFD1D5DB),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -469,7 +587,7 @@ class _RatingRow extends StatelessWidget {
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard({required this.review});
 
-  final _ReviewItem review;
+  final Map<String, dynamic> review;
 
   @override
   Widget build(BuildContext context) {
@@ -507,7 +625,7 @@ class _ReviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review.name,
+                      review['full_name'] ?? '-',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -535,7 +653,7 @@ class _ReviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            '"${review.review}"',
+            '"${review['review'] ?? '-'}"',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w500,
