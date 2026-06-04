@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class IslamicCenterAsramaBookingPage extends StatefulWidget {
   const IslamicCenterAsramaBookingPage({super.key, this.roomName});
@@ -73,7 +74,9 @@ class _IslamicCenterAsramaBookingPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -118,7 +121,7 @@ class _IslamicCenterAsramaBookingPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -127,7 +130,7 @@ class _IslamicCenterAsramaBookingPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 34),
@@ -192,7 +195,9 @@ class _IslamicCenterAsramaBookingPageState
               onPressed: _canSubmit ? _handleSubmit : null,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
-                disabledBackgroundColor: const Color(0xFFBFD4FF),
+                disabledBackgroundColor: context.isDarkMode
+                    ? AppColors.welcomeAccent.withValues(alpha: 0.28)
+                    : const Color(0xFFBFD4FF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
                 ),
@@ -222,7 +227,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 17,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
     );
   }
@@ -247,17 +252,19 @@ class _BookingTextField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8F949C),
+          color: context.appMutedTextColor,
         ),
         filled: true,
-        fillColor: const Color(0xFFF1F1F4),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF1F1F4),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 24,
           vertical: 22,
@@ -289,14 +296,17 @@ class _BookingDropdownField extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: value,
       onChanged: onChanged,
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
         size: 30,
-        color: Color(0xFF666B73),
+        color: context.appMutedTextColor,
       ),
+      dropdownColor: context.appSurfaceColor,
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFF1F1F4),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF1F1F4),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 24,
           vertical: 22,
@@ -311,13 +321,13 @@ class _BookingDropdownField extends StatelessWidget {
         style: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8F949C),
+          color: context.appMutedTextColor,
         ),
       ),
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
       items: items
           .map(
@@ -352,11 +362,15 @@ class _FacilityOptionTile extends StatelessWidget {
           width: isWide ? double.infinity : 391 / 2 - 33,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F1F4),
+            color: context.isDarkMode
+                ? context.appSearchSurfaceColor
+                : const Color(0xFFF1F1F4),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: isSelected
                   ? AppColors.welcomeAccent
+                  : context.isDarkMode
+                  ? Colors.transparent
                   : const Color(0xFFF1F1F4),
               width: 1.5,
             ),
@@ -372,7 +386,7 @@ class _FacilityOptionTile extends StatelessWidget {
                   border: Border.all(
                     color: isSelected
                         ? AppColors.welcomeAccent
-                        : const Color(0xFF8F949C),
+                        : context.appMutedTextColor,
                     width: 1.5,
                   ),
                   color: isSelected
@@ -394,7 +408,7 @@ class _FacilityOptionTile extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF4E535B),
+                    color: context.appTextColor,
                   ),
                 ),
               ),

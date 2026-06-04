@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class KhasJatimRegistrationPage extends StatefulWidget {
   const KhasJatimRegistrationPage({super.key});
@@ -143,7 +144,9 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -188,7 +191,9 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF2C2F38),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2C2F38),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -198,7 +203,9 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                         height: 1.9,
-                        color: const Color(0xFF8A8F9C),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF8A8F9C),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -366,7 +373,7 @@ class _SchemeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         onTap: onTap,
@@ -383,13 +390,13 @@ class _SchemeCard extends StatelessWidget {
                 width: 4,
               ),
             ),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,7 +416,9 @@ class _SchemeCard extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   height: 1.6,
-                  color: const Color(0xFF8A8F9C),
+                  color: context.appThemedMutedTextColor(
+                    const Color(0xFF8A8F9C),
+                  ),
                 ),
               ),
             ],
@@ -432,15 +441,15 @@ class _FormSection extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,7 +486,7 @@ class _LabeledField extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF2C2F38),
+            color: context.appThemedTextColor(const Color(0xFF2C2F38)),
           ),
         ),
         const SizedBox(height: 10),
@@ -506,17 +515,19 @@ class _TextInputField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 16,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2E3038),
+        color: context.appThemedTextColor(const Color(0xFF2E3038)),
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8A8F9C),
+          color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
         ),
         filled: true,
-        fillColor: const Color(0xFFF0F1F5),
+        fillColor: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF0F1F5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -554,16 +565,21 @@ class _DropdownField extends StatelessWidget {
           )
           .toList(),
       onChanged: onChanged,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded),
+      icon: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: context.appMutedTextColor,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 15,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8A8F9C),
+          color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
         ),
         filled: true,
-        fillColor: const Color(0xFFF0F1F5),
+        fillColor: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF0F1F5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -576,9 +592,9 @@ class _DropdownField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 16,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2E3038),
+        color: context.appThemedTextColor(const Color(0xFF2E3038)),
       ),
-      dropdownColor: Colors.white,
+      dropdownColor: context.appSurfaceColor,
     );
   }
 }
@@ -602,9 +618,16 @@ class _UploadField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDFEFF),
+        color: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFFDFEFF),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFD6E5FF), width: 2),
+        border: Border.all(
+          color: context.isDarkMode
+              ? context.appBorderColor
+              : const Color(0xFFD6E5FF),
+          width: 2,
+        ),
       ),
       child: Column(
         children: [
@@ -612,7 +635,9 @@ class _UploadField extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFFDCE9FF),
+              color: context.isDarkMode
+                  ? context.appSurfaceColor
+                  : const Color(0xFFDCE9FF),
               borderRadius: BorderRadius.circular(18),
             ),
             child: const Icon(
@@ -629,7 +654,7 @@ class _UploadField extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.5,
-              color: const Color(0xFF8A8F9C),
+              color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
             ),
           ),
           const SizedBox(height: 18),
@@ -662,7 +687,9 @@ class _UploadField extends StatelessWidget {
                 TextButton(
                   onPressed: onRemoveFile,
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF6B7280),
+                    foregroundColor: context.appThemedMutedTextColor(
+                      const Color(0xFF6B7280),
+                    ),
                     textStyle: GoogleFonts.plusJakartaSans(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,

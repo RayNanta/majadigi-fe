@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HoaxTrackReportPage extends StatefulWidget {
   const HoaxTrackReportPage({super.key});
@@ -59,7 +60,9 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -100,15 +103,15 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(26, 28, 26, 30),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.appSurfaceColor,
                     borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
+                    boxShadow: context.appThemedCardShadows([
                       BoxShadow(
                         color: const Color(0xFF111827).withValues(alpha: 0.035),
                         blurRadius: 14,
                         offset: const Offset(0, 6),
                       ),
-                    ],
+                    ]),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +121,9 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF4A4D54),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF4A4D54),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 44),
@@ -127,7 +132,9 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF4E525A),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF4E525A),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -144,17 +151,23 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF2F3136),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF2F3136),
+                          ),
                         ),
                         decoration: InputDecoration(
                           hintText: 'Contoh: MH-2024-001',
                           hintStyle: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFFB0B3BA),
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFFB0B3BA),
+                            ),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF0F0F2),
+                          fillColor: context.isDarkMode
+                              ? context.appSubtleSurfaceColor
+                              : const Color(0xFFF0F0F2),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 18,
@@ -179,7 +192,7 @@ class _HoaxTrackReportPageState extends State<HoaxTrackReportPage> {
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                           height: 1.55,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
                       ),
                     ],

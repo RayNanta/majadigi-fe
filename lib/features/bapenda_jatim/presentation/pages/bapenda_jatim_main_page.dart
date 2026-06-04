@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class BapendaJatimMainPage extends StatelessWidget {
   const BapendaJatimMainPage({super.key});
@@ -43,7 +44,9 @@ class BapendaJatimMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -86,7 +89,9 @@ class BapendaJatimMainPage extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF101218),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF101218),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -117,15 +122,15 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
@@ -134,7 +139,13 @@ class _FeatureCard extends StatelessWidget {
             Positioned(
               right: -8,
               bottom: -18,
-              child: Icon(item.icon, size: 160, color: const Color(0xFFEDEFF6)),
+              child: Icon(
+                item.icon,
+                size: 160,
+                color: context.isDarkMode
+                    ? const Color(0xFF1B2A43)
+                    : const Color(0xFFEDEFF6),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(28, 28, 28, 28),
@@ -162,7 +173,9 @@ class _FeatureCard extends StatelessWidget {
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         height: 1.65,
-                        color: const Color(0xFF535862),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF535862),
+                        ),
                       ),
                     ),
                   ),

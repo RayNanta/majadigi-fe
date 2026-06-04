@@ -4,25 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../services/tbc_service.dart';
 
 class TbcScreeningFormTwoPage extends StatefulWidget {
-
   final Map<String, dynamic> screeningData;
 
-  const TbcScreeningFormTwoPage({
-    super.key,
-    required this.screeningData,
-  });
+  const TbcScreeningFormTwoPage({super.key, required this.screeningData});
 
   @override
   State<TbcScreeningFormTwoPage> createState() =>
       _TbcScreeningFormTwoPageState();
 }
 
-class _TbcScreeningFormTwoPageState
-    extends State<TbcScreeningFormTwoPage> {
-
+class _TbcScreeningFormTwoPageState extends State<TbcScreeningFormTwoPage> {
   final TbcService service = TbcService();
 
   bool isLoading = true;
@@ -40,29 +35,21 @@ class _TbcScreeningFormTwoPageState
   }
 
   Future<void> loadFactors() async {
-
     try {
-
-      final result =
-      await service.getQuestions();
+      final result = await service.getQuestions();
 
       setState(() {
         question = result;
         isLoading = false;
       });
-
     } catch (e) {
-
       setState(() {
         isLoading = false;
       });
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -71,90 +58,49 @@ class _TbcScreeningFormTwoPageState
   }
 
   Future<void> _handleSubmit() async {
-
     /// validasi semua wajib dijawab
     if (answers.length != question.length) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Semua pertanyaan harus dijawab',
-          ),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua pertanyaan harus dijawab')),
       );
 
       return;
     }
 
-    final riskFactorAnswers =
-    answers.entries.map((e) {
-
-      return {
-        "question_id": e.key,
-        "answer": e.value,
-      };
-
+    final riskFactorAnswers = answers.entries.map((e) {
+      return {"question_id": e.key, "answer": e.value};
     }).toList();
 
-    final finalData = {
-      ...widget.screeningData,
-      "answers": riskFactorAnswers,
-    };
+    final finalData = {...widget.screeningData, "answers": riskFactorAnswers};
 
     final resultData = {
-      'nama_pasien':
-      widget.screeningData['nama_pasien'],
+      'nama_pasien': widget.screeningData['nama_pasien'],
 
-      'screening_date':
-      DateTime.now().toString(),
+      'screening_date': DateTime.now().toString(),
     };
 
     try {
+      final result = await service.submitScreening(finalData);
 
-      final result =
-      await service.submitScreening(finalData);
+      final risk = result['data']['status_risiko'];
 
-      final risk =
-      result['data']['status_risiko'];
-
-      final bool isPositive =
-          risk == 'sedang' ||
-              risk == 'tinggi';
+      final bool isPositive = risk == 'sedang' || risk == 'tinggi';
 
       if (!mounted) return;
 
       if (isPositive) {
-
-        context.goNamed(
-          RouteNames.homeTbcResultPositive,
-          extra: resultData
-        );
-
+        context.goNamed(RouteNames.homeTbcResultPositive, extra: resultData);
       } else {
-
-        context.goNamed(
-          RouteNames.homeTbcResultNegative,
-          extra: resultData
-        );
+        context.goNamed(RouteNames.homeTbcResultNegative, extra: resultData);
       }
-
     } catch (e) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
-  void _setAnswer(
-      int factorId,
-      String value,
-      ) {
-
+  void _setAnswer(int factorId, String value) {
     setState(() {
       answers[factorId] = value;
     });
@@ -162,32 +108,23 @@ class _TbcScreeningFormTwoPageState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
-
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
 
         child: Column(
           children: [
-
             /// HEADER
             Container(
               width: double.infinity,
 
               color: AppColors.welcomeAccent,
 
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                18,
-                20,
-                18,
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
 
               child: Row(
                 children: [
-
                   IconButton(
                     onPressed: _handleBack,
 
@@ -197,10 +134,7 @@ class _TbcScreeningFormTwoPageState
                       minimumSize: const Size(36, 36),
                     ),
 
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      size: 30,
-                    ),
+                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
                   ),
 
                   const SizedBox(width: 6),
@@ -209,8 +143,7 @@ class _TbcScreeningFormTwoPageState
                     child: Text(
                       'Formulir Skrining',
 
-                      style:
-                      GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -223,132 +156,92 @@ class _TbcScreeningFormTwoPageState
 
             Expanded(
               child: isLoading
-                  ? const Center(
-                child:
-                CircularProgressIndicator(),
-              )
+                  ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
-                padding:
-                const EdgeInsets.fromLTRB(
-                  24,
-                  24,
-                  24,
-                  28,
-                ),
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
 
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
-                  children: [
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
 
-                    Row(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(999),
 
-                      children: [
-
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius:
-                            BorderRadius.circular(
-                              999,
-                            ),
-
-                            child:
-                            LinearProgressIndicator(
-                              value: 1,
-                              minHeight: 8,
-
-                              backgroundColor:
-                              const Color(
-                                0xFFD8D8DA,
+                                  child: LinearProgressIndicator(
+                                    value: 1,
+                                    minHeight: 8,
+                                    backgroundColor: context.isDarkMode
+                                        ? context.appBorderColor
+                                        : const Color(0xFFD8D8DA),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          AppColors.welcomeAccent,
+                                        ),
+                                  ),
+                                ),
                               ),
 
-                              valueColor:
-                              const AlwaysStoppedAnimation<
-                                  Color>(
-                                AppColors
-                                    .welcomeAccent,
+                              const SizedBox(width: 14),
+
+                              Text(
+                                'Formulir 2 dari 2',
+
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+
+                                  fontWeight: FontWeight.w500,
+
+                                  color: AppColors.welcomeAccent,
+                                ),
                               ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          Text(
+                            'Informasi lainnya',
+
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.welcomeAccent,
                             ),
                           ),
-                        ),
 
-                        const SizedBox(width: 14),
+                          const SizedBox(height: 28),
 
-                        Text(
-                          'Formulir 2 dari 2',
+                          ...question.map((factor) {
+                            final id = factor['id'];
 
-                          style:
-                          GoogleFonts
-                              .plusJakartaSans(
-                            fontSize: 14,
+                            final question = factor['question'];
 
-                            fontWeight:
-                            FontWeight.w500,
+                            final value = answers[id];
 
-                            color: AppColors
-                                .welcomeAccent,
-                          ),
-                        ),
-                      ],
-                    ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
 
-                    const SizedBox(height: 30),
+                              child: _ScreeningQuestionCard(
+                                question: question,
 
-                    Text(
-                      'Informasi lainnya',
+                                value: value,
 
-                      style:
-                      GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color:
-                        AppColors.welcomeAccent,
+                                onChanged: (value) {
+                                  _setAnswer(id, value);
+                                },
+                              ),
+                            );
+                          }),
+
+                          const SizedBox(height: 120),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 28),
-
-                    ...question.map((factor) {
-
-                      final id = factor['id'];
-
-                      final question =
-                      factor['question'];
-
-                      final value =
-                      answers[id];
-
-                      return Padding(
-                        padding:
-                        const EdgeInsets.only(
-                          bottom: 24,
-                        ),
-
-                        child:
-                        _ScreeningQuestionCard(
-                          question: question,
-
-                          value: value,
-
-                          onChanged:
-                              (value) {
-
-                            _setAnswer(
-                              id,
-                              value,
-                            );
-                          },
-                        ),
-                      );
-                    }),
-
-                    const SizedBox(height: 120),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -358,18 +251,10 @@ class _TbcScreeningFormTwoPageState
         top: false,
 
         child: Container(
-          color: Colors.white,
-
-          padding: const EdgeInsets.fromLTRB(
-            24,
-            18,
-            24,
-            20,
-          ),
-
+          color: context.appSurfaceColor,
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
           child: Row(
             children: [
-
               Expanded(
                 child: SizedBox(
                   height: 60,
@@ -377,31 +262,21 @@ class _TbcScreeningFormTwoPageState
                   child: OutlinedButton(
                     onPressed: _handleBack,
 
-                    style:
-                    OutlinedButton.styleFrom(
-                      foregroundColor:
-                      AppColors
-                          .welcomeAccent,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.welcomeAccent,
 
                       side: const BorderSide(
-                        color:
-                        AppColors
-                            .welcomeAccent,
+                        color: AppColors.welcomeAccent,
 
                         width: 1.8,
                       ),
 
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
-                          20,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
 
-                    child:
-                    const Text('Sebelumnya'),
+                    child: const Text('Sebelumnya'),
                   ),
                 ),
               ),
@@ -415,23 +290,15 @@ class _TbcScreeningFormTwoPageState
                   child: FilledButton(
                     onPressed: _handleSubmit,
 
-                    style:
-                    FilledButton.styleFrom(
-                      backgroundColor:
-                      AppColors
-                          .welcomeAccent,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.welcomeAccent,
 
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
-                          20,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
 
-                    child:
-                    const Text('Submit Data'),
+                    child: const Text('Submit Data'),
                   ),
                 ),
               ),
@@ -444,7 +311,6 @@ class _TbcScreeningFormTwoPageState
 }
 
 class _ScreeningQuestionCard extends StatelessWidget {
-
   const _ScreeningQuestionCard({
     required this.question,
     required this.value,
@@ -459,23 +325,18 @@ class _ScreeningQuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         Text(
           question,
 
-          style:
-          GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
 
             fontWeight: FontWeight.w700,
-
-            color: const Color(0xFF55585E),
+            color: context.appThemedTextColor(const Color(0xFF55585E)),
           ),
         ),
 
@@ -483,7 +344,6 @@ class _ScreeningQuestionCard extends StatelessWidget {
 
         Row(
           children: [
-
             Expanded(
               child: _BinaryOptionCard(
                 label: 'Ya',
@@ -517,7 +377,6 @@ class _ScreeningQuestionCard extends StatelessWidget {
 }
 
 class _BinaryOptionCard extends StatelessWidget {
-
   const _BinaryOptionCard({
     required this.label,
     required this.isSelected,
@@ -532,49 +391,37 @@ class _BinaryOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Material(
       color: isSelected
-          ? const Color(0xFFE6F0FF)
+          ? context.isDarkMode
+                ? const Color(0xFF15345F)
+                : const Color(0xFFE6F0FF)
+          : context.isDarkMode
+          ? context.appSubtleSurfaceColor
           : const Color(0xFFF0F0F2),
-
-      borderRadius:
-      BorderRadius.circular(20),
-
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
 
-        borderRadius:
-        BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
 
         child: Padding(
-          padding:
-          const EdgeInsets.symmetric(
-            horizontal: 22,
-            vertical: 24,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
 
           child: Row(
-            mainAxisAlignment:
-            MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
-
               Icon(
                 isSelected
-                    ? Icons
-                    .radio_button_checked_rounded
-                    : Icons
-                    .radio_button_unchecked_rounded,
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
 
                 size: 30,
 
                 color: isSelected
-                    ? AppColors
-                    .welcomeAccent
-                    : const Color(
-                  0xFF9D9D9F,
-                ),
+                    ? AppColors.welcomeAccent
+                    : context.appThemedMutedTextColor(const Color(0xFF9D9D9F)),
               ),
 
               const SizedBox(width: 10),
@@ -582,19 +429,16 @@ class _BinaryOptionCard extends StatelessWidget {
               Text(
                 label,
 
-                style:
-                GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
 
-                  fontWeight:
-                  FontWeight.w500,
+                  fontWeight: FontWeight.w500,
 
                   color: isSelected
-                      ? AppColors
-                      .welcomeAccent
-                      : const Color(
-                    0xFF9D9D9F,
-                  ),
+                      ? AppColors.welcomeAccent
+                      : context.appThemedMutedTextColor(
+                          const Color(0xFF9D9D9F),
+                        ),
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../controllers/home_services_controller.dart';
 import '../data/home_service_catalog.dart';
 import '../data/home_service_destinations.dart';
@@ -90,7 +91,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
     final selectedServiceIds = ref.watch(homeSelectedServiceIdsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -132,7 +133,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textMuted,
+                            color: context.appMutedTextColor,
                           ),
                         ),
                       ),
@@ -186,13 +187,15 @@ class _ServicesHeader extends StatelessWidget {
         children: [
           Container(
             height: 154,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1668F7), Color(0xFF0F52D2)],
+                colors: context.appHeaderGradientColors,
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(42)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(42),
+              ),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -209,28 +212,30 @@ class _ServicesHeader extends StatelessWidget {
             right: 24,
             bottom: 0,
             child: Material(
-              color: Colors.white,
+              color: context.appSearchSurfaceColor,
               elevation: 2,
-              shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.08),
+              shadowColor: Colors.black.withValues(
+                alpha: context.isDarkMode ? 0.28 : 0.08,
+              ),
               borderRadius: BorderRadius.circular(36),
               child: TextField(
                 controller: searchController,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF2F3136),
+                  color: context.appTextColor,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Cari layanan',
                   hintStyle: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
-                  suffixIcon: const Icon(
+                  suffixIcon: Icon(
                     Icons.search_rounded,
                     size: 36,
-                    color: Color(0xFF8C9096),
+                    color: context.appMutedTextColor,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 28,
@@ -238,8 +243,8 @@ class _ServicesHeader extends StatelessWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(36),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFACAFB6),
+                    borderSide: BorderSide(
+                      color: context.appBorderColor,
                       width: 2,
                     ),
                   ),
@@ -279,10 +284,12 @@ class _CategoryChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE7F0FF) : const Color(0xFFEDEDED),
+          color: isSelected
+              ? context.appSelectedChipColor
+              : context.appChipColor,
           borderRadius: BorderRadius.circular(999),
           border: isSelected
-              ? Border.all(color: const Color(0xFFB7D0FF))
+              ? Border.all(color: context.appSelectedChipBorderColor)
               : null,
         ),
         child: Text(
@@ -290,9 +297,7 @@ class _CategoryChip extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 17,
             fontWeight: FontWeight.w500,
-            color: isSelected
-                ? AppColors.welcomeAccent
-                : const Color(0xFF3B3E45),
+            color: isSelected ? AppColors.welcomeAccent : context.appTextColor,
           ),
         ),
       ),
@@ -329,7 +334,7 @@ class _ServicesCatalogTile extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.w500,
               height: 1.25,
-              color: const Color(0xFF111111),
+              color: context.appTextColor,
             ),
           ),
           const SizedBox(height: 8),
@@ -372,10 +377,12 @@ class _ServiceBadge extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: item.badgeBackground,
-        border: Border.all(color: const Color(0xFFF0F1F4)),
+        border: Border.all(color: context.appBorderColor),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF111827).withValues(alpha: 0.03),
+            color: Colors.black.withValues(
+              alpha: context.isDarkMode ? 0.16 : 0.03,
+            ),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

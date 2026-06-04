@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class TbcResultLayout extends StatelessWidget {
   const TbcResultLayout({
@@ -28,7 +29,9 @@ class TbcResultLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -80,7 +83,9 @@ class TbcResultLayout extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF4B4E55),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF4B4E55),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -90,7 +95,9 @@ class TbcResultLayout extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF9B9EA7),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF9B9EA7),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -114,7 +121,9 @@ class TbcResultLayout extends StatelessWidget {
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                             height: 1.45,
-                            color: const Color(0xFF3F434A),
+                            color: context.appThemedTextColor(
+                              const Color(0xFF3F434A),
+                            ),
                           ),
                         ),
                       ),
@@ -130,7 +139,7 @@ class TbcResultLayout extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          color: Colors.white,
+          color: context.appSurfaceColor,
           padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
           child: SizedBox(
             height: 66,
@@ -161,15 +170,15 @@ class _DinkesBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -178,7 +187,9 @@ class _DinkesBadge extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFFE6F0FF),
+              color: context.isDarkMode
+                  ? context.appSubtleSurfaceColor
+                  : const Color(0xFFE6F0FF),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(
@@ -194,7 +205,7 @@ class _DinkesBadge extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w800,
               height: 1.4,
-              color: const Color(0xFF111111),
+              color: context.appThemedTextColor(const Color(0xFF111111)),
             ),
           ),
         ],

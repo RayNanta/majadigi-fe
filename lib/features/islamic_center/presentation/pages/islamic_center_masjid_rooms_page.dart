@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class IslamicCenterMasjidRoomsPage extends StatelessWidget {
   const IslamicCenterMasjidRoomsPage({super.key});
@@ -44,7 +45,9 @@ class IslamicCenterMasjidRoomsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -91,7 +94,7 @@ class IslamicCenterMasjidRoomsPage extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     );
                   }
@@ -138,15 +141,15 @@ class _MasjidRoomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
@@ -205,7 +208,7 @@ class _MasjidRoomCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                   ),
@@ -219,7 +222,7 @@ class _MasjidRoomCard extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
-                          color: const Color(0xFF9AA1AF),
+                          color: context.appMutedTextColor,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -245,7 +248,7 @@ class _MasjidRoomCard extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   height: 1.55,
-                  color: AppColors.textMuted,
+                  color: context.appMutedTextColor,
                 ),
               ),
             ),
@@ -258,7 +261,7 @@ class _MasjidRoomCard extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.8,
-                  color: const Color(0xFF9AA1AF),
+                  color: context.appMutedTextColor,
                 ),
               ),
             ),
@@ -267,10 +270,10 @@ class _MasjidRoomCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.groups_2_outlined,
                     size: 22,
-                    color: Color(0xFF8B8D94),
+                    color: context.appMutedTextColor,
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -278,7 +281,7 @@ class _MasjidRoomCard extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF565B66),
+                      color: context.appTextColor,
                     ),
                   ),
                 ],

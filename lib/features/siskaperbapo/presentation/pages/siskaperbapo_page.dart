@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class SiskaperbapoPage extends StatelessWidget {
@@ -68,7 +69,9 @@ class SiskaperbapoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -116,7 +119,7 @@ class SiskaperbapoPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.8,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -177,7 +180,7 @@ class _HeroBadge extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 26),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(36),
         boxShadow: [
           BoxShadow(
@@ -249,10 +252,12 @@ class _HeroBadge extends StatelessWidget {
                         width: 128,
                         height: 168,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.appSurfaceColor,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: const Color(0xFF3A3A3A),
+                            color: context.appThemedTextColor(
+                              const Color(0xFF3A3A3A),
+                            ),
                             width: 6,
                           ),
                         ),
@@ -342,7 +347,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF16181D),
+        color: context.appThemedTextColor(const Color(0xFF16181D)),
       ),
     );
   }
@@ -371,7 +376,7 @@ class _BenefitCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -411,7 +416,7 @@ class _BenefitCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2B2F38),
+                    color: context.appThemedTextColor(const Color(0xFF2B2F38)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -421,7 +426,7 @@ class _BenefitCard extends StatelessWidget {
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],
@@ -456,7 +461,7 @@ class _ProcedureCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -526,7 +531,7 @@ class _ProcedureStepRow extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2B2F38),
+                    color: context.appThemedTextColor(const Color(0xFF2B2F38)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -536,7 +541,7 @@ class _ProcedureStepRow extends StatelessWidget {
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],

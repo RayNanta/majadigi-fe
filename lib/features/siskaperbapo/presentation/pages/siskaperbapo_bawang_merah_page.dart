@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiskaperbapoBawangMerahPage extends StatefulWidget {
   const SiskaperbapoBawangMerahPage({super.key});
@@ -82,7 +83,7 @@ class _SiskaperbapoBawangMerahPageState
     final selectedTab = _tabs[_selectedTabIndex];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF6F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -159,7 +160,9 @@ class _SiskaperbapoBawangMerahPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF40444C),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF40444C),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -168,7 +171,7 @@ class _SiskaperbapoBawangMerahPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -177,15 +180,17 @@ class _SiskaperbapoBawangMerahPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF3F434A),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF3F434A),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -193,10 +198,10 @@ class _SiskaperbapoBawangMerahPageState
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Row(
-                        children: const [
+                        children: [
                           Expanded(
                             child: _PriceSummaryTile(
                               label: 'TERTINGGI',
@@ -210,7 +215,7 @@ class _SiskaperbapoBawangMerahPageState
                             child: VerticalDivider(
                               width: 1,
                               thickness: 1,
-                              color: Color(0xFFE7EAF1),
+                              color: context.appBorderColor,
                             ),
                           ),
                           Expanded(
@@ -228,7 +233,9 @@ class _SiskaperbapoBawangMerahPageState
                     Container(
                       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE7F1FF),
+                        color: context.isDarkMode
+                            ? context.appSurfaceColor
+                            : const Color(0xFFE7F1FF),
                         borderRadius: BorderRadius.circular(26),
                       ),
                       child: Column(
@@ -242,7 +249,9 @@ class _SiskaperbapoBawangMerahPageState
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF2F3136),
+                                    color: context.appThemedTextColor(
+                                      const Color(0xFF2F3136),
+                                    ),
                                     height: 1.45,
                                   ),
                                 ),
@@ -250,7 +259,9 @@ class _SiskaperbapoBawangMerahPageState
                               Container(
                                 padding: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.75),
+                                  color: context.isDarkMode
+                                      ? context.appSubtleSurfaceColor
+                                      : Colors.white.withValues(alpha: 0.75),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Row(
@@ -280,7 +291,7 @@ class _SiskaperbapoBawangMerahPageState
                                         ),
                                         decoration: BoxDecoration(
                                           color: isSelected
-                                              ? Colors.white
+                                              ? context.appSurfaceColor
                                               : Colors.transparent,
                                           borderRadius: BorderRadius.circular(
                                             999,
@@ -308,7 +319,10 @@ class _SiskaperbapoBawangMerahPageState
                                                 : FontWeight.w500,
                                             color: isSelected
                                                 ? AppColors.welcomeAccent
-                                                : const Color(0xFF555A62),
+                                                : context
+                                                      .appThemedMutedTextColor(
+                                                        const Color(0xFF555A62),
+                                                      ),
                                             height: 1.2,
                                           ),
                                         ),
@@ -403,7 +417,9 @@ class _PriceSummaryTile extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF4F5A8A),
+                  color: context.appThemedMutedTextColor(
+                    const Color(0xFF4F5A8A),
+                  ),
                   letterSpacing: 0.35,
                 ),
               ),
@@ -415,7 +431,7 @@ class _PriceSummaryTile extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 20,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF28326B),
+              color: context.appThemedTextColor(const Color(0xFF28326B)),
             ),
           ),
           const SizedBox(height: 2),
@@ -424,7 +440,7 @@ class _PriceSummaryTile extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF6E7895),
+              color: context.appThemedMutedTextColor(const Color(0xFF6E7895)),
             ),
           ),
         ],
@@ -445,7 +461,7 @@ class _WeekdayLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF5B6272),
+        color: context.appThemedMutedTextColor(const Color(0xFF5B6272)),
       ),
     );
   }
@@ -466,15 +482,15 @@ class _RegionPriceCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
-        ],
+        ]),
       ),
       child: Row(
         children: [
@@ -509,7 +525,9 @@ class _RegionPriceCard extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF3B3F47),
+                            color: context.appThemedTextColor(
+                              const Color(0xFF3B3F47),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -518,7 +536,9 @@ class _RegionPriceCard extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF99A0AE),
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFF99A0AE),
+                            ),
                             letterSpacing: 0.3,
                           ),
                         ),

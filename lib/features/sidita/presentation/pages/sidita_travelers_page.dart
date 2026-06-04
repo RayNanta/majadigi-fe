@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaTravelersPage extends StatelessWidget {
   const SiditaTravelersPage({super.key});
@@ -20,7 +21,9 @@ class SiditaTravelersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -61,7 +64,7 @@ class SiditaTravelersPage extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 32,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFF9C9C9C),
+                    color: context.appMutedTextColor,
                     letterSpacing: 0.6,
                   ),
                 ),

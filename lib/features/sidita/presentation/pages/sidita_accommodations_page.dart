@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaAccommodationsPage extends StatefulWidget {
   const SiditaAccommodationsPage({super.key});
@@ -93,7 +94,9 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -142,32 +145,35 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0F0F2),
+                        color: context.isDarkMode
+                            ? context.appSearchSurfaceColor
+                            : const Color(0xFFF0F0F2),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedRegion,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.expand_more_rounded,
-                            color: Color(0xFF5D6068),
+                            color: context.appMutedTextColor,
                             size: 28,
                           ),
+                          dropdownColor: context.appSurfaceColor,
                           borderRadius: BorderRadius.circular(18),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF555962),
+                            color: context.appTextColor,
                           ),
                           items: _regions.map((region) {
                             return DropdownMenuItem<String>(
                               value: region,
                               child: Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.location_on_outlined,
                                     size: 22,
-                                    color: Color(0xFF696D75),
+                                    color: context.appMutedTextColor,
                                   ),
                                   const SizedBox(width: 10),
                                   Text(region),
@@ -193,7 +199,7 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF16181D),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -210,7 +216,7 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF16181D),
+                              color: context.appTextColor,
                             ),
                           ),
                         ),
@@ -247,7 +253,7 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                         ),
@@ -295,24 +301,30 @@ class _SearchField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF353941),
+        color: context.appTextColor,
       ),
       decoration: InputDecoration(
         hintText: 'Cari Destinasi Wisata',
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF94979E),
+          color: context.appMutedTextColor,
         ),
         filled: true,
-        fillColor: const Color(0xFFF0F0F2),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF0F0F2),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 20,
         ),
-        suffixIcon: const Padding(
-          padding: EdgeInsets.only(right: 12),
-          child: Icon(Icons.search_rounded, color: Color(0xFF6E7178), size: 34),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: Icon(
+            Icons.search_rounded,
+            color: context.appMutedTextColor,
+            size: 34,
+          ),
         ),
         suffixIconConstraints: const BoxConstraints(minWidth: 58),
         border: OutlineInputBorder(
@@ -344,7 +356,7 @@ class _FeaturedAccommodationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(26),
       child: InkWell(
         onTap: onTap,
@@ -434,7 +446,7 @@ class _PopularAccommodationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(26),
       child: InkWell(
         onTap: onTap,
@@ -459,7 +471,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1C22),
+                  color: context.appTextColor,
                 ),
               ),
               const SizedBox(height: 6),
@@ -468,7 +480,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF91949B),
+                  color: context.appMutedTextColor,
                 ),
               ),
               const SizedBox(height: 18),
@@ -478,7 +490,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.6,
-                  color: const Color(0xFFB1B5BD),
+                  color: context.appMutedTextColor,
                 ),
               ),
               const SizedBox(height: 4),
@@ -498,7 +510,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF8A8F99),
+                        color: context.appMutedTextColor,
                       ),
                     ),
                   ],

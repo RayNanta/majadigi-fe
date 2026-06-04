@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
 
 final _hoaxLatestReportsProvider =
@@ -132,7 +133,9 @@ class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
     final reportsAsync = ref.watch(_hoaxLatestReportsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -178,28 +181,30 @@ class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF2F3136),
+                        color: context.appTextColor,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Cari Laporan',
                         hintStyle: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF7B7B81),
+                          color: context.appMutedTextColor,
                         ),
-                        suffixIcon: const Padding(
-                          padding: EdgeInsets.only(right: 16),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 16),
                           child: Icon(
                             Icons.search_rounded,
                             size: 36,
-                            color: Color(0xFF6B6B72),
+                            color: context.appMutedTextColor,
                           ),
                         ),
                         suffixIconConstraints: const BoxConstraints(
                           minWidth: 60,
                         ),
                         filled: true,
-                        fillColor: const Color(0xFFF0F0F2),
+                        fillColor: context.isDarkMode
+                            ? context.appSearchSurfaceColor
+                            : const Color(0xFFF0F0F2),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 18,
@@ -260,9 +265,9 @@ class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
                                 vertical: 28,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: context.appSurfaceColor,
                                 borderRadius: BorderRadius.circular(28),
-                                boxShadow: [
+                                boxShadow: context.appThemedCardShadows([
                                   BoxShadow(
                                     color: const Color(
                                       0xFF111827,
@@ -270,7 +275,7 @@ class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
                                     blurRadius: 14,
                                     offset: const Offset(0, 6),
                                   ),
-                                ],
+                                ]),
                               ),
                               child: Text(
                                 'Belum ada laporan yang cocok dengan pencarianmu.',
@@ -278,7 +283,7 @@ class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   height: 1.6,
-                                  color: AppColors.textMuted,
+                                  color: context.appMutedTextColor,
                                 ),
                               ),
                             ),
@@ -368,15 +373,15 @@ class _FeaturedReportCard extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.04),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -420,10 +425,10 @@ class _FeaturedReportCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_outlined,
                           size: 22,
-                          color: Color(0xFF6570A6),
+                          color: context.appMutedTextColor,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -432,7 +437,7 @@ class _FeaturedReportCard extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6570A6),
+                              color: context.appMutedTextColor,
                             ),
                           ),
                         ),
@@ -445,7 +450,7 @@ class _FeaturedReportCard extends StatelessWidget {
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         height: 1.35,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -455,7 +460,7 @@ class _FeaturedReportCard extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.45,
-                        color: const Color(0xFF5E658A),
+                        color: context.appMutedTextColor,
                       ),
                     ),
                   ],
@@ -486,15 +491,15 @@ class _CompactReportCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.035),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           child: Row(
             children: [
@@ -524,7 +529,7 @@ class _CompactReportCard extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF6570A6),
+                            color: context.appMutedTextColor,
                           ),
                         ),
                       ],
@@ -538,7 +543,7 @@ class _CompactReportCard extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         height: 1.35,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 10),

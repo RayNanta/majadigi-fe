@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../data/sinaker_training_registration_store.dart';
 
 class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
@@ -28,7 +29,9 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
     final steps = _buildSteps(registration);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -71,9 +74,9 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(28, 28, 28, 28),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -81,7 +84,7 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                             blurRadius: 22,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,12 +96,14 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF2D3162),
+                              color: context.appThemedTextColor(
+                                const Color(0xFF2D3162),
+                              ),
                               height: 1.3,
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const Divider(color: Color(0xFFE9EEFB), height: 1),
+                          Divider(color: context.appBorderColor, height: 1),
                           const SizedBox(height: 24),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,8 +111,10 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                               Container(
                                 width: 92,
                                 height: 92,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEAF2FF),
+                                decoration: BoxDecoration(
+                                  color: context.isDarkMode
+                                      ? context.appSubtleSurfaceColor
+                                      : const Color(0xFFEAF2FF),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
@@ -130,7 +137,9 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 23,
                                           fontWeight: FontWeight.w800,
-                                          color: const Color(0xFF3B3F47),
+                                          color: context.appThemedTextColor(
+                                            const Color(0xFF3B3F47),
+                                          ),
                                           height: 1.2,
                                         ),
                                       ),
@@ -140,7 +149,10 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF606596),
+                                          color: context
+                                              .appThemedMutedTextColor(
+                                                const Color(0xFF606596),
+                                              ),
                                         ),
                                       ),
                                     ],
@@ -175,9 +187,9 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(28, 30, 28, 30),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -185,7 +197,7 @@ class SinakerTrainingRegistrationDetailPage extends StatelessWidget {
                             blurRadius: 22,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: [
@@ -318,7 +330,9 @@ class _RegistrationStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: _backgroundColor,
+        color: context.isDarkMode
+            ? _textColor.withValues(alpha: 0.16)
+            : _backgroundColor,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
@@ -349,7 +363,7 @@ class _InfoColumn extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF606596),
+            color: context.appThemedMutedTextColor(const Color(0xFF606596)),
             letterSpacing: 1.6,
           ),
         ),
@@ -433,6 +447,68 @@ class _StatusStep extends StatelessWidget {
     _StatusStepState.upcoming => const Color(0xFFB4B8C2),
   };
 
+  Color _themedLineColor(BuildContext context) {
+    if (!context.isDarkMode) return _lineColor;
+
+    return switch (state) {
+      _StatusStepState.completed => AppColors.welcomeAccent,
+      _StatusStepState.active => const Color(0xFF315F9F),
+      _StatusStepState.rejected => const Color(0xFF7F2A3A),
+      _StatusStepState.upcoming => context.appBorderColor,
+    };
+  }
+
+  Color _themedCircleColor(BuildContext context) {
+    if (!context.isDarkMode) return _circleColor;
+
+    return switch (state) {
+      _StatusStepState.completed => AppColors.welcomeAccent,
+      _StatusStepState.active => context.appSubtleSurfaceColor,
+      _StatusStepState.rejected => const Color(0xFF321B27),
+      _StatusStepState.upcoming => const Color(0xFF15243A),
+    };
+  }
+
+  Color _themedInnerCircleColor(BuildContext context) {
+    if (!context.isDarkMode) return _innerCircleColor;
+
+    return switch (state) {
+      _StatusStepState.completed => AppColors.welcomeAccent,
+      _StatusStepState.active => context.appSurfaceColor,
+      _StatusStepState.rejected => context.appSurfaceColor,
+      _StatusStepState.upcoming => context.appSubtleSurfaceColor,
+    };
+  }
+
+  Color _themedTitleColor(BuildContext context) {
+    if (!context.isDarkMode) return _titleColor;
+
+    return switch (state) {
+      _StatusStepState.upcoming => const Color(0xFF74839D),
+      _StatusStepState.rejected => const Color(0xFFFF6B80),
+      _ => context.appTextColor,
+    };
+  }
+
+  Color _themedBodyColor(BuildContext context) {
+    if (!context.isDarkMode) return _bodyColor;
+
+    return switch (state) {
+      _StatusStepState.upcoming => const Color(0xFF74839D),
+      _ => context.appMutedTextColor,
+    };
+  }
+
+  Color _themedFooterColor(BuildContext context) {
+    if (!context.isDarkMode) return _footerColor;
+
+    return switch (state) {
+      _StatusStepState.rejected => const Color(0xFFFF6B80),
+      _StatusStepState.upcoming => const Color(0xFF74839D),
+      _ => AppColors.welcomeAccent,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
@@ -447,7 +523,7 @@ class _StatusStep extends StatelessWidget {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: _circleColor,
+                    color: _themedCircleColor(context),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -455,7 +531,7 @@ class _StatusStep extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: _innerCircleColor,
+                      color: _themedInnerCircleColor(context),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -468,7 +544,7 @@ class _StatusStep extends StatelessWidget {
                       width: 4,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: _lineColor,
+                        color: _themedLineColor(context),
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -488,7 +564,7 @@ class _StatusStep extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: _titleColor,
+                      color: _themedTitleColor(context),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -497,7 +573,7 @@ class _StatusStep extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 17,
                       fontWeight: FontWeight.w500,
-                      color: _bodyColor,
+                      color: _themedBodyColor(context),
                       height: 1.7,
                     ),
                   ),
@@ -508,7 +584,7 @@ class _StatusStep extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: _footerColor,
+                        color: _themedFooterColor(context),
                       ),
                     ),
                   ],

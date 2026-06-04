@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class SiditaPage extends StatelessWidget {
@@ -69,7 +70,9 @@ class SiditaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -117,7 +120,7 @@ class SiditaPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.8,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -178,7 +181,7 @@ class _HeroCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(36),
         boxShadow: [
           BoxShadow(
@@ -214,7 +217,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w800,
-        color: const Color(0xFF20232B),
+        color: context.appThemedTextColor(const Color(0xFF20232B)),
       ),
     );
   }
@@ -243,7 +246,7 @@ class _BenefitCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -270,7 +273,7 @@ class _BenefitCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2E3139),
+                    color: context.appThemedTextColor(const Color(0xFF2E3139)),
                     height: 1.4,
                   ),
                 ),
@@ -280,7 +283,7 @@ class _BenefitCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                     height: 1.65,
                   ),
                 ),
@@ -318,7 +321,7 @@ class _ProcedureCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 22, 24, 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -391,7 +394,7 @@ class _ProcedureCard extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                           height: 1.6,
                         ),
                       ),

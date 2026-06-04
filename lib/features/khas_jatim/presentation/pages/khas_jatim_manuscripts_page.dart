@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
 
 final _khasJatimManuscriptsProvider =
@@ -363,7 +364,9 @@ class _KhasJatimManuscriptsPageState
     final filterPanelWidth = MediaQuery.of(context).size.width * 0.82;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Stack(
@@ -417,7 +420,9 @@ class _KhasJatimManuscriptsPageState
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF8A8F9C),
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFF8A8F9C),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -483,7 +488,7 @@ class _KhasJatimManuscriptsPageState
               child: IgnorePointer(
                 ignoring: !_showFilters,
                 child: Material(
-                  color: Colors.white,
+                  color: context.appSurfaceColor,
                   elevation: 24,
                   child: SafeArea(
                     left: false,
@@ -501,7 +506,9 @@ class _KhasJatimManuscriptsPageState
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF2E3038),
+                                    color: context.appThemedTextColor(
+                                      const Color(0xFF2E3038),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -606,7 +613,9 @@ class _KhasJatimManuscriptsPageState
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF4E5565),
+                                  color: context.appThemedMutedTextColor(
+                                    const Color(0xFF4E5565),
+                                  ),
                                 ),
                               ),
                             ),
@@ -635,7 +644,9 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F1F5),
+        color: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF0F1F5),
         borderRadius: BorderRadius.circular(22),
       ),
       child: TextField(
@@ -643,14 +654,14 @@ class _SearchBar extends StatelessWidget {
         style: GoogleFonts.plusJakartaSans(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF2E3038),
+          color: context.appThemedTextColor(const Color(0xFF2E3038)),
         ),
         decoration: InputDecoration(
           hintText: 'Cari Naskah',
           hintStyle: GoogleFonts.plusJakartaSans(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF8A8F9C),
+            color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -682,15 +693,15 @@ class _ManuscriptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,7 +756,9 @@ class _ManuscriptCard extends StatelessWidget {
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       height: 1.32,
-                      color: const Color(0xFF2C2F38),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF2C2F38),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -755,7 +768,9 @@ class _ManuscriptCard extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.45,
-                      color: const Color(0xFF9AA0AE),
+                      color: context.appThemedMutedTextColor(
+                        const Color(0xFF9AA0AE),
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -859,7 +874,11 @@ class _PaginationChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? AppColors.welcomeAccent : const Color(0xFFE7E8ED),
+      color: isSelected
+          ? AppColors.welcomeAccent
+          : context.isDarkMode
+          ? context.appSubtleSurfaceColor
+          : const Color(0xFFE7E8ED),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -873,7 +892,9 @@ class _PaginationChip extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : const Color(0xFF4A4E57),
+                color: isSelected
+                    ? Colors.white
+                    : context.appThemedTextColor(const Color(0xFF4A4E57)),
               ),
             ),
           ),
@@ -908,14 +929,16 @@ class _FilterField extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF808694),
+              color: context.appThemedMutedTextColor(const Color(0xFF808694)),
             ),
           ),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F1F5),
+              color: context.isDarkMode
+                  ? context.appSubtleSurfaceColor
+                  : const Color(0xFFF0F1F5),
               borderRadius: BorderRadius.circular(18),
             ),
             child: DropdownButtonHideUnderline(
@@ -923,23 +946,27 @@ class _FilterField extends StatelessWidget {
                 value: value,
                 isExpanded: true,
                 borderRadius: BorderRadius.circular(18),
-                dropdownColor: Colors.white,
+                dropdownColor: context.appSurfaceColor,
                 hint: Text(
                   'Pilih',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF666C78),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF666C78),
+                    ),
                   ),
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Color(0xFF666C78),
+                  color: context.appThemedMutedTextColor(
+                    const Color(0xFF666C78),
+                  ),
                 ),
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF2E3038),
+                  color: context.appThemedTextColor(const Color(0xFF2E3038)),
                 ),
                 items: options
                     .map(

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class IslamicCenterPage extends StatelessWidget {
@@ -66,7 +67,9 @@ class IslamicCenterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -114,7 +117,7 @@ class IslamicCenterPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.8,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -177,14 +180,14 @@ class _HeroImage extends StatelessWidget {
         height: 360,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [
+          color: context.appSurfaceColor,
+          boxShadow: context.appThemedCardShadows([
             BoxShadow(
               color: const Color(0xFF111827).withValues(alpha: 0.04),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
-          ],
+          ]),
         ),
         padding: const EdgeInsets.all(18),
         child: ClipOval(
@@ -216,15 +219,15 @@ class _BenefitCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +237,7 @@ class _BenefitCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
           const SizedBox(height: 14),
@@ -244,7 +247,7 @@ class _BenefitCard extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.w500,
               height: 1.65,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -278,15 +281,15 @@ class _ProcedureCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         children: List.generate(steps.length, (index) {
@@ -309,7 +312,7 @@ class _ProcedureCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           color: step.isActive
                               ? AppColors.welcomeAccent
-                              : const Color(0xFFD9E8FF),
+                              : context.appSubtleSurfaceColor,
                           boxShadow: step.isActive
                               ? [
                                   BoxShadow(
@@ -338,7 +341,7 @@ class _ProcedureCard extends StatelessWidget {
                         Container(
                           width: 2,
                           height: 92,
-                          color: const Color(0xFFE2E8F0),
+                          color: context.appBorderColor,
                         ),
                     ],
                   ),
@@ -355,7 +358,9 @@ class _ProcedureCard extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF25314C),
+                            color: context.appThemedTextColor(
+                              const Color(0xFF25314C),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -365,7 +370,7 @@ class _ProcedureCard extends StatelessWidget {
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                             height: 1.6,
-                            color: AppColors.textMuted,
+                            color: context.appMutedTextColor,
                           ),
                         ),
                       ],
@@ -393,7 +398,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 19,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF171717),
+        color: context.appThemedTextColor(const Color(0xFF171717)),
       ),
     );
   }

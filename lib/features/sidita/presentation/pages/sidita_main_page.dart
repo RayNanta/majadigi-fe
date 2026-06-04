@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaMainPage extends StatelessWidget {
   const SiditaMainPage({super.key});
@@ -49,7 +50,9 @@ class SiditaMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -104,7 +107,7 @@ class SiditaMainPage extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 32,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
+                        color: context.appTextColor,
                         height: 1.15,
                       ),
                     ),
@@ -169,7 +172,7 @@ class _SiditaFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(28),
       child: InkWell(
         onTap: onTap,
@@ -182,8 +185,10 @@ class _SiditaFeatureCard extends StatelessWidget {
               Container(
                 width: 116,
                 height: 116,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE7F0FF),
+                decoration: BoxDecoration(
+                  color: context.isDarkMode
+                      ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+                      : const Color(0xFFE7F0FF),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -208,7 +213,7 @@ class _SiditaFeatureCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1C22),
+                  color: context.appTextColor,
                   height: 1.25,
                 ),
               ),

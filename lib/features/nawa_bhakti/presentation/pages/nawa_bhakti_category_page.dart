@@ -7,6 +7,7 @@ import '../../../../features/home/presentation/controllers/home_services_control
 import '../../../../features/home/presentation/data/home_service_catalog.dart';
 import '../../../../features/home/presentation/data/home_service_destinations.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class NawaBhaktiServiceLink {
   const NawaBhaktiServiceLink({
@@ -37,7 +38,9 @@ class NawaBhaktiCategoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       appBar: AppBar(
         backgroundColor: AppColors.welcomeAccent,
         foregroundColor: Colors.white,
@@ -82,7 +85,7 @@ class NawaBhaktiCategoryPage extends StatelessWidget {
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
                   height: 1.2,
-                  color: const Color(0xFF9A9DA5),
+                  color: context.appMutedTextColor,
                 ),
               ),
               const SizedBox(height: 28),
@@ -95,7 +98,7 @@ class NawaBhaktiCategoryPage extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFF9A9DA5),
+                            color: context.appMutedTextColor,
                           ),
                         ),
                       )
@@ -127,7 +130,7 @@ class _NawaBhaktiServiceCard extends ConsumerWidget {
     final selectedServiceIds = ref.watch(homeSelectedServiceIdsProvider);
 
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -149,10 +152,12 @@ class _NawaBhaktiServiceCard extends ConsumerWidget {
                 height: 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: serviceItem.badgeBackground,
+                  color: context.isDarkMode
+                      ? serviceItem.accentColor.withValues(alpha: 0.16)
+                      : serviceItem.badgeBackground,
                   border: serviceItem.filledBadge
                       ? null
-                      : Border.all(color: const Color(0xFFF0F1F4)),
+                      : Border.all(color: context.appBorderColor),
                 ),
                 child: Center(
                   child: serviceItem.icon != null
@@ -185,7 +190,7 @@ class _NawaBhaktiServiceCard extends ConsumerWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF111111),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -194,7 +199,7 @@ class _NawaBhaktiServiceCard extends ConsumerWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF9A9DA5),
+                        color: context.appMutedTextColor,
                       ),
                     ),
                   ],

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 
 
@@ -165,7 +166,9 @@ Saya telah melakukan booking ruangan dengan detail berikut:
     final facilities =
     room!['facilities'] as List<dynamic>;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -210,7 +213,7 @@ Saya telah melakukan booking ruangan dengan detail berikut:
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -219,7 +222,7 @@ Saya telah melakukan booking ruangan dengan detail berikut:
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 34),
@@ -333,7 +336,9 @@ Saya telah melakukan booking ruangan dengan detail berikut:
               onPressed: _canSubmit ? _handleSubmit : null,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
-                disabledBackgroundColor: const Color(0xFFBFD4FF),
+                disabledBackgroundColor: context.isDarkMode
+                    ? AppColors.welcomeAccent.withValues(alpha: 0.28)
+                    : const Color(0xFFBFD4FF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
                 ),
@@ -363,7 +368,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 17,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
     );
   }
@@ -388,17 +393,19 @@ class _BookingTextField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8F949C),
+          color: context.appMutedTextColor,
         ),
         filled: true,
-        fillColor: const Color(0xFFF1F1F4),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF1F1F4),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 24,
           vertical: 22,
@@ -442,25 +449,28 @@ class _BookingDropdownField extends StatelessWidget {
       initialValue: value,
       onChanged: onChanged,
       isExpanded: true,
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
         size: 32,
-        color: Color(0xFF5F6368),
+        color: context.appMutedTextColor,
       ),
+      dropdownColor: context.appSurfaceColor,
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2A2E35),
+        color: context.appTextColor,
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8F949C),
+          color: context.appMutedTextColor,
         ),
         filled: true,
-        fillColor: const Color(0xFFF1F1F4),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF1F1F4),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 24,
           vertical: 22,
@@ -519,11 +529,15 @@ class _FacilityOptionTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
           decoration: BoxDecoration(
             color: isSelected
-                ? const Color(0xFFEAF2FF)
+                ? context.appSelectedChipColor
+                : context.isDarkMode
+                ? context.appSearchSurfaceColor
                 : const Color(0xFFF1F1F4),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isSelected ? AppColors.welcomeAccent : Colors.transparent,
+              color: isSelected
+                  ? context.appSelectedChipBorderColor
+                  : Colors.transparent,
               width: 1.5,
             ),
           ),
@@ -537,7 +551,7 @@ class _FacilityOptionTile extends StatelessWidget {
                   border: Border.all(
                     color: isSelected
                         ? AppColors.welcomeAccent
-                        : const Color(0xFF979AA1),
+                        : context.appMutedTextColor,
                     width: 2,
                   ),
                   color: isSelected
@@ -559,7 +573,7 @@ class _FacilityOptionTile extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF4E535A),
+                    color: context.appTextColor,
                   ),
                 ),
               ),

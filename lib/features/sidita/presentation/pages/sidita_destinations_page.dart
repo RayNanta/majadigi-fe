@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
 
 final _siditaDestinationsProvider =
@@ -134,7 +135,9 @@ class _SiditaDestinationsPageState
     final destinationsAsync = ref.watch(_siditaDestinationsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -183,32 +186,35 @@ class _SiditaDestinationsPageState
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0F0F2),
+                        color: context.isDarkMode
+                            ? context.appSearchSurfaceColor
+                            : const Color(0xFFF0F0F2),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedRegion,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.expand_more_rounded,
-                            color: Color(0xFF5D6068),
+                            color: context.appMutedTextColor,
                             size: 28,
                           ),
+                          dropdownColor: context.appSurfaceColor,
                           borderRadius: BorderRadius.circular(18),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF555962),
+                            color: context.appTextColor,
                           ),
                           items: _regions.map((region) {
                             return DropdownMenuItem<String>(
                               value: region,
                               child: Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.location_on_outlined,
                                     size: 22,
-                                    color: Color(0xFF696D75),
+                                    color: context.appMutedTextColor,
                                   ),
                                   const SizedBox(width: 10),
                                   Text(region),
@@ -234,7 +240,7 @@ class _SiditaDestinationsPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF16181D),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -269,7 +275,7 @@ class _SiditaDestinationsPageState
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: AppColors.textMuted,
+                                    color: context.appMutedTextColor,
                                   ),
                                 ),
                               ),
@@ -338,16 +344,22 @@ class _SearchField extends StatelessWidget {
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 17,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF8A8F99),
+          color: context.appMutedTextColor,
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        suffixIcon: const Padding(
-          padding: EdgeInsets.only(right: 14),
-          child: Icon(Icons.search_rounded, size: 34, color: Color(0xFF696D75)),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 14),
+          child: Icon(
+            Icons.search_rounded,
+            size: 34,
+            color: context.appMutedTextColor,
+          ),
         ),
         suffixIconConstraints: const BoxConstraints(minHeight: 0, minWidth: 0),
         filled: true,
-        fillColor: const Color(0xFFF0F0F2),
+        fillColor: context.isDarkMode
+            ? context.appSearchSurfaceColor
+            : const Color(0xFFF0F0F2),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
@@ -371,7 +383,7 @@ class _SearchField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 17,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF20232B),
+        color: context.appTextColor,
       ),
     );
   }
@@ -387,15 +399,15 @@ class _DestinationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.05),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,10 +467,10 @@ class _DestinationCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.location_on_outlined,
                       size: 18,
-                      color: Color(0xFF9DA3AE),
+                      color: context.appMutedTextColor,
                     ),
                     const SizedBox(width: 4),
                     Expanded(
@@ -468,7 +480,7 @@ class _DestinationCard extends StatelessWidget {
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.3,
-                          color: const Color(0xFF9DA3AE),
+                          color: context.appMutedTextColor,
                         ),
                       ),
                     ),
@@ -480,7 +492,7 @@ class _DestinationCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF24272E),
+                    color: context.appTextColor,
                     height: 1.15,
                   ),
                 ),
@@ -491,7 +503,7 @@ class _DestinationCard extends StatelessWidget {
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -515,7 +527,7 @@ class _DestinationCard extends StatelessWidget {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF5D6068),
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ],

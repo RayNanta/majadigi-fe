@@ -19,6 +19,12 @@ class SharedPreferencesService {
     return _preferences.setInt(key, value);
   }
 
+  bool? getBool(String key) => _preferences.getBool(key);
+
+  Future<bool> setBool(String key, bool value) {
+    return _preferences.setBool(key, value);
+  }
+
   String? get authToken => getString(StorageKeys.authToken);
 
   Future<bool> setAuthToken(String token) {
@@ -29,6 +35,12 @@ class SharedPreferencesService {
 
   Future<bool> setLaunchCount(int value) {
     return setInt(StorageKeys.launchCount, value);
+  }
+
+  bool get isDarkMode => getBool(StorageKeys.isDarkMode) ?? false;
+
+  Future<bool> setDarkMode(bool value) {
+    return setBool(StorageKeys.isDarkMode, value);
   }
 
   Future<void> clearSession() async {

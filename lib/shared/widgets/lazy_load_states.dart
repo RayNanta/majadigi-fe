@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_theme_extensions.dart';
 
 class LazyLoadErrorState extends StatelessWidget {
   const LazyLoadErrorState({
@@ -24,8 +25,8 @@ class LazyLoadErrorState extends StatelessWidget {
             Container(
               width: 72,
               height: 72,
-              decoration: const BoxDecoration(
-                color: Color(0xFFEAF2FF),
+              decoration: BoxDecoration(
+                color: context.appSubtleSurfaceColor,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -42,7 +43,7 @@ class LazyLoadErrorState extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF505766),
+                color: context.appTextColor,
                 height: 1.45,
               ),
             ),
@@ -88,15 +89,9 @@ class LazyCardSkeleton extends StatelessWidget {
 
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appSurfaceColor,
               borderRadius: BorderRadius.circular(borderRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF111827).withValues(alpha: 0.04),
-                  blurRadius: 18,
-                  offset: const Offset(0, 7),
-                ),
-              ],
+              boxShadow: [context.appCardShadow],
             ),
             child: Padding(
               padding: EdgeInsets.all(compact ? 18 : 22),
@@ -196,7 +191,9 @@ class _SkeletonLine extends StatelessWidget {
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          color: const Color(0xFFEAF0FA),
+          color: context.isDarkMode
+              ? const Color(0xFF20324F)
+              : const Color(0xFFEAF0FA),
           borderRadius: BorderRadius.circular(radius),
         ),
       ),

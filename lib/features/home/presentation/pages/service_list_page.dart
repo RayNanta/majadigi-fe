@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../routes.dart';
 import '../controllers/home_services_controller.dart';
 import '../data/home_service_destinations.dart';
@@ -150,16 +151,16 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
     final visibleServices = _filterServices(services);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1668F7), Color(0xFF0F52D2)],
+                  colors: context.appHeaderGradientColors,
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -197,26 +198,26 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                       child: Material(
-                        color: Colors.white,
+                        color: context.appSearchSurfaceColor,
                         borderRadius: BorderRadius.circular(36),
                         child: TextField(
                           controller: _searchController,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF2F3136),
+                            color: context.appTextColor,
                           ),
                           decoration: InputDecoration(
                             hintText: 'Cari layanan',
                             hintStyle: GoogleFonts.plusJakartaSans(
                               fontSize: 20,
                               fontWeight: FontWeight.w400,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
-                            suffixIcon: const Icon(
+                            suffixIcon: Icon(
                               Icons.search_rounded,
                               size: 34,
-                              color: Color(0xFF8C9096),
+                              color: context.appMutedTextColor,
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 28,
@@ -224,8 +225,8 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(36),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFD8DAE0),
+                              borderSide: BorderSide(
+                                color: context.appBorderColor,
                                 width: 2,
                               ),
                             ),
@@ -255,7 +256,7 @@ class _ServiceListPageState extends ConsumerState<ServiceListPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                         ),
@@ -308,7 +309,7 @@ class _ServiceListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         onTap: onTap,
@@ -318,13 +319,7 @@ class _ServiceListCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF111827).withValues(alpha: 0.04),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            boxShadow: [context.appCardShadow],
           ),
           child: Row(
             children: [
@@ -342,7 +337,7 @@ class _ServiceListCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111111),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -353,7 +348,7 @@ class _ServiceListCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                   ],
@@ -380,7 +375,7 @@ class _ServiceListBadge extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: item.badgeBackground,
-        border: Border.all(color: const Color(0xFFF0F1F4)),
+        border: Border.all(color: context.appBorderColor),
       ),
       child: Center(
         child: item.icon != null
