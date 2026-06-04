@@ -1,16 +1,32 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthStorage {
-  static Future<String?> getToken() async {
-    return "10|XeFUMr1VPpY1o4c0tUoomgelt019ctWdwXf1ur6a0b4a1611"; // TEMP
+  static const _tokenKey = 'token';
+  static const _userKey = 'user';
+
+  static Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
   }
-// static Future<void> saveToken(String token) async {
-//   final prefs = await SharedPreferences.getInstance();
-//   await prefs.setString('token', token);
-// }
-//
-// static Future<String?> getToken() async {
-//   final prefs = await SharedPreferences.getInstance();
-//   return prefs.getString('token');
-// }
+
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  static Future<void> saveUser(String userJson) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, userJson);
+  }
+
+  static Future<String?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userKey);
+  }
+
+  static Future<void> clear() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 }

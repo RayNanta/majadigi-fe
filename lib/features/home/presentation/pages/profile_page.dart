@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../auth/services/auth_service.dart';
 import '../models/profile_data.dart';
 import '../widgets/home_bottom_navigation_bar.dart';
 
@@ -84,6 +85,14 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
+  Future<void> _handleLogout(BuildContext context) async {
+    await AuthService.logout();
+
+    if (context.mounted) {
+      context.goNamed(RouteNames.signIn);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,11 +148,8 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 28),
                     OutlinedButton(
-                      onPressed: () {
-                        _showComingSoon(
-                          context,
-                          'Fitur keluar akan segera tersedia.',
-                        );
+                      onPressed: () async {
+                        await _handleLogout(context);
                       },
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 76),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../controllers/home_services_controller.dart';
@@ -139,6 +139,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final user = ref.watch(authProvider);
+
+
     final recommendedServices = ref.watch(homeRecommendedServicesProvider);
     final selectedServices = ref.watch(homeSelectedServicesProvider);
     final myServices = [_addTile, ...selectedServices, _moreTile];
@@ -150,6 +154,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: Column(
           children: [
             _HomeHeader(
+              userName: user?.name ?? 'Guest',
               searchController: _searchController,
               onSearchTap: () {
                 _showComingSoon('Pencarian layanan akan segera tersedia.');
@@ -274,11 +279,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader({
+    required this.userName,
     required this.searchController,
     required this.onSearchTap,
     required this.onNotificationTap,
   });
 
+  final String userName;
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
   final VoidCallback onNotificationTap;
@@ -337,7 +344,7 @@ class _HomeHeader extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Anggun Amalia',
+                          userName,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,

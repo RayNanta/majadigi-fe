@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:majadigi_mobile/core/providers/auth_provider.dart';
+import '../../services/auth_service.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../home/routes.dart';
 import '../../routes.dart';
 import '../widgets/auth_form_widgets.dart';
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
   @override
-  State<SignInPage> createState() => _SignInPageState();
+  ConsumerState<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _SignInPageState extends ConsumerState<SignInPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
 
@@ -53,6 +55,37 @@ class _SignInPageState extends State<SignInPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _login() async {
+    try {
+      final result = await AuthService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      await ref
+          .read(authProvider.notifier)
+          .fetchCurrentUser();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message']),
+        ),
+      );
+
+      context.go(HomeRoutes.path);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    }
   }
 
   @override
@@ -203,9 +236,7 @@ class _SignInPageState extends State<SignInPage> {
                           const SizedBox(height: 52),
                           AuthPrimaryButton(
                             label: 'Masuk',
-                            onPressed: _canSubmit
-                                ? () => context.go(HomeRoutes.path)
-                                : null,
+                            onPressed: _canSubmit ? _login : null,
                           ),
                           const SizedBox(height: 42),
                           AuthFooterPrompt(

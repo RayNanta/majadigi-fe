@@ -1,38 +1,50 @@
 import 'dart:math' as math;
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../home/routes.dart';
 import '../../../welcome/routes.dart';
 
-class SplashPage extends StatefulWidget {
+class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends ConsumerState<SplashPage> {
   static const _navigationDelay = Duration(seconds: 2);
 
   @override
   void initState() {
     super.initState();
-    _goToWelcome();
+    _initialize();
   }
 
-  Future<void> _goToWelcome() async {
-    await Future<void>.delayed(_navigationDelay);
+  Future<void> _initialize() async {
+    await ref.read(authProvider.notifier).loadCurrentUser();
 
-    if (!mounted) {
-      return;
+    await Future.delayed(_navigationDelay);
+
+    if (!mounted) return;
+
+    final user = ref.read(authProvider);
+
+    if (user != null) {
+      context.go(HomeRoutes.path);
+    } else {
+      context.go(WelcomeRoutes.path);
     }
-
-    context.go(WelcomeRoutes.path);
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
