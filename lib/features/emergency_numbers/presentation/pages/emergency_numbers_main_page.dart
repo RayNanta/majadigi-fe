@@ -180,6 +180,7 @@ class _EmergencyNumbersMainPageState extends State<EmergencyNumbersMainPage> {
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
+                                isExpanded: true,
                                 value: wilayahItems.contains(selectedWilayah)
                                     ? selectedWilayah
                                     : wilayahItems.first,
@@ -213,7 +214,10 @@ class _EmergencyNumbersMainPageState extends State<EmergencyNumbersMainPage> {
                                           size: 26,
                                         ),
                                         const SizedBox(width: 12),
-                                        Expanded(child: Text(wilayah)),
+                                        Text(
+                                          wilayah,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ],
                                     ),
                                   );
