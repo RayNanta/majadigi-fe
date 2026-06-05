@@ -52,7 +52,14 @@ class _SignUpStepOnePageState extends State<SignUpStepOnePage> {
   }
 
   void _goToStepTwo() {
-    context.go(AuthRoutes.signUpStepTwoPath);
+    context.go(
+      AuthRoutes.signUpStepTwoPath,
+      extra: {
+        'name': _fullNameController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'email': _emailController.text.trim(),
+      },
+    );
   }
 
   @override

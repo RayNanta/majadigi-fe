@@ -10,6 +10,7 @@ import '../data/home_service_catalog.dart';
 import '../data/home_service_destinations.dart';
 import '../models/home_service_item.dart';
 import '../widgets/home_bottom_navigation_bar.dart';
+import '../../../../shared/extensions/responsive_extension.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -293,7 +294,7 @@ class _HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 252,
+      height: 190,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -312,8 +313,8 @@ class _HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 66,
-                  height: 66,
+                  width: context.wp(0.16),
+                  height: context.wp(0.16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white.withValues(alpha: 0.12),
@@ -486,11 +487,11 @@ class _HomeServiceGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         mainAxisSpacing: 26,
         crossAxisSpacing: 14,
-        childAspectRatio: 0.66,
+        childAspectRatio: 0.58,
       ),
       itemBuilder: (context, index) {
         final item = items[index];
@@ -507,8 +508,12 @@ class _HomeServiceTile extends StatelessWidget {
   final HomeServiceItem item;
   final VoidCallback onTap;
 
+  // _HomeServiceTile
   @override
   Widget build(BuildContext context) {
+    final colWidth = (context.w - 48 - 42) / 4;
+    final badgeSize = colWidth * 0.82;
+
     return InkWell(
       borderRadius: BorderRadius.circular(28),
       onTap: onTap,
@@ -516,13 +521,11 @@ class _HomeServiceTile extends StatelessWidget {
         children: [
           _ServiceBadge(
             item: item,
-            size: 82,
-            badgeFontSize: item.badgeText != null && item.badgeText!.length > 3
-                ? 20
-                : 24,
-            iconSize: item.filledBadge ? 44 : 34,
+            size: badgeSize,
+            badgeFontSize: item.badgeText != null && item.badgeText!.length > 3 ? 16 : 20,
+            iconSize: item.filledBadge ? badgeSize * 0.52 : badgeSize * 0.40,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
           Expanded(
             child: Text(
               item.title,
@@ -530,7 +533,7 @@ class _HomeServiceTile extends StatelessWidget {
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
+                fontSize: 13,   // turunkan dari 16
                 fontWeight: FontWeight.w500,
                 height: 1.25,
                 color: const Color(0xFF3A3D42),
@@ -615,6 +618,11 @@ class _ServiceCatalogBottomSheetState
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final crossAxisCount = context.isDesktop
+        ? 6
+        : context.isTablet
+        ? 5
+        : 4;
 
     return FractionallySizedBox(
       heightFactor: 0.78,
@@ -758,15 +766,16 @@ class _ServiceCatalogBottomSheetState
                               ),
                             ),
                           )
-                        : GridView.builder(
+                        :
+                    GridView.builder(
                             padding: const EdgeInsets.only(bottom: 12),
                             itemCount: _visibleServices.length,
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  mainAxisSpacing: 28,
+                                 SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  mainAxisSpacing: 0,
                                   crossAxisSpacing: 14,
-                                  childAspectRatio: 0.56,
+                                  childAspectRatio: 0.45,
                                 ),
                             itemBuilder: (context, index) {
                               final service = _visibleServices[index];
@@ -835,54 +844,56 @@ class _CatalogServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _ServiceBadge(
-          item: item,
-          size: 86,
-          badgeFontSize: item.badgeText != null && item.badgeText!.length > 3
-              ? 20
-              : 24,
-          iconSize: 34,
-        ),
-        const SizedBox(height: 14),
-        Text(
-          item.title,
-          maxLines: 3,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            height: 1.25,
-            color: const Color(0xFF111111),
-          ),
-        ),
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: isAdded ? null : onAdd,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: SizedBox(
-              width: double.infinity,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  isAdded ? 'Ditambahkan' : '+ Tambah',
-                  maxLines: 1,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isAdded
-                        ? const Color(0xFF0F766E)
-                        : AppColors.welcomeAccent,
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final badgeSize = constraints.maxWidth * 0.78;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ServiceBadge(
+              item: item,
+              size: badgeSize,
+              badgeFontSize:
+              item.badgeText != null && item.badgeText!.length > 3
+                  ? badgeSize * 0.24
+                  : badgeSize * 0.28,
+              iconSize: badgeSize * 0.40,
+            ),
+            const SizedBox(height: 10),
+
+            Text(
+              item.title,
+              maxLines: 3,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                height: 1.25,
+                color: const Color(0xFF111111),
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            InkWell(
+              onTap: isAdded ? null : onAdd,
+              child: Text(
+                isAdded ? 'Ditambahkan' : '+ Tambah',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isAdded
+                      ? const Color(0xFF0F766E)
+                      : AppColors.welcomeAccent,
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -956,8 +967,8 @@ class _StatCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: context.wp(0.13),
+            height: context.wp(0.13),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: item.iconBackground,
@@ -1007,7 +1018,7 @@ class _NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 286,
+      width: context.wp(0.72),
       child: InkWell(
         borderRadius: BorderRadius.circular(26),
         onTap: onTap,

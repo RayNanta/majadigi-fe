@@ -152,19 +152,6 @@ class _SinakerTrainingListPageState extends State<SinakerTrainingListPage> {
     return months[m];
   }
 
-  String _locationName(int id) {
-    switch (id) {
-      case 1:
-        return 'UPT BLK Surabaya';
-      case 2:
-        return 'UPT BLK Malang';
-      case 3:
-        return 'UPT BLK Sumenep';
-      default:
-        return 'Jawa Timur';
-    }
-  }
-
   List<_TrainingItem> get _visibleTrainings {
     final query = _searchController.text.trim().toLowerCase();
 
