@@ -326,24 +326,33 @@ class _ServicesCatalogTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
-      child: Column(
-        children: [
-          _ServiceBadge(item: item),
-          const SizedBox(height: 14),
-          Text(
-            item.title,
-            maxLines: 3,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              height: 1.25,
-              color: context.appTextColor,
-            ),
-          ),
-        );
-      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final badgeSize = constraints.maxWidth * 0.75;
+
+          return Column(
+            children: [
+              _ServiceBadge(
+                item: item,
+                size: badgeSize,
+              ),
+              const SizedBox(height: 14),
+              Text(
+                item.title,
+                maxLines: 3,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  height: 1.25,
+                  color: context.appTextColor,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -788,7 +788,7 @@ class _ServiceCatalogBottomSheetState
                             itemCount: _visibleServices.length,
                             gridDelegate:
                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: crossAxisCount,
+                                  crossAxisCount: 4,
                                   mainAxisSpacing: 0,
                                   crossAxisSpacing: 14,
                                   childAspectRatio: 0.45,
@@ -864,83 +864,86 @@ class _CatalogServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isNawaBhakti = item.catalogTab == HomeCatalogTab.nawaBhakti;
+
     final actionLabel = isNawaBhakti
         ? 'Buka'
         : (isAdded ? 'Ditambahkan' : '+ Tambah');
+
     final actionColor = isNawaBhakti
         ? AppColors.welcomeAccent
-        : (isAdded ? const Color(0xFF0F766E) : AppColors.welcomeAccent);
+        : (isAdded
+        ? const Color(0xFF0F766E)
+        : AppColors.welcomeAccent);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: isNawaBhakti ? onOpen : null,
-        child: Column(
-          children: [
-            _ServiceBadge(
-              item: item,
-              size: 86,
-              badgeFontSize:
-                  item.badgeText != null && item.badgeText!.length > 3
-                  ? 20
-                  : 24,
-              iconSize: 34,
-            ),
-            const SizedBox(height: 14),
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final badgeSize = constraints.maxWidth * 0.78;
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final badgeSize = constraints.maxWidth * 0.78;
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _ServiceBadge(
-              item: item,
-              size: badgeSize,
-              badgeFontSize:
-              item.badgeText != null && item.badgeText!.length > 3
-                  ? badgeSize * 0.24
-                  : badgeSize * 0.28,
-              iconSize: badgeSize * 0.40,
-            ),
-            const SizedBox(height: 10),
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _ServiceBadge(
+                  item: item,
+                  size: badgeSize,
+                  badgeFontSize:
+                  item.badgeText != null &&
+                      item.badgeText!.length > 3
+                      ? badgeSize * 0.24
+                      : badgeSize * 0.28,
+                  iconSize: badgeSize * 0.40,
+                ),
 
-            Text(
-              item.title,
-              maxLines: 3,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                height: 1.25,
-                color: context.appTextColor,
-              ),
-            ),
-            const SizedBox(height: 6),
-            InkWell(
-              onTap: isNawaBhakti ? onOpen : (isAdded ? null : onAdd),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      actionLabel,
-                      maxLines: 1,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: actionColor,
+                const SizedBox(height: 10),
+
+                Text(
+                  item.title,
+                  maxLines: 3,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    height: 1.25,
+                    color: context.appTextColor,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                InkWell(
+                  onTap: isNawaBhakti
+                      ? onOpen
+                      : (isAdded ? null : onAdd),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          actionLabel,
+                          maxLines: 1,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: actionColor,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
