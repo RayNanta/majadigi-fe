@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class AboutJatimPage extends StatelessWidget {
   const AboutJatimPage({super.key});
@@ -71,7 +72,9 @@ class AboutJatimPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -131,7 +134,9 @@ class AboutJatimPage extends StatelessWidget {
                                   fontSize: 17,
                                   fontWeight: FontWeight.w500,
                                   height: 1.7,
-                                  color: const Color(0xFF5E6470),
+                                  color: context.appThemedMutedTextColor(
+                                    const Color(0xFF5E6470),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -154,7 +159,9 @@ class AboutJatimPage extends StatelessWidget {
                                   fontSize: 17,
                                   fontWeight: FontWeight.w500,
                                   height: 1.7,
-                                  color: const Color(0xFF6A707B),
+                                  color: context.appThemedMutedTextColor(
+                                    const Color(0xFF6A707B),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -280,15 +287,15 @@ class _JatimStatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.05),
             blurRadius: 18,
             offset: const Offset(0, 10),
           ),
-        ],
+        ]),
       ),
       child: GridView.builder(
         shrinkWrap: true,
@@ -316,7 +323,9 @@ class _StatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FBFF),
+        color: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF8FBFF),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -339,7 +348,7 @@ class _StatTile extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF434954),
+              color: context.appThemedTextColor(const Color(0xFF434954)),
             ),
           ),
         ],
@@ -357,7 +366,9 @@ class _QuoteCallout extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF3FF),
+        color: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFEAF3FF),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
@@ -380,7 +391,7 @@ class _QuoteCallout extends StatelessWidget {
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w500,
                 height: 1.6,
-                color: const Color(0xFF69707D),
+                color: context.appThemedMutedTextColor(const Color(0xFF69707D)),
               ),
             ),
           ),
@@ -539,7 +550,7 @@ class _HighlightBullet extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF454B56),
+                  color: context.appThemedTextColor(const Color(0xFF454B56)),
                 ),
               ),
               const SizedBox(height: 4),
@@ -549,7 +560,9 @@ class _HighlightBullet extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   height: 1.65,
-                  color: const Color(0xFF727884),
+                  color: context.appThemedMutedTextColor(
+                    const Color(0xFF727884),
+                  ),
                 ),
               ),
             ],
@@ -574,7 +587,9 @@ class _SectionHeading extends StatelessWidget {
         fontSize: 22,
         fontWeight: FontWeight.w700,
         height: 1.2,
-        color: color,
+        color: context.isDarkMode && color != AppColors.welcomeAccent
+            ? context.appTextColor
+            : color,
       ),
     );
   }

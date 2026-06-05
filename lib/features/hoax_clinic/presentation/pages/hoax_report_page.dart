@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HoaxReportPage extends StatefulWidget {
   const HoaxReportPage({super.key});
@@ -92,7 +93,9 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -136,7 +139,9 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCEBFF),
+                        color: context.isDarkMode
+                            ? context.appSubtleSurfaceColor
+                            : const Color(0xFFDCEBFF),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
@@ -158,7 +163,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 height: 1.55,
-                                color: AppColors.textMuted,
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ),
@@ -229,7 +234,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                           height: 1.45,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
                       ),
                     ),
@@ -279,7 +284,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF4E525A),
+        color: context.appThemedTextColor(const Color(0xFF4E525A)),
       ),
     );
   }
@@ -319,17 +324,19 @@ class _ReportInputField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2F3136),
+        color: context.appThemedTextColor(const Color(0xFF2F3136)),
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w400,
-          color: const Color(0xFFB0B3BA),
+          color: context.appThemedMutedTextColor(const Color(0xFFB0B3BA)),
         ),
         filled: true,
-        fillColor: const Color(0xFFF0F0F2),
+        fillColor: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF0F0F2),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 18,
@@ -370,10 +377,14 @@ class _AttachmentPicker extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(18, 28, 18, 24),
         decoration: BoxDecoration(
-          color: const Color(0xFFF4F4F5),
+          color: context.isDarkMode
+              ? context.appSubtleSurfaceColor
+              : const Color(0xFFF4F4F5),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: const Color(0xFFD3D5DB),
+            color: context.isDarkMode
+                ? context.appBorderColor
+                : const Color(0xFFD3D5DB),
             width: 2,
             strokeAlign: BorderSide.strokeAlignInside,
           ),
@@ -391,7 +402,7 @@ class _AttachmentPicker extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF2F3136),
+                color: context.appThemedTextColor(const Color(0xFF2F3136)),
               ),
             ),
             const SizedBox(height: 14),
@@ -401,7 +412,7 @@ class _AttachmentPicker extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textMuted,
+                color: context.appMutedTextColor,
                 letterSpacing: 0.2,
               ),
             ),

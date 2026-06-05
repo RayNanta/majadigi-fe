@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../home/routes.dart';
 import '../widgets/auth_form_widgets.dart';
 
@@ -151,9 +152,13 @@ class _SignUpStepThreePageState extends State<SignUpStepThreePage> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: context.isDarkMode
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).scaffoldBackgroundColor
+            : Colors.white,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
@@ -171,7 +176,7 @@ class _SignUpStepThreePageState extends State<SignUpStepThreePage> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 38,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF2F3136),
+                          color: context.appTextColor,
                         ),
                       ),
                     ),
@@ -197,7 +202,7 @@ class _SignUpStepThreePageState extends State<SignUpStepThreePage> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 19,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
                 const SizedBox(height: 34),
@@ -221,17 +226,23 @@ class _SignUpStepThreePageState extends State<SignUpStepThreePage> {
                           fontWeight: FontWeight.w500,
                           color: isSelected
                               ? AppColors.welcomeAccent
-                              : const Color(0xFF3D3F45),
+                              : context.appTextColor,
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18,
                           vertical: 10,
                         ),
-                        backgroundColor: const Color(0xFFF1F1F2),
-                        selectedColor: const Color(0xFFE8F1FF),
+                        backgroundColor: context.isDarkMode
+                            ? context.appChipColor
+                            : const Color(0xFFF1F1F2),
+                        selectedColor: context.isDarkMode
+                            ? context.appSelectedChipColor
+                            : const Color(0xFFE8F1FF),
                         side: BorderSide(
                           color: isSelected
                               ? AppColors.welcomeAccent
+                              : context.isDarkMode
+                              ? context.appBorderColor
                               : Colors.transparent,
                           width: 1.5,
                         ),
@@ -307,20 +318,20 @@ class _ServiceTile extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white,
+              color: context.appSurfaceColor,
               border: Border.all(
                 color: isSelected
                     ? AppColors.welcomeAccent
-                    : const Color(0xFFF2F2F3),
+                    : context.appBorderColor,
                 width: 2,
               ),
-              boxShadow: [
+              boxShadow: context.appThemedCardShadows([
                 BoxShadow(
                   color: const Color(0xFF101828).withValues(alpha: 0.06),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
-              ],
+              ]),
             ),
             child: Center(
               child: Icon(
@@ -340,7 +351,7 @@ class _ServiceTile extends StatelessWidget {
               fontSize: 14,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               height: 1.3,
-              color: const Color(0xFF2F3136),
+              color: context.appTextColor,
             ),
           ),
         ],

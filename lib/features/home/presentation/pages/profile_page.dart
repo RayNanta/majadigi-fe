@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,8 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../auth/services/auth_service.dart';
+import '../../../../shared/theme/app_theme_controller.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../models/profile_data.dart';
 import '../widgets/home_bottom_navigation_bar.dart';
 
@@ -97,22 +100,24 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode =
+        ref.watch(appThemeModeControllerProvider) == ThemeMode.dark;
     final user = ref.watch(authProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1668F7), Color(0xFF0F52D2)],
+                  colors: context.appHeaderGradientColors,
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                borderRadius: BorderRadius.vertical(
+                borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(42),
                 ),
               ),
@@ -137,6 +142,15 @@ class ProfilePage extends ConsumerWidget {
                     _ProfileSummaryCard(user: user),
                     const SizedBox(height: 28),
                     const _ProfileSectionTitle(title: 'Akun dan Keamanan'),
+                    const SizedBox(height: 16),
+                    _DarkModeToggleCard(
+                      value: isDarkMode,
+                      onChanged: (value) {
+                        ref
+                            .read(appThemeModeControllerProvider.notifier)
+                            .setDarkMode(value);
+                      },
+                    ),
                     const SizedBox(height: 16),
                     _ProfileMenuCard(
                       items: _accountSecurityItems,
@@ -198,24 +212,18 @@ class _ProfileSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF111827).withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        boxShadow: [context.appCardShadow],
       ),
       child: Row(
         children: [
           Container(
             width: 98,
             height: 98,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFE6F0FF),
+              color: context.appSubtleSurfaceColor,
             ),
             child: const Icon(
               Icons.person_outline_rounded,
@@ -234,7 +242,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF303236),
+                    color: context.appTextColor,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -245,7 +253,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -254,12 +262,74 @@ class _ProfileSummaryCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DarkModeToggleCard extends StatelessWidget {
+  const _DarkModeToggleCard({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      decoration: BoxDecoration(
+        color: context.appSurfaceColor,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [context.appCardShadow],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: context.appSubtleSurfaceColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(
+              value ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+              size: 34,
+              color: AppColors.welcomeAccent,
+            ),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Dark Mode',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: context.appTextColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  value ? 'Tampilan gelap aktif' : 'Tampilan terang aktif',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: context.appMutedTextColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged),
         ],
       ),
     );
@@ -278,7 +348,7 @@ class _ProfileSectionTitle extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF303236),
+        color: context.appTextColor,
       ),
     );
   }
@@ -294,15 +364,9 @@ class _ProfileMenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF111827).withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        boxShadow: [context.appCardShadow],
       ),
       child: Column(
         children: List.generate(items.length, (index) {
@@ -324,7 +388,7 @@ class _ProfileMenuCard extends StatelessWidget {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6F0FF),
+                      color: context.appSubtleSurfaceColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
@@ -340,14 +404,14 @@ class _ProfileMenuCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF303236),
+                        color: context.appTextColor,
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
                     size: 34,
-                    color: Color(0xFF2F3136),
+                    color: context.appMutedTextColor,
                   ),
                 ],
               ),

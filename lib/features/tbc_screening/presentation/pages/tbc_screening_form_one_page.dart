@@ -4,24 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../services/tbc_service.dart';
 
 class TbcScreeningFormOnePage extends StatefulWidget {
   final Map<String, dynamic> screeningData;
 
-  const TbcScreeningFormOnePage({
-    super.key,
-    required this.screeningData,
-  });
+  const TbcScreeningFormOnePage({super.key, required this.screeningData});
 
   @override
   State<TbcScreeningFormOnePage> createState() =>
       _TbcScreeningFormOnePageState();
 }
 
-class _TbcScreeningFormOnePageState
-    extends State<TbcScreeningFormOnePage> {
-
+class _TbcScreeningFormOnePageState extends State<TbcScreeningFormOnePage> {
   final TbcService service = TbcService();
 
   bool isLoading = true;
@@ -39,29 +35,21 @@ class _TbcScreeningFormOnePageState
   }
 
   Future<void> loadSymptoms() async {
-
     try {
-
-      final result =
-      await service.getSymptoms();
+      final result = await service.getSymptoms();
 
       setState(() {
         symptoms = result;
         isLoading = false;
       });
-
     } catch (e) {
-
       setState(() {
         isLoading = false;
       });
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -70,48 +58,25 @@ class _TbcScreeningFormOnePageState
   }
 
   void _handleNext() {
-
     /// validasi semua pertanyaan wajib dijawab
     if (answers.length != symptoms.length) {
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Semua pertanyaan harus dijawab',
-          ),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua pertanyaan harus dijawab')),
       );
 
       return;
     }
 
-    final symptomAnswers =
-    answers.entries.map((e) {
-
-      return {
-        "id": e.key,
-        "answer": e.value,
-      };
-
+    final symptomAnswers = answers.entries.map((e) {
+      return {"id": e.key, "answer": e.value};
     }).toList();
 
-    final data = {
-      ...widget.screeningData,
-      "symptoms": symptomAnswers,
-    };
+    final data = {...widget.screeningData, "symptoms": symptomAnswers};
 
-    context.pushNamed(
-      RouteNames.homeTbcScreeningFormTwo,
-      extra: data,
-    );
+    context.pushNamed(RouteNames.homeTbcScreeningFormTwo, extra: data);
   }
 
-  void _setAnswer(
-      int symptomId,
-      String value,
-      ) {
-
+  void _setAnswer(int symptomId, String value) {
     setState(() {
       answers[symptomId] = value;
     });
@@ -119,32 +84,23 @@ class _TbcScreeningFormOnePageState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
-
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
 
         child: Column(
           children: [
-
             /// HEADER
             Container(
               width: double.infinity,
 
               color: AppColors.welcomeAccent,
 
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                18,
-                20,
-                18,
-              ),
+              padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
 
               child: Row(
                 children: [
-
                   IconButton(
                     onPressed: _handleBack,
 
@@ -154,10 +110,7 @@ class _TbcScreeningFormOnePageState
                       minimumSize: const Size(36, 36),
                     ),
 
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      size: 30,
-                    ),
+                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
                   ),
 
                   const SizedBox(width: 6),
@@ -166,8 +119,7 @@ class _TbcScreeningFormOnePageState
                     child: Text(
                       'Formulir Skrining',
 
-                      style:
-                      GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -180,132 +132,92 @@ class _TbcScreeningFormOnePageState
 
             Expanded(
               child: isLoading
-                  ? const Center(
-                child:
-                CircularProgressIndicator(),
-              )
+                  ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
-                padding:
-                const EdgeInsets.fromLTRB(
-                  24,
-                  24,
-                  24,
-                  28,
-                ),
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
 
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
-                  children: [
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
 
-                    Row(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(999),
 
-                      children: [
-
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius:
-                            BorderRadius.circular(
-                              999,
-                            ),
-
-                            child:
-                            LinearProgressIndicator(
-                              value: 0.5,
-                              minHeight: 8,
-
-                              backgroundColor:
-                              const Color(
-                                0xFFD8D8DA,
+                                  child: LinearProgressIndicator(
+                                    value: 0.5,
+                                    minHeight: 8,
+                                    backgroundColor: context.isDarkMode
+                                        ? context.appBorderColor
+                                        : const Color(0xFFD8D8DA),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          AppColors.welcomeAccent,
+                                        ),
+                                  ),
+                                ),
                               ),
 
-                              valueColor:
-                              const AlwaysStoppedAnimation<
-                                  Color>(
-                                AppColors
-                                    .welcomeAccent,
+                              const SizedBox(width: 14),
+
+                              Text(
+                                'Formulir 1 dari 2',
+
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+
+                                  fontWeight: FontWeight.w500,
+
+                                  color: AppColors.welcomeAccent,
+                                ),
                               ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          Text(
+                            'Keluhan yang dirasakan',
+
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.welcomeAccent,
                             ),
                           ),
-                        ),
 
-                        const SizedBox(width: 14),
+                          const SizedBox(height: 28),
 
-                        Text(
-                          'Formulir 1 dari 2',
+                          ...symptoms.map((symptom) {
+                            final id = symptom['id'];
 
-                          style:
-                          GoogleFonts
-                              .plusJakartaSans(
-                            fontSize: 14,
+                            final question = symptom['name'];
 
-                            fontWeight:
-                            FontWeight.w500,
+                            final value = answers[id];
 
-                            color: AppColors
-                                .welcomeAccent,
-                          ),
-                        ),
-                      ],
-                    ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
 
-                    const SizedBox(height: 30),
+                              child: _ScreeningQuestionCard(
+                                question: question,
 
-                    Text(
-                      'Keluhan yang dirasakan',
+                                value: value,
 
-                      style:
-                      GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color:
-                        AppColors.welcomeAccent,
+                                onChanged: (value) {
+                                  _setAnswer(id, value);
+                                },
+                              ),
+                            );
+                          }),
+
+                          const SizedBox(height: 120),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 28),
-
-                    ...symptoms.map((symptom) {
-
-                      final id = symptom['id'];
-
-                      final question =
-                      symptom['name'];
-
-                      final value =
-                      answers[id];
-
-                      return Padding(
-                        padding:
-                        const EdgeInsets.only(
-                          bottom: 24,
-                        ),
-
-                        child:
-                        _ScreeningQuestionCard(
-                          question: question,
-
-                          value: value,
-
-                          onChanged:
-                              (value) {
-
-                            _setAnswer(
-                              id,
-                              value,
-                            );
-                          },
-                        ),
-                      );
-                    }),
-
-                    const SizedBox(height: 120),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -315,18 +227,10 @@ class _TbcScreeningFormOnePageState
         top: false,
 
         child: Container(
-          color: Colors.white,
-
-          padding: const EdgeInsets.fromLTRB(
-            24,
-            18,
-            24,
-            20,
-          ),
-
+          color: context.appSurfaceColor,
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
           child: Row(
             children: [
-
               Expanded(
                 child: SizedBox(
                   height: 60,
@@ -334,31 +238,21 @@ class _TbcScreeningFormOnePageState
                   child: OutlinedButton(
                     onPressed: _handleBack,
 
-                    style:
-                    OutlinedButton.styleFrom(
-                      foregroundColor:
-                      AppColors
-                          .welcomeAccent,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.welcomeAccent,
 
                       side: const BorderSide(
-                        color:
-                        AppColors
-                            .welcomeAccent,
+                        color: AppColors.welcomeAccent,
 
                         width: 1.8,
                       ),
 
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
-                          20,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
 
-                    child:
-                    const Text('Sebelumnya'),
+                    child: const Text('Sebelumnya'),
                   ),
                 ),
               ),
@@ -372,23 +266,15 @@ class _TbcScreeningFormOnePageState
                   child: FilledButton(
                     onPressed: _handleNext,
 
-                    style:
-                    FilledButton.styleFrom(
-                      backgroundColor:
-                      AppColors
-                          .welcomeAccent,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.welcomeAccent,
 
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
-                          20,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
 
-                    child:
-                    const Text('Selanjutnya'),
+                    child: const Text('Selanjutnya'),
                   ),
                 ),
               ),
@@ -401,7 +287,6 @@ class _TbcScreeningFormOnePageState
 }
 
 class _ScreeningQuestionCard extends StatelessWidget {
-
   const _ScreeningQuestionCard({
     required this.question,
     required this.value,
@@ -416,23 +301,18 @@ class _ScreeningQuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         Text(
           question,
 
-          style:
-          GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
 
             fontWeight: FontWeight.w700,
-
-            color: const Color(0xFF55585E),
+            color: context.appThemedTextColor(const Color(0xFF55585E)),
           ),
         ),
 
@@ -440,7 +320,6 @@ class _ScreeningQuestionCard extends StatelessWidget {
 
         Row(
           children: [
-
             Expanded(
               child: _BinaryOptionCard(
                 label: 'Ya',
@@ -474,7 +353,6 @@ class _ScreeningQuestionCard extends StatelessWidget {
 }
 
 class _BinaryOptionCard extends StatelessWidget {
-
   const _BinaryOptionCard({
     required this.label,
     required this.isSelected,
@@ -489,49 +367,37 @@ class _BinaryOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Material(
       color: isSelected
-          ? const Color(0xFFE6F0FF)
+          ? context.isDarkMode
+                ? const Color(0xFF15345F)
+                : const Color(0xFFE6F0FF)
+          : context.isDarkMode
+          ? context.appSubtleSurfaceColor
           : const Color(0xFFF0F0F2),
-
-      borderRadius:
-      BorderRadius.circular(20),
-
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
 
-        borderRadius:
-        BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
 
         child: Padding(
-          padding:
-          const EdgeInsets.symmetric(
-            horizontal: 22,
-            vertical: 24,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
 
           child: Row(
-            mainAxisAlignment:
-            MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
-
               Icon(
                 isSelected
-                    ? Icons
-                    .radio_button_checked_rounded
-                    : Icons
-                    .radio_button_unchecked_rounded,
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
 
                 size: 30,
 
                 color: isSelected
-                    ? AppColors
-                    .welcomeAccent
-                    : const Color(
-                  0xFF9D9D9F,
-                ),
+                    ? AppColors.welcomeAccent
+                    : context.appThemedMutedTextColor(const Color(0xFF9D9D9F)),
               ),
 
               const SizedBox(width: 10),
@@ -539,19 +405,16 @@ class _BinaryOptionCard extends StatelessWidget {
               Text(
                 label,
 
-                style:
-                GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
 
-                  fontWeight:
-                  FontWeight.w500,
+                  fontWeight: FontWeight.w500,
 
                   color: isSelected
-                      ? AppColors
-                      .welcomeAccent
-                      : const Color(
-                    0xFF9D9D9F,
-                  ),
+                      ? AppColors.welcomeAccent
+                      : context.appThemedMutedTextColor(
+                          const Color(0xFF9D9D9F),
+                        ),
                 ),
               ),
             ],

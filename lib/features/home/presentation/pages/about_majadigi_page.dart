@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class AboutMajadigiPage extends StatelessWidget {
   const AboutMajadigiPage({super.key});
@@ -20,7 +21,9 @@ class AboutMajadigiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -61,15 +64,15 @@ class AboutMajadigiPage extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(22, 26, 22, 28),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.appSurfaceColor,
                     borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
+                    boxShadow: context.appThemedCardShadows([
                       BoxShadow(
                         color: const Color(0xFF111827).withValues(alpha: 0.05),
                         blurRadius: 18,
                         offset: const Offset(0, 10),
                       ),
-                    ],
+                    ]),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +83,9 @@ class AboutMajadigiPage extends StatelessWidget {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDDEBFF),
+                          color: context.isDarkMode
+                              ? context.appSubtleSurfaceColor
+                              : const Color(0xFFDDEBFF),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
@@ -101,7 +106,9 @@ class AboutMajadigiPage extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           height: 1.24,
                           letterSpacing: -0.7,
-                          color: AppColors.brandNavy,
+                          color: context.appThemedTextColor(
+                            AppColors.brandNavy,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 34),
@@ -111,7 +118,9 @@ class AboutMajadigiPage extends StatelessWidget {
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                           height: 1.8,
-                          color: const Color(0xFF636A96),
+                          color: context.appThemedMutedTextColor(
+                            const Color(0xFF636A96),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -121,7 +130,9 @@ class AboutMajadigiPage extends StatelessWidget {
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
                           height: 1.8,
-                          color: const Color(0xFF636A96),
+                          color: context.appThemedMutedTextColor(
+                            const Color(0xFF636A96),
+                          ),
                         ),
                       ),
                     ],

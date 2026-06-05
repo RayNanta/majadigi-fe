@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class KhasJatimMainPage extends StatelessWidget {
   const KhasJatimMainPage({super.key});
@@ -48,7 +49,9 @@ class KhasJatimMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -91,7 +94,9 @@ class KhasJatimMainPage extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF101218),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF101218),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -123,15 +128,15 @@ class _FeatureCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(28, 28, 28, 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +162,7 @@ class _FeatureCard extends StatelessWidget {
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 height: 1.7,
-                color: const Color(0xFF3F434E),
+                color: context.appThemedMutedTextColor(const Color(0xFF3F434E)),
               ),
             ),
           ),

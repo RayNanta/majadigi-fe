@@ -5,6 +5,7 @@ import 'package:majadigi_mobile/features/rsud_saiful_anwar/services/rsud_saiful_
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class RsudSaifulAnwarMainPage extends StatefulWidget {
   const RsudSaifulAnwarMainPage({super.key});
@@ -15,8 +16,6 @@ class RsudSaifulAnwarMainPage extends StatefulWidget {
 }
 
 class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
-  static const _classOptions = ['Kelas', 'VIP', 'Rawat Inap', 'ICU', 'HCU'];
-
   List<dynamic> roomCategories = [];
 
   int? selectedCategory;
@@ -38,7 +37,6 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
   }
 
   Future<void> loadData() async {
-
     try {
       final result = await _service.getAvailability();
 
@@ -46,32 +44,26 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
       print(result);
 
       setState(() {
-        totalBed = int.tryParse(
-          result['summary']['total_beds'].toString(),
-        ) ?? 0;
+        totalBed =
+            int.tryParse(result['summary']['total_beds'].toString()) ?? 0;
 
-        availableBed = int.tryParse(
-          result['summary']['available_bed'].toString(),
-        ) ?? 0;
+        availableBed =
+            int.tryParse(result['summary']['available_bed'].toString()) ?? 0;
 
-        occupiedBed = int.tryParse(
-          result['summary']['occupied_beds'].toString(),
-        ) ?? 0;
+        occupiedBed =
+            int.tryParse(result['summary']['occupied_beds'].toString()) ?? 0;
 
         roomCategories = result['room_categories'];
         rooms = result['data'];
       });
     } catch (e) {
       print('ERROR: $e');
-    }
-    finally {
+    } finally {
       setState(() {
         isLoading = false;
       });
     }
   }
-
-  String _selectedClass = _classOptions.first;
 
   void _handleBack() {
     if (Navigator.of(context).canPop()) {
@@ -84,13 +76,8 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
 
   @override
   Widget build(BuildContext context) {
-
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final visibleRooms = rooms.where((room) {
@@ -98,13 +85,14 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
         return true;
       }
 
-      return int.tryParse(
-        room['room_category_id'].toString(),
-      ) == selectedCategory;
+      return int.tryParse(room['room_category_id'].toString()) ==
+          selectedCategory;
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -160,7 +148,9 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF9A9EA6),
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFF9A9EA6),
+                            ),
                           ),
                         ),
                       ],
@@ -171,7 +161,9 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2B2E35),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2B2E35),
+                        ),
                         height: 1.1,
                       ),
                     ),
@@ -181,7 +173,9 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF8E929B),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF8E929B),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -218,7 +212,9 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2B2E35),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2B2E35),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -226,22 +222,38 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0F0F2),
+                        color: context.isDarkMode
+                            ? context.appSubtleSurfaceColor
+                            : const Color(0xFFF0F0F2),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<int?>(
                           value: selectedCategory,
+                          icon: Icon(
+                            Icons.expand_more_rounded,
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFF5D6068),
+                            ),
+                            size: 28,
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          dropdownColor: context.appSurfaceColor,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: context.appThemedTextColor(
+                              const Color(0xFF555962),
+                            ),
+                          ),
                           items: [
                             const DropdownMenuItem<int?>(
                               value: null,
                               child: Text('Semua Kategori'),
                             ),
                             ...roomCategories.map(
-                                  (category) => DropdownMenuItem<int?>(
-                                    value: int.tryParse(
-                                    category['id'].toString(),
-                            ),
+                              (category) => DropdownMenuItem<int?>(
+                                value: int.tryParse(category['id'].toString()),
                                 child: Text(category['name']),
                               ),
                             ),
@@ -251,16 +263,26 @@ class _RsudSaifulAnwarMainPageState extends State<RsudSaifulAnwarMainPage> {
                               selectedCategory = value;
                             });
                           },
-                        )
-                      )
-                    ),
-                    const SizedBox(height: 24),
-                    ...visibleRooms.map(
-                      (room) => Padding(
-                        padding: const EdgeInsets.only(bottom: 22),
-                        child: _RoomCard(item: room),
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    if (visibleRooms.isEmpty)
+                      Text(
+                        'Ruangan untuk kelas ini belum tersedia.',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: context.appMutedTextColor,
+                        ),
+                      )
+                    else
+                      ...visibleRooms.map(
+                        (room) => Padding(
+                          padding: const EdgeInsets.only(bottom: 22),
+                          child: _RoomCard(item: room),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -288,15 +310,15 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(26),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         children: [
@@ -315,7 +337,7 @@ class _SummaryCard extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.8,
-              color: const Color(0xFF9A9EA6),
+              color: context.appThemedMutedTextColor(const Color(0xFF9A9EA6)),
             ),
           ),
         ],
@@ -324,72 +346,34 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _RoomAvailability {
-  const _RoomAvailability({
-    required this.badgeText,
-    required this.badgeBackground,
-    required this.badgeColor,
-    required this.name,
-    required this.classLabel,
-    required this.occupied,
-    required this.available,
-    required this.icon,
-    required this.progressValue,
-    required this.progressColor,
-    this.warningText,
-  });
-
-  final String badgeText;
-  final Color badgeBackground;
-  final Color badgeColor;
-  final String name;
-  final String classLabel;
-  final int occupied;
-  final int available;
-  final IconData icon;
-  final double progressValue;
-  final Color progressColor;
-  final String? warningText;
-}
-
 class _RoomCard extends StatelessWidget {
   final Map<String, dynamic> item;
 
-  const _RoomCard({
-    required this.item,
-  });
+  const _RoomCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
+    final total = int.tryParse(item['total_beds'].toString()) ?? 0;
 
-    final total =
-        int.tryParse(item['total_beds'].toString()) ?? 0;
-
-    final occupied =
-        int.tryParse(item['occupied_beds'].toString()) ?? 0;
+    final occupied = int.tryParse(item['occupied_beds'].toString()) ?? 0;
 
     final available = total - occupied;
 
-
-    final progress =
-    total > 0
-        ? available / total
-        : 0.0;
-
+    final progress = total > 0 ? available / total : 0.0;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,7 +391,9 @@ class _RoomCard extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F1FF),
+                        color: context.isDarkMode
+                            ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+                            : const Color(0xFFE8F1FF),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -425,7 +411,9 @@ class _RoomCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2B2E35),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2B2E35),
+                        ),
                       ),
                     ),
                   ],
@@ -434,8 +422,10 @@ class _RoomCard extends StatelessWidget {
               Container(
                 width: 72,
                 height: 72,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE8F1FF),
+                decoration: BoxDecoration(
+                  color: context.isDarkMode
+                      ? context.appSubtleSurfaceColor
+                      : const Color(0xFFE8F1FF),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -447,7 +437,7 @@ class _RoomCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 22),
-          const Divider(height: 1, color: Color(0xFFE3E5EA)),
+          Divider(height: 1, color: context.appBorderColor),
           const SizedBox(height: 22),
           Row(
             children: [
@@ -455,7 +445,9 @@ class _RoomCard extends StatelessWidget {
                 child: _MetricColumn(
                   label: 'KELAS',
                   value: item['class_name']?.toString() ?? '-',
-                  valueColor: const Color(0xFF2B2E35),
+                  valueColor: context.appThemedTextColor(
+                    const Color(0xFF2B2E35),
+                  ),
                 ),
               ),
               Expanded(
@@ -482,7 +474,9 @@ class _RoomCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFE4E8),
+                color: context.isDarkMode
+                    ? const Color(0xFF321B27)
+                    : const Color(0xFFFFE4E8),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
@@ -534,7 +528,7 @@ class _MetricColumn extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF666A73),
+            color: context.appThemedMutedTextColor(const Color(0xFF666A73)),
           ),
         ),
         const SizedBox(height: 12),
@@ -572,7 +566,7 @@ class _AvailabilityMetric extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF666A73),
+            color: context.appThemedMutedTextColor(const Color(0xFF666A73)),
           ),
         ),
         const SizedBox(height: 12),
@@ -590,7 +584,9 @@ class _AvailabilityMetric extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progressValue,
             minHeight: 6,
-            backgroundColor: const Color(0xFFD8F5E6),
+            backgroundColor: context.isDarkMode
+                ? const Color(0xFF173825)
+                : const Color(0xFFD8F5E6),
             valueColor: AlwaysStoppedAnimation<Color>(progressColor),
           ),
         ),

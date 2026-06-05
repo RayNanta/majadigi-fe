@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaPasarDjadoelPage extends StatelessWidget {
   const SiditaPasarDjadoelPage({super.key});
@@ -26,7 +27,9 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -87,7 +90,13 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                       Colors.transparent,
                                       Colors.black.withValues(alpha: 0.12),
                                       Colors.black.withValues(alpha: 0.40),
-                                      Colors.white.withValues(alpha: 0.95),
+                                      context.isDarkMode
+                                          ? Theme.of(context)
+                                                .scaffoldBackgroundColor
+                                                .withValues(alpha: 0.95)
+                                          : Colors.white.withValues(
+                                              alpha: 0.95,
+                                            ),
                                     ],
                                     stops: const [0.0, 0.45, 0.78, 1.0],
                                   ),
@@ -142,9 +151,9 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.appSurfaceColor,
                               borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
+                              boxShadow: context.appThemedCardShadows([
                                 BoxShadow(
                                   color: const Color(
                                     0xFF111827,
@@ -152,7 +161,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
                                 ),
-                              ],
+                              ]),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,8 +171,11 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                     Container(
                                       width: 82,
                                       height: 82,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFE7F0FF),
+                                      decoration: BoxDecoration(
+                                        color: context.isDarkMode
+                                            ? AppColors.welcomeAccent
+                                                  .withValues(alpha: 0.16)
+                                            : const Color(0xFFE7F0FF),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -183,7 +195,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 22,
                                               fontWeight: FontWeight.w700,
-                                              color: const Color(0xFF2A2E35),
+                                              color: context.appTextColor,
                                             ),
                                           ),
                                           const SizedBox(height: 6),
@@ -192,7 +204,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: AppColors.textMuted,
+                                              color: context.appMutedTextColor,
                                             ),
                                           ),
                                         ],
@@ -207,7 +219,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.8,
-                                    color: const Color(0xFF8D93A1),
+                                    color: context.appMutedTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
@@ -219,7 +231,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF2A2E35),
+                                          color: context.appTextColor,
                                         ),
                                       ),
                                     ),
@@ -275,7 +287,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF20232B),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -285,7 +297,7 @@ class SiditaPasarDjadoelPage extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               height: 1.85,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                         ],

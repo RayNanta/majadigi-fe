@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../routes.dart';
 import '../widgets/auth_form_widgets.dart';
 
@@ -145,11 +146,15 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
     final viewInsets = MediaQuery.viewInsetsOf(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: context.isDarkMode
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).scaffoldBackgroundColor
+              : Colors.white,
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -175,7 +180,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 38,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 28),
@@ -185,17 +190,19 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                               fontSize: 19,
                               fontWeight: FontWeight.w400,
                               height: 1.7,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 42),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(999),
-                            child: const LinearProgressIndicator(
+                            child: LinearProgressIndicator(
                               value: 1,
                               minHeight: 8,
-                              backgroundColor: AppColors.disabled,
-                              valueColor: AlwaysStoppedAnimation(
+                              backgroundColor: context.isDarkMode
+                                  ? context.appBorderColor
+                                  : AppColors.disabled,
+                              valueColor: const AlwaysStoppedAnimation(
                                 AppColors.welcomeAccent,
                               ),
                             ),
@@ -206,7 +213,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 52),
@@ -215,7 +222,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -232,7 +239,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -253,7 +260,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -266,7 +273,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             suffix: IconButton(
                               onPressed: _pickBirthDate,
                               icon: const Icon(Icons.expand_more_rounded),
-                              color: AppColors.outline,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 34),
@@ -275,7 +282,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -296,7 +303,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                                     ? Icons.visibility_off_outlined
                                     : Icons.visibility_outlined,
                               ),
-                              color: AppColors.outline,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 34),
@@ -305,7 +312,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2F3136),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -327,7 +334,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                                     ? Icons.visibility_off_outlined
                                     : Icons.visibility_outlined,
                               ),
-                              color: AppColors.outline,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 56),

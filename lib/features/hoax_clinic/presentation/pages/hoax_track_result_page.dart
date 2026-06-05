@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HoaxTrackResultPage extends StatelessWidget {
   const HoaxTrackResultPage({super.key, required this.ticketNumber});
@@ -40,7 +41,9 @@ class HoaxTrackResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -89,7 +92,9 @@ class HoaxTrackResultPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF2A3466),
+                              color: context.appThemedTextColor(
+                                const Color(0xFF2A3466),
+                              ),
                             ),
                           ),
                         ),
@@ -99,7 +104,9 @@ class HoaxTrackResultPage extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF7A80A8),
+                            color: context.appThemedMutedTextColor(
+                              const Color(0xFF7A80A8),
+                            ),
                           ),
                         ),
                       ],
@@ -109,9 +116,9 @@ class HoaxTrackResultPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(28, 30, 28, 30),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -119,7 +126,7 @@ class HoaxTrackResultPage extends StatelessWidget {
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +154,9 @@ class HoaxTrackResultPage extends StatelessWidget {
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 34,
                                         fontWeight: FontWeight.w800,
-                                        color: const Color(0xFF23262D),
+                                        color: context.appThemedTextColor(
+                                          const Color(0xFF23262D),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 18),
@@ -171,7 +180,9 @@ class HoaxTrackResultPage extends StatelessWidget {
                                           style: GoogleFonts.plusJakartaSans(
                                             fontSize: 34,
                                             fontWeight: FontWeight.w800,
-                                            color: const Color(0xFF23262D),
+                                            color: context.appThemedTextColor(
+                                              const Color(0xFF23262D),
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(height: 18),
@@ -223,7 +234,9 @@ class _TrackingStatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEAC2),
+        color: context.isDarkMode
+            ? const Color(0xFF332713)
+            : const Color(0xFFFFEAC2),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -254,7 +267,9 @@ class _TrackingDateCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
       decoration: BoxDecoration(
-        color: const Color(0xFFDCEAFF),
+        color: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFDCEAFF),
         borderRadius: BorderRadius.circular(26),
       ),
       child: Column(
@@ -265,7 +280,7 @@ class _TrackingDateCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF7E869D),
+              color: context.appThemedMutedTextColor(const Color(0xFF7E869D)),
             ),
           ),
           const SizedBox(height: 12),
@@ -274,7 +289,7 @@ class _TrackingDateCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF23262D),
+              color: context.appThemedTextColor(const Color(0xFF23262D)),
             ),
           ),
         ],
@@ -339,7 +354,7 @@ class _TrackingTimelineRow extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF23262D),
+                    color: context.appThemedTextColor(const Color(0xFF23262D)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -349,7 +364,9 @@ class _TrackingTimelineRow extends StatelessWidget {
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
                     height: 1.45,
-                    color: const Color(0xFF373B43),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF373B43),
+                    ),
                   ),
                 ),
                 if (item.timestamp != null) ...[
@@ -359,7 +376,9 @@ class _TrackingTimelineRow extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.appThemedMutedTextColor(
+                        const Color(0xFF9CA3AF),
+                      ),
                     ),
                   ),
                 ],

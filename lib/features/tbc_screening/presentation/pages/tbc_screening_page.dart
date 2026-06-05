@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class TbcScreeningPage extends StatelessWidget {
   const TbcScreeningPage({super.key});
@@ -30,13 +32,16 @@ class TbcScreeningPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'skrining-tbc');
     context.pushNamed(RouteNames.homeTbcIdentityForm);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -102,7 +107,7 @@ class TbcScreeningPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.55,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -159,7 +164,7 @@ class TbcScreeningPage extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 height: 1.75,
-                                color: AppColors.textMuted,
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           );
@@ -181,7 +186,7 @@ class TbcScreeningPage extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               height: 1.65,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -200,7 +205,7 @@ class TbcScreeningPage extends StatelessWidget {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   height: 1.75,
-                                  color: AppColors.textMuted,
+                                  color: context.appMutedTextColor,
                                 ),
                               ),
                             );
@@ -254,7 +259,7 @@ class _FeatureChip extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.welcomeAccent, width: 1.6),
-        color: Colors.white,
+        color: context.appSurfaceColor,
       ),
       child: Text(
         label,
@@ -279,7 +284,7 @@ class _MetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -307,7 +312,7 @@ class _MetricCard extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               height: 1.35,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -328,7 +333,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 19,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
+        color: context.appThemedTextColor(AppColors.textPrimary),
       ),
     );
   }
@@ -345,7 +350,7 @@ class _InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(

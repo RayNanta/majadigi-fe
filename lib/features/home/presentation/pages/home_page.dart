@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../controllers/home_services_controller.dart';
 import '../data/home_service_catalog.dart';
 import '../data/home_service_destinations.dart';
@@ -98,12 +99,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _handleCatalogServiceAdded(String id) {
-    ref.read(homeSelectedServiceIdsProvider.notifier).addService(id);
-  }
-
   Future<void> _openServiceCatalogBottomSheet() async {
-    await showModalBottomSheet<void>(
+    final selectedServiceId = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -112,10 +109,22 @@ class _HomePageState extends ConsumerState<HomePage> {
         return _ServiceCatalogBottomSheet(
           services: allCatalogServices,
           selectedServiceIds: ref.read(homeSelectedServiceIdsProvider),
-          onAddService: _handleCatalogServiceAdded,
         );
       },
     );
+
+    if (!mounted || selectedServiceId == null) {
+      return;
+    }
+
+    final selectedServiceIds = ref.read(homeSelectedServiceIdsProvider);
+    final routeName = routeNameForHomeServiceId(
+      selectedServiceId,
+      isInstalled: selectedServiceIds.contains(selectedServiceId),
+    );
+    if (routeName != null) {
+      context.pushNamed(routeName);
+    }
   }
 
   void _handleMyServiceTap(HomeServiceItem item) {
@@ -129,7 +138,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       return;
     }
 
-    final routeName = routeNameForHomeServiceId(item.id);
+    final selectedServiceIds = ref.read(homeSelectedServiceIdsProvider);
+    final routeName = routeNameForHomeServiceId(
+      item.id,
+      isInstalled: selectedServiceIds.contains(item.id),
+    );
     if (routeName != null) {
       context.pushNamed(routeName);
       return;
@@ -149,7 +162,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final myServices = [_addTile, ...selectedServices, _moreTile];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.appThemedScaffoldColor(Colors.white),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -196,10 +209,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                   ),
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Color(0xFFF2F4FB),
-                      child: SizedBox(height: 16),
+                      color: context.isDarkMode
+                          ? const Color(0xFF0B1628)
+                          : const Color(0xFFF2F4FB),
+                      child: const SizedBox(height: 16),
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -300,13 +315,15 @@ class _HomeHeader extends StatelessWidget {
         children: [
           Container(
             height: 180,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1668F7), Color(0xFF0F52D2)],
+                colors: context.appHeaderGradientColors,
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(42)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(42),
+              ),
             ),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 26),
             child: Row(
@@ -401,9 +418,11 @@ class _HomeHeader extends StatelessWidget {
             right: 24,
             bottom: 0,
             child: Material(
-              color: Colors.white,
+              color: context.appSearchSurfaceColor,
               elevation: 2,
-              shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.08),
+              shadowColor: Colors.black.withValues(
+                alpha: context.isDarkMode ? 0.28 : 0.08,
+              ),
               borderRadius: BorderRadius.circular(36),
               child: TextField(
                 controller: searchController,
@@ -412,21 +431,21 @@ class _HomeHeader extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF2F3136),
+                  color: context.appTextColor,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Cari layanan',
                   hintStyle: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                   suffixIcon: IconButton(
                     onPressed: onSearchTap,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.search_rounded,
                       size: 36,
-                      color: Color(0xFF8C9096),
+                      color: context.appMutedTextColor,
                     ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
@@ -435,8 +454,8 @@ class _HomeHeader extends StatelessWidget {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(36),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFACAFB6),
+                    borderSide: BorderSide(
+                      color: context.appBorderColor,
                       width: 2,
                     ),
                   ),
@@ -469,7 +488,7 @@ class _SectionTitle extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 24,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF303236),
+        color: context.appTextColor,
       ),
     );
   }
@@ -536,7 +555,7 @@ class _HomeServiceTile extends StatelessWidget {
                 fontSize: 13,   // turunkan dari 16
                 fontWeight: FontWeight.w500,
                 height: 1.25,
-                color: const Color(0xFF3A3D42),
+                color: context.appTextColor,
               ),
             ),
           ),
@@ -550,12 +569,10 @@ class _ServiceCatalogBottomSheet extends StatefulWidget {
   const _ServiceCatalogBottomSheet({
     required this.services,
     required this.selectedServiceIds,
-    required this.onAddService,
   });
 
   final List<HomeServiceItem> services;
   final Set<String> selectedServiceIds;
-  final ValueChanged<String> onAddService;
 
   @override
   State<_ServiceCatalogBottomSheet> createState() =>
@@ -609,20 +626,19 @@ class _ServiceCatalogBottomSheetState
       return;
     }
 
-    setState(() {
-      _selectedIds.add(service.id);
-    });
-    widget.onAddService(service.id);
+    Navigator.of(context).pop(service.id);
+  }
+
+  void _handleOpenNawaBhakti(HomeServiceItem service) {
+    Navigator.of(context).pop(service.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-    final crossAxisCount = context.isDesktop
-        ? 6
-        : context.isTablet
-        ? 5
-        : 4;
+    final gridChildAspectRatio = _selectedTab == HomeCatalogTab.nawaBhakti
+        ? 0.52
+        : 0.56;
 
     return FractionallySizedBox(
       heightFactor: 0.78,
@@ -630,9 +646,9 @@ class _ServiceCatalogBottomSheetState
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF7F9FF),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+          decoration: BoxDecoration(
+            color: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
           ),
           child: SafeArea(
             top: false,
@@ -646,7 +662,7 @@ class _ServiceCatalogBottomSheetState
                       width: 92,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFCBCDD4),
+                        color: context.appHandleColor,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -657,31 +673,31 @@ class _ServiceCatalogBottomSheetState
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111111),
+                      color: context.appTextColor,
                     ),
                   ),
                   const SizedBox(height: 28),
                   Material(
-                    color: Colors.white,
+                    color: context.appSearchSurfaceColor,
                     borderRadius: BorderRadius.circular(36),
                     child: TextField(
                       controller: _searchController,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF2F3136),
+                        color: context.appTextColor,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Cari layanan',
                         hintStyle: GoogleFonts.plusJakartaSans(
                           fontSize: 20,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
-                        suffixIcon: const Icon(
+                        suffixIcon: Icon(
                           Icons.search_rounded,
                           size: 36,
-                          color: Color(0xFF8C9096),
+                          color: context.appMutedTextColor,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 28,
@@ -689,8 +705,8 @@ class _ServiceCatalogBottomSheetState
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(36),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFACAFB6),
+                          borderSide: BorderSide(
+                            color: context.appBorderColor,
                             width: 2,
                           ),
                         ),
@@ -734,7 +750,7 @@ class _ServiceCatalogBottomSheetState
                   const SizedBox(height: 12),
                   Stack(
                     children: [
-                      Container(height: 2, color: const Color(0xFFACAFB6)),
+                      Container(height: 2, color: context.appBorderColor),
                       AnimatedAlign(
                         duration: const Duration(milliseconds: 180),
                         alignment: _selectedTab == HomeCatalogTab.services
@@ -762,7 +778,7 @@ class _ServiceCatalogBottomSheetState
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textMuted,
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           )
@@ -784,6 +800,7 @@ class _ServiceCatalogBottomSheetState
                                 item: service,
                                 isAdded: _selectedIds.contains(service.id),
                                 onAdd: () => _handleAddService(service),
+                                onOpen: () => _handleOpenNawaBhakti(service),
                               );
                             },
                           ),
@@ -823,7 +840,7 @@ class _CatalogTabButton extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: isSelected
                 ? AppColors.welcomeAccent
-                : const Color(0xFF9A9DA5),
+                : context.appMutedTextColor,
           ),
         ),
       ),
@@ -836,14 +853,41 @@ class _CatalogServiceTile extends StatelessWidget {
     required this.item,
     required this.isAdded,
     required this.onAdd,
+    required this.onOpen,
   });
 
   final HomeServiceItem item;
   final bool isAdded;
   final VoidCallback onAdd;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
+    final isNawaBhakti = item.catalogTab == HomeCatalogTab.nawaBhakti;
+    final actionLabel = isNawaBhakti
+        ? 'Buka'
+        : (isAdded ? 'Ditambahkan' : '+ Tambah');
+    final actionColor = isNawaBhakti
+        ? AppColors.welcomeAccent
+        : (isAdded ? const Color(0xFF0F766E) : AppColors.welcomeAccent);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: isNawaBhakti ? onOpen : null,
+        child: Column(
+          children: [
+            _ServiceBadge(
+              item: item,
+              size: 86,
+              badgeFontSize:
+                  item.badgeText != null && item.badgeText!.length > 3
+                  ? 20
+                  : 24,
+              iconSize: 34,
+            ),
+            const SizedBox(height: 14),
     return LayoutBuilder(
       builder: (context, constraints) {
         final badgeSize = constraints.maxWidth * 0.78;
@@ -868,32 +912,37 @@ class _CatalogServiceTile extends StatelessWidget {
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 height: 1.25,
-                color: const Color(0xFF111111),
+                color: context.appTextColor,
               ),
             ),
-
-            const SizedBox(height: 4),
-
+            const SizedBox(height: 6),
             InkWell(
-              onTap: isAdded ? null : onAdd,
-              child: Text(
-                isAdded ? 'Ditambahkan' : '+ Tambah',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isAdded
-                      ? const Color(0xFF0F766E)
-                      : AppColors.welcomeAccent,
+              onTap: isNawaBhakti ? onOpen : (isAdded ? null : onAdd),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      actionLabel,
+                      maxLines: 1,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: actionColor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -922,12 +971,14 @@ class _ServiceBadge extends StatelessWidget {
         color: item.badgeBackground,
         border: item.filledBadge
             ? null
-            : Border.all(color: const Color(0xFFF0F1F4)),
+            : Border.all(color: context.appBorderColor),
         boxShadow: item.filledBadge
             ? []
             : [
                 BoxShadow(
-                  color: const Color(0xFF111827).withValues(alpha: 0.05),
+                  color: Colors.black.withValues(
+                    alpha: context.isDarkMode ? 0.18 : 0.05,
+                  ),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
@@ -961,7 +1012,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF5FF),
+        color: context.appElevatedSurfaceColor,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Row(
@@ -988,7 +1039,7 @@ class _StatCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF3A3D42),
+                    color: context.appMutedTextColor,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -1094,7 +1145,7 @@ class _NewsCard extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 height: 1.35,
-                color: const Color(0xFF303236),
+                color: context.appTextColor,
               ),
             ),
           ],

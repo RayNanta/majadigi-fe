@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaSinghasariPage extends StatelessWidget {
   const SiditaSinghasariPage({super.key});
@@ -26,7 +27,9 @@ class SiditaSinghasariPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -87,7 +90,13 @@ class SiditaSinghasariPage extends StatelessWidget {
                                       Colors.transparent,
                                       Colors.black.withValues(alpha: 0.10),
                                       Colors.black.withValues(alpha: 0.45),
-                                      Colors.white.withValues(alpha: 0.96),
+                                      context.isDarkMode
+                                          ? Theme.of(context)
+                                                .scaffoldBackgroundColor
+                                                .withValues(alpha: 0.96)
+                                          : Colors.white.withValues(
+                                              alpha: 0.96,
+                                            ),
                                     ],
                                     stops: const [0.0, 0.48, 0.82, 1.0],
                                   ),
@@ -117,9 +126,9 @@ class SiditaSinghasariPage extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.appSurfaceColor,
                               borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
+                              boxShadow: context.appThemedCardShadows([
                                 BoxShadow(
                                   color: const Color(
                                     0xFF111827,
@@ -127,7 +136,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
                                 ),
-                              ],
+                              ]),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,8 +146,11 @@ class SiditaSinghasariPage extends StatelessWidget {
                                     Container(
                                       width: 84,
                                       height: 84,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFE7F0FF),
+                                      decoration: BoxDecoration(
+                                        color: context.isDarkMode
+                                            ? AppColors.welcomeAccent
+                                                  .withValues(alpha: 0.16)
+                                            : const Color(0xFFE7F0FF),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -158,7 +170,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 22,
                                               fontWeight: FontWeight.w700,
-                                              color: const Color(0xFF2A2E35),
+                                              color: context.appTextColor,
                                             ),
                                           ),
                                           const SizedBox(height: 6),
@@ -167,7 +179,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: AppColors.textMuted,
+                                              color: context.appMutedTextColor,
                                             ),
                                           ),
                                         ],
@@ -178,10 +190,10 @@ class SiditaSinghasariPage extends StatelessWidget {
                                 const SizedBox(height: 22),
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.location_on_outlined,
                                       size: 22,
-                                      color: Color(0xFF8D93A1),
+                                      color: context.appMutedTextColor,
                                     ),
                                     const SizedBox(width: 8),
                                     Expanded(
@@ -190,7 +202,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF777B83),
+                                          color: context.appMutedTextColor,
                                         ),
                                       ),
                                     ),
@@ -271,7 +283,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF20232B),
+                                    color: context.appTextColor,
                                   ),
                                 ),
                               ),
@@ -323,7 +335,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF20232B),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -333,7 +345,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               height: 1.85,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 34),
@@ -342,7 +354,7 @@ class SiditaSinghasariPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF20232B),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -402,7 +414,7 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -415,7 +427,7 @@ class _InfoCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appTextColor,
             ),
           ),
           const SizedBox(height: 10),
@@ -425,7 +437,7 @@ class _InfoCard extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               height: 1.55,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -445,7 +457,7 @@ class _FacilityChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF2FF),
+        color: context.appSelectedChipColor,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(

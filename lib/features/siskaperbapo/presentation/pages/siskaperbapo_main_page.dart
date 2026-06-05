@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class SiskaperbapoMainPage extends StatefulWidget {
+final _siskaperbapoCommoditiesProvider =
+    FutureProvider.autoDispose<List<_CommodityItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _SiskaperbapoMainPageState._items;
+    });
+
+class SiskaperbapoMainPage extends ConsumerStatefulWidget {
   const SiskaperbapoMainPage({super.key});
 
   @override
-  State<SiskaperbapoMainPage> createState() => _SiskaperbapoMainPageState();
+  ConsumerState<SiskaperbapoMainPage> createState() =>
+      _SiskaperbapoMainPageState();
 }
 
-class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
+class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
   static const _categories = [
     'Semua',
     'Bumbu Dapur',
@@ -93,10 +103,10 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
     setState(() {});
   }
 
-  List<_CommodityItem> get _visibleItems {
+  List<_CommodityItem> _visibleItems(List<_CommodityItem> commodities) {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _items.where((item) {
+    return commodities.where((item) {
       final matchesCategory =
           _selectedCategory == 'Semua' || item.category == _selectedCategory;
       final matchesQuery =
@@ -131,10 +141,12 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final items = _visibleItems;
+    final commoditiesAsync = ref.watch(_siskaperbapoCommoditiesProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -177,28 +189,36 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
                       child: Column(
                         children: [
                           Material(
-                            color: const Color(0xFFF0F0F2),
+                            color: context.isDarkMode
+                                ? context.appSubtleSurfaceColor
+                                : const Color(0xFFF0F0F2),
                             borderRadius: BorderRadius.circular(22),
                             child: TextField(
                               controller: _searchController,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF2F3136),
+                                color: context.appThemedTextColor(
+                                  const Color(0xFF2F3136),
+                                ),
                               ),
                               decoration: InputDecoration(
                                 hintText: 'Cari Laporan',
                                 hintStyle: GoogleFonts.plusJakartaSans(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF66666D),
+                                  color: context.appThemedMutedTextColor(
+                                    const Color(0xFF66666D),
+                                  ),
                                 ),
-                                suffixIcon: const Padding(
-                                  padding: EdgeInsets.only(right: 14),
+                                suffixIcon: Padding(
+                                  padding: const EdgeInsets.only(right: 14),
                                   child: Icon(
                                     Icons.search_rounded,
                                     size: 36,
-                                    color: Color(0xFF66666D),
+                                    color: context.appThemedMutedTextColor(
+                                      const Color(0xFF66666D),
+                                    ),
                                   ),
                                 ),
                                 suffixIconConstraints: const BoxConstraints(
@@ -251,45 +271,73 @@ class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
                       ),
                     ),
                   ),
-                  if (items.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Text(
-                            'Komoditas untuk pencarian ini belum tersedia.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
+                  ...commoditiesAsync.when<List<Widget>>(
+                    loading: () => const [
+                      SliverLazyCardSkeletonList(
+                        padding: EdgeInsets.fromLTRB(24, 6, 24, 28),
+                        itemCount: 4,
+                        itemHeight: 220,
+                      ),
+                    ],
+                    error: (error, stackTrace) => [
+                      SliverLazyLoadErrorState(
+                        message:
+                            'Data komoditas belum berhasil dimuat. Silakan coba lagi.',
+                        onRetry: () =>
+                            ref.invalidate(_siskaperbapoCommoditiesProvider),
+                      ),
+                    ],
+                    data: (commodities) {
+                      final items = _visibleItems(commodities);
+
+                      if (items.isEmpty) {
+                        return [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                ),
+                                child: Text(
+                                  'Komoditas untuk pencarian ini belum tersedia.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: context.appMutedTextColor,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
+                        ];
+                      }
+
+                      return [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
+                          sliver: SliverGrid.builder(
+                            itemCount: items.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 18,
+                                  crossAxisSpacing: 18,
+                                  mainAxisExtent: 348,
+                                ),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return _CommodityCard(
+                                item: item,
+                                onTap: () => _showCommodityDetail(item),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
-                      sliver: SliverGrid.builder(
-                        itemCount: items.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 18,
-                              crossAxisSpacing: 18,
-                              mainAxisExtent: 348,
-                            ),
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return _CommodityCard(
-                            item: item,
-                            onTap: () => _showCommodityDetail(item),
-                          );
-                        },
-                      ),
-                    ),
+                      ];
+                    },
+                  ),
                 ],
               ),
             ),
@@ -323,6 +371,8 @@ class _CategoryChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.welcomeAccent
+                : context.isDarkMode
+                ? context.appSubtleSurfaceColor
                 : const Color(0xFFE7E7EA),
             borderRadius: BorderRadius.circular(999),
           ),
@@ -332,7 +382,9 @@ class _CategoryChip extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: isSelected ? Colors.white : const Color(0xFF3F434A),
+              color: isSelected
+                  ? Colors.white
+                  : context.appThemedTextColor(const Color(0xFF3F434A)),
             ),
           ),
         ),
@@ -381,15 +433,15 @@ class _CommodityCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.035),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,7 +480,7 @@ class _CommodityCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF44484F),
+                  color: context.appThemedTextColor(const Color(0xFF44484F)),
                 ),
               ),
               const SizedBox(height: 4),
@@ -437,7 +489,7 @@ class _CommodityCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
+                  color: context.appMutedTextColor,
                 ),
               ),
               const Spacer(),
@@ -456,8 +508,10 @@ class _CommodityCard extends StatelessWidget {
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFDDEBFF),
+                    decoration: BoxDecoration(
+                      color: context.isDarkMode
+                          ? context.appSubtleSurfaceColor
+                          : const Color(0xFFDDEBFF),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -487,7 +541,13 @@ class _TrendBadge extends StatelessWidget {
       width: 48,
       height: 28,
       decoration: BoxDecoration(
-        color: isUp ? const Color(0xFFFFE3EE) : const Color(0xFFEAF2FF),
+        color: isUp
+            ? context.isDarkMode
+                  ? const Color(0xFF321B27)
+                  : const Color(0xFFFFE3EE)
+            : context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFEAF2FF),
         borderRadius: BorderRadius.circular(999),
       ),
       alignment: Alignment.center,

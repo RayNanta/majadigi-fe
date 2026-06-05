@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HoaxClinicMainPage extends StatelessWidget {
   const HoaxClinicMainPage({super.key});
@@ -94,7 +95,9 @@ class HoaxClinicMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -155,7 +158,9 @@ class HoaxClinicMainPage extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF16181D),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF16181D),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -186,7 +191,9 @@ class HoaxClinicMainPage extends StatelessWidget {
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF23262D),
+                                  color: context.appThemedTextColor(
+                                    const Color(0xFF23262D),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -195,7 +202,7 @@ class HoaxClinicMainPage extends StatelessWidget {
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.textMuted,
+                                  color: context.appMutedTextColor,
                                 ),
                               ),
                             ],
@@ -272,15 +279,15 @@ class _HoaxStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +297,9 @@ class _HoaxStatCard extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: item.iconBackground,
+              color: context.isDarkMode
+                  ? item.iconColor.withValues(alpha: 0.16)
+                  : item.iconBackground,
             ),
             child: Icon(item.icon, color: item.iconColor, size: 30),
           ),
@@ -309,7 +318,7 @@ class _HoaxStatCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 34,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2F63),
+              color: context.appThemedTextColor(const Color(0xFF2A2F63)),
               height: 1,
             ),
           ),
@@ -338,15 +347,15 @@ class _FeatureActionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 26, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.035),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Stack(
         children: [
@@ -375,7 +384,9 @@ class _FeatureActionCard extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     height: 1.65,
-                    color: const Color(0xFF4E525A),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF4E525A),
+                    ),
                   ),
                 ),
               ),
@@ -476,15 +487,15 @@ class _ReportCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.appSurfaceColor,
               borderRadius: BorderRadius.circular(28),
-              boxShadow: [
+              boxShadow: context.appThemedCardShadows([
                 BoxShadow(
                   color: const Color(0xFF111827).withValues(alpha: 0.04),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
-              ],
+              ]),
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -567,7 +578,9 @@ class _ReportCard extends StatelessWidget {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF6E7395),
+                                color: context.appThemedMutedTextColor(
+                                  const Color(0xFF6E7395),
+                                ),
                               ),
                             ),
                           ],
@@ -582,7 +595,9 @@ class _ReportCard extends StatelessWidget {
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           height: 1.45,
-                          color: const Color(0xFF2B315E),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF2B315E),
+                          ),
                         ),
                       ),
                     ],

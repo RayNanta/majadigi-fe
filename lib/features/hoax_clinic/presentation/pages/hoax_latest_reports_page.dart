@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../../../shared/widgets/lazy_load_states.dart';
 
-class HoaxLatestReportsPage extends StatefulWidget {
+final _hoaxLatestReportsProvider =
+    FutureProvider.autoDispose<List<_LatestReportItem>>((ref) async {
+      await Future<void>.delayed(Duration.zero);
+      return _HoaxLatestReportsPageState._reports;
+    });
+
+class HoaxLatestReportsPage extends ConsumerStatefulWidget {
   const HoaxLatestReportsPage({super.key});
 
   @override
-  State<HoaxLatestReportsPage> createState() => _HoaxLatestReportsPageState();
+  ConsumerState<HoaxLatestReportsPage> createState() =>
+      _HoaxLatestReportsPageState();
 }
 
-class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
+class _HoaxLatestReportsPageState extends ConsumerState<HoaxLatestReportsPage> {
   static const _featuredReport = _FeaturedHoaxReport(
     badge: 'HOAKS',
     meta: '10 Menit yang lalu • 12 Okt 2023',
@@ -78,12 +88,12 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
 
   String get _query => _searchController.text.trim().toLowerCase();
 
-  List<_LatestReportItem> get _filteredReports {
+  List<_LatestReportItem> _filteredReports(List<_LatestReportItem> reports) {
     if (_query.isEmpty) {
-      return _reports;
+      return reports;
     }
 
-    return _reports.where((item) {
+    return reports.where((item) {
       return item.title.toLowerCase().contains(_query) ||
           item.category.toLowerCase().contains(_query) ||
           item.footer.toLowerCase().contains(_query);
@@ -120,10 +130,12 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredReports = _filteredReports;
+    final reportsAsync = ref.watch(_hoaxLatestReportsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -169,28 +181,30 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF2F3136),
+                        color: context.appTextColor,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Cari Laporan',
                         hintStyle: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF7B7B81),
+                          color: context.appMutedTextColor,
                         ),
-                        suffixIcon: const Padding(
-                          padding: EdgeInsets.only(right: 16),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 16),
                           child: Icon(
                             Icons.search_rounded,
                             size: 36,
-                            color: Color(0xFF6B6B72),
+                            color: context.appMutedTextColor,
                           ),
                         ),
                         suffixIconConstraints: const BoxConstraints(
                           minWidth: 60,
                         ),
                         filled: true,
-                        fillColor: const Color(0xFFF0F0F2),
+                        fillColor: context.isDarkMode
+                            ? context.appSearchSurfaceColor
+                            : const Color(0xFFF0F0F2),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 18,
@@ -223,53 +237,79 @@ class _HoaxLatestReportsPageState extends State<HoaxLatestReportsPage> {
                       ),
                       const SizedBox(height: 22),
                     ],
-                    if (filteredReports.isEmpty)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 28,
+                    ...reportsAsync.when<List<Widget>>(
+                      loading: () => const [
+                        LazyCardSkeleton(height: 148),
+                        SizedBox(height: 22),
+                        LazyCardSkeleton(height: 148),
+                        SizedBox(height: 22),
+                        LazyCardSkeleton(height: 148),
+                      ],
+                      error: (error, stackTrace) => [
+                        LazyLoadErrorState(
+                          message:
+                              'Laporan terkini belum berhasil dimuat. Silakan coba lagi.',
+                          onRetry: () =>
+                              ref.invalidate(_hoaxLatestReportsProvider),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF111827,
-                              ).withValues(alpha: 0.035),
-                              blurRadius: 14,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'Belum ada laporan yang cocok dengan pencarianmu.',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            height: 1.6,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      )
-                    else
-                      ...filteredReports.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 22),
-                          child: _CompactReportCard(
-                            item: item,
-                            onTap: () {
-                              if (item.opensDetail) {
-                                _openDetail(context);
-                                return;
-                              }
+                      ],
+                      data: (reports) {
+                        final filteredReports = _filteredReports(reports);
 
-                              _showPlaceholder(context, 'Detail laporan');
-                            },
-                          ),
-                        ),
-                      ),
+                        if (filteredReports.isEmpty) {
+                          return [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 28,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.appSurfaceColor,
+                                borderRadius: BorderRadius.circular(28),
+                                boxShadow: context.appThemedCardShadows([
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF111827,
+                                    ).withValues(alpha: 0.035),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ]),
+                              ),
+                              child: Text(
+                                'Belum ada laporan yang cocok dengan pencarianmu.',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.6,
+                                  color: context.appMutedTextColor,
+                                ),
+                              ),
+                            ),
+                          ];
+                        }
+
+                        return filteredReports
+                            .map(
+                              (item) => Padding(
+                                padding: const EdgeInsets.only(bottom: 22),
+                                child: _CompactReportCard(
+                                  item: item,
+                                  onTap: () {
+                                    if (item.opensDetail) {
+                                      _openDetail(context);
+                                      return;
+                                    }
+
+                                    _showPlaceholder(context, 'Detail laporan');
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList();
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -333,15 +373,15 @@ class _FeaturedReportCard extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.04),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -385,10 +425,10 @@ class _FeaturedReportCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_outlined,
                           size: 22,
-                          color: Color(0xFF6570A6),
+                          color: context.appMutedTextColor,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -397,7 +437,7 @@ class _FeaturedReportCard extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF6570A6),
+                              color: context.appMutedTextColor,
                             ),
                           ),
                         ),
@@ -410,7 +450,7 @@ class _FeaturedReportCard extends StatelessWidget {
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         height: 1.35,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -420,7 +460,7 @@ class _FeaturedReportCard extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.45,
-                        color: const Color(0xFF5E658A),
+                        color: context.appMutedTextColor,
                       ),
                     ),
                   ],
@@ -451,15 +491,15 @@ class _CompactReportCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.035),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           child: Row(
             children: [
@@ -489,7 +529,7 @@ class _CompactReportCard extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF6570A6),
+                            color: context.appMutedTextColor,
                           ),
                         ),
                       ],
@@ -503,7 +543,7 @@ class _CompactReportCard extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         height: 1.35,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 10),

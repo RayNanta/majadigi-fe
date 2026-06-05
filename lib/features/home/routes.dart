@@ -45,6 +45,15 @@ import '../khas_jatim/presentation/pages/khas_jatim_manuscripts_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_registration_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_serat_sri_sedana_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_agro_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_akses_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_berkah_amanah_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_cerdas_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_harmoni_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_kerja_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_lestari_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_sehat_page.dart';
+import '../nawa_bhakti/presentation/pages/jatim_sejahtera_page.dart';
 import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_main_page.dart';
 import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_page.dart';
 import '../sidita/presentation/pages/sidita_accommodations_page.dart';
@@ -62,6 +71,7 @@ import '../sinaker/presentation/pages/sinaker_training_center_sumenep_page.dart'
 import '../sinaker/presentation/pages/sinaker_training_centers_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_list.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_check_page.dart';
+import '../sinaker/presentation/pages/sinaker_training_registration_detail_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_list_page.dart';
 import '../siskaperbapo/presentation/pages/siskaperbapo_bawang_merah_page.dart';
@@ -80,6 +90,15 @@ final class HomeRoutes {
   static const path = '/';
   static const servicesPath = '/layanan';
   static const myServicesPath = '/layanan-saya';
+  static const nawaBhaktiLestariPath = '/nawa-bhakti/lestari';
+  static const nawaBhaktiKerjaPath = '/nawa-bhakti/kerja';
+  static const nawaBhaktiSejahteraPath = '/nawa-bhakti/sejahtera';
+  static const nawaBhaktiBerkahAmanahPath = '/nawa-bhakti/berkah-amanah';
+  static const nawaBhaktiHarmoniPath = '/nawa-bhakti/harmoni';
+  static const nawaBhaktiAgroPath = '/nawa-bhakti/agro';
+  static const nawaBhaktiCerdasPath = '/nawa-bhakti/cerdas';
+  static const nawaBhaktiAksesPath = '/nawa-bhakti/akses';
+  static const nawaBhaktiSehatPath = '/nawa-bhakti/sehat';
   static const tbcScreeningPath = '/layanan/skrining-tbc';
   static const bapendaJatimPath = '/layanan/bapenda-jatim';
   static const bapendaJatimMainPath = '/layanan/bapenda-jatim/utama';
@@ -136,6 +155,8 @@ final class HomeRoutes {
       '/layanan/sinaker/utama/blk/sumenep';
   static const sinakerTrainingRegistrationCheckPath =
       '/layanan/sinaker/utama/cek-pendaftaran';
+  static const sinakerTrainingRegistrationDetailPath =
+      '/layanan/sinaker/utama/cek-pendaftaran/:registrationId';
   static const sinakerTrainingRegistrationPath =
       '/layanan/sinaker/utama/pelatihan/barista';
   static const sinakerTrainingRegistrationListPath = '/layanan/sinaker/utama/cek-list-pendaftaran';
@@ -189,6 +210,51 @@ final class HomeRoutes {
       path: myServicesPath,
       name: RouteNames.homeMyServices,
       builder: (context, state) => const ServiceListPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiLestariPath,
+      name: RouteNames.homeNawaBhaktiLestari,
+      builder: (context, state) => const JatimLestariPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiKerjaPath,
+      name: RouteNames.homeNawaBhaktiKerja,
+      builder: (context, state) => const JatimKerjaPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiSejahteraPath,
+      name: RouteNames.homeNawaBhaktiSejahtera,
+      builder: (context, state) => const JatimSejahteraPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiBerkahAmanahPath,
+      name: RouteNames.homeNawaBhaktiBerkahAmanah,
+      builder: (context, state) => const JatimBerkahAmanahPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiHarmoniPath,
+      name: RouteNames.homeNawaBhaktiHarmoni,
+      builder: (context, state) => const JatimHarmoniPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiAgroPath,
+      name: RouteNames.homeNawaBhaktiAgro,
+      builder: (context, state) => const JatimAgroPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiCerdasPath,
+      name: RouteNames.homeNawaBhaktiCerdas,
+      builder: (context, state) => const JatimCerdasPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiAksesPath,
+      name: RouteNames.homeNawaBhaktiAkses,
+      builder: (context, state) => const JatimAksesPage(),
+    ),
+    GoRoute(
+      path: nawaBhaktiSehatPath,
+      name: RouteNames.homeNawaBhaktiSehat,
+      builder: (context, state) => const JatimSehatPage(),
     ),
     GoRoute(
       path: tbcScreeningPath,
@@ -447,6 +513,13 @@ final class HomeRoutes {
           participantId: state.extra as int,
         );
       },
+    ),
+    GoRoute(
+      path: sinakerTrainingRegistrationDetailPath,
+      name: RouteNames.homeSinakerTrainingRegistrationDetail,
+      builder: (context, state) => SinakerTrainingRegistrationDetailPage(
+        registrationId: state.pathParameters['registrationId'],
+      ),
     ),
     GoRoute(
       path: sinakerTrainingRegistrationPath,

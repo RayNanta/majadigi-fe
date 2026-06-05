@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HoaxLatestReportDetailPage extends StatelessWidget {
   const HoaxLatestReportDetailPage({super.key});
@@ -20,7 +21,9 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -66,7 +69,9 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFBE4EA),
+                        color: context.isDarkMode
+                            ? const Color(0xFF4A1720)
+                            : const Color(0xFFFBE4EA),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -85,7 +90,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                         fontSize: 34,
                         fontWeight: FontWeight.w800,
                         height: 1.42,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 34),
@@ -111,7 +116,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF2B315E),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -119,9 +124,9 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -129,18 +134,22 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Row(
                         children: [
                           Container(
                             width: 62,
                             height: 62,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Color(0xFFDDEBFF),
+                              color: context.isDarkMode
+                                  ? AppColors.welcomeAccent.withValues(
+                                      alpha: 0.18,
+                                    )
+                                  : const Color(0xFFDDEBFF),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.link_rounded,
                               size: 30,
                               color: AppColors.welcomeAccent,
@@ -158,10 +167,10 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Icon(
+                          Icon(
                             Icons.open_in_new_rounded,
                             size: 34,
-                            color: Color(0xFF9E9EA6),
+                            color: context.appMutedTextColor,
                           ),
                         ],
                       ),
@@ -188,14 +197,14 @@ class _MetaInfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 28, color: const Color(0xFF9A9A9D)),
+        Icon(icon, size: 28, color: context.appMutedTextColor),
         const SizedBox(width: 12),
         Text(
           label,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF9A9A9D),
+            color: context.appMutedTextColor,
           ),
         ),
       ],
@@ -212,15 +221,15 @@ class _HoaxPosterPreview extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(0),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +278,7 @@ class _HoaxPosterPreview extends StatelessWidget {
                 fontSize: 21,
                 fontWeight: FontWeight.w800,
                 height: 1.25,
-                color: const Color(0xFF1A2261),
+                color: context.appTextColor,
               ),
             ),
           ),
@@ -280,7 +289,7 @@ class _HoaxPosterPreview extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w500,
               height: 1.65,
-              color: const Color(0xFF3A3E48),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 16),
@@ -290,7 +299,7 @@ class _HoaxPosterPreview extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w500,
               height: 1.65,
-              color: const Color(0xFF3A3E48),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 20),

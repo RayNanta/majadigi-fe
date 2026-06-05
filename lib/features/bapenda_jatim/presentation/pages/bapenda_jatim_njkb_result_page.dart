@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class BapendaJatimNjkbResultPage extends StatelessWidget {
   const BapendaJatimNjkbResultPage({
@@ -92,7 +93,9 @@ class BapendaJatimNjkbResultPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -185,15 +188,15 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 30, 28, 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +206,7 @@ class _SectionCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
           const SizedBox(height: 34),
@@ -230,7 +233,7 @@ class _InfoRowWidget extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF9A9A9A),
+              color: context.appThemedMutedTextColor(const Color(0xFF9A9A9A)),
             ),
           ),
         ),
@@ -242,7 +245,7 @@ class _InfoRowWidget extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
         ),

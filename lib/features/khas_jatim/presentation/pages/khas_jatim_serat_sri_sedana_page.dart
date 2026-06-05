@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class KhasJatimSeratSriSedanaPage extends StatefulWidget {
   const KhasJatimSeratSriSedanaPage({super.key});
@@ -73,6 +74,7 @@ class _KhasJatimSeratSriSedanaPageState
       context: context,
       builder: (context) {
         return Dialog(
+          backgroundColor: context.appSurfaceColor,
           insetPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 40,
@@ -94,7 +96,9 @@ class _KhasJatimSeratSriSedanaPageState
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF2B2F38),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF2B2F38),
+                          ),
                         ),
                       ),
                     ),
@@ -121,7 +125,9 @@ class _KhasJatimSeratSriSedanaPageState
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: const Color(0xFF737987),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF737987),
+                    ),
                   ),
                 ),
               ],
@@ -154,7 +160,9 @@ class _KhasJatimSeratSriSedanaPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -199,7 +207,9 @@ class _KhasJatimSeratSriSedanaPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF2B2F38),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2B2F38),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -223,7 +233,9 @@ class _KhasJatimSeratSriSedanaPageState
                         vertical: 16,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F1FF),
+                        color: context.isDarkMode
+                            ? context.appSubtleSurfaceColor
+                            : const Color(0xFFE8F1FF),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: Row(
@@ -240,7 +252,9 @@ class _KhasJatimSeratSriSedanaPageState
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF5D6472),
+                                color: context.appThemedMutedTextColor(
+                                  const Color(0xFF5D6472),
+                                ),
                               ),
                             ),
                           ),
@@ -254,7 +268,9 @@ class _KhasJatimSeratSriSedanaPageState
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         height: 1.8,
-                        color: const Color(0xFF7D8391),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF7D8391),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 26),
@@ -268,7 +284,9 @@ class _KhasJatimSeratSriSedanaPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF2B2F38),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2B2F38),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -276,9 +294,9 @@ class _KhasJatimSeratSriSedanaPageState
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -286,7 +304,7 @@ class _KhasJatimSeratSriSedanaPageState
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: [
@@ -295,7 +313,9 @@ class _KhasJatimSeratSriSedanaPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2B2F38),
+                              color: context.appThemedTextColor(
+                                const Color(0xFF2B2F38),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -305,17 +325,23 @@ class _KhasJatimSeratSriSedanaPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF2E3038),
+                              color: context.appThemedTextColor(
+                                const Color(0xFF2E3038),
+                              ),
                             ),
                             decoration: InputDecoration(
                               hintText: 'Tambahkan komentar...',
                               hintStyle: GoogleFonts.plusJakartaSans(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF9AA0AE),
+                                color: context.appThemedMutedTextColor(
+                                  const Color(0xFF9AA0AE),
+                                ),
                               ),
                               filled: true,
-                              fillColor: const Color(0xFFF4F5F8),
+                              fillColor: context.isDarkMode
+                                  ? context.appSubtleSurfaceColor
+                                  : const Color(0xFFF4F5F8),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
                                 borderSide: BorderSide.none,
@@ -381,7 +407,7 @@ class _MetadataCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -393,7 +419,7 @@ class _MetadataCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
-              color: const Color(0xFF6B7280),
+              color: context.appThemedMutedTextColor(const Color(0xFF6B7280)),
             ),
           ),
           const SizedBox(height: 10),
@@ -402,7 +428,7 @@ class _MetadataCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF757D8A),
+              color: context.appThemedTextColor(const Color(0xFF757D8A)),
             ),
           ),
         ],
@@ -422,22 +448,24 @@ class _CommentCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(26),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: const Color(0xFFE9F1FF),
+            backgroundColor: context.isDarkMode
+                ? context.appSubtleSurfaceColor
+                : const Color(0xFFE9F1FF),
             child: Icon(
               Icons.person_rounded,
               color: AppColors.welcomeAccent,
@@ -454,7 +482,7 @@ class _CommentCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF2B2F38),
+                    color: context.appThemedTextColor(const Color(0xFF2B2F38)),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -464,7 +492,9 @@ class _CommentCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.8,
-                    color: const Color(0xFF8A8F9C),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF8A8F9C),
+                    ),
                   ),
                 ),
               ],

@@ -10,6 +10,15 @@ final class RouteNames {
   static const home = 'home';
   static const homeServices = 'homeServices';
   static const homeMyServices = 'homeMyServices';
+  static const homeNawaBhaktiLestari = 'homeNawaBhaktiLestari';
+  static const homeNawaBhaktiKerja = 'homeNawaBhaktiKerja';
+  static const homeNawaBhaktiSejahtera = 'homeNawaBhaktiSejahtera';
+  static const homeNawaBhaktiBerkahAmanah = 'homeNawaBhaktiBerkahAmanah';
+  static const homeNawaBhaktiHarmoni = 'homeNawaBhaktiHarmoni';
+  static const homeNawaBhaktiAgro = 'homeNawaBhaktiAgro';
+  static const homeNawaBhaktiCerdas = 'homeNawaBhaktiCerdas';
+  static const homeNawaBhaktiAkses = 'homeNawaBhaktiAkses';
+  static const homeNawaBhaktiSehat = 'homeNawaBhaktiSehat';
   static const homeTbcScreening = 'homeTbcScreening';
   static const homeBapendaJatim = 'homeBapendaJatim';
   static const homeBapendaJatimMain = 'homeBapendaJatimMain';
@@ -55,6 +64,8 @@ final class RouteNames {
       'homeSinakerTrainingCenterSumenep';
   static const homeSinakerTrainingRegistrationCheck =
       'homeSinakerTrainingRegistrationCheck';
+  static const homeSinakerTrainingRegistrationDetail =
+      'homeSinakerTrainingRegistrationDetail';
   static const homeSinakerTrainingRegistration =
       'homeSinakerTrainingRegistration';
   static const homeSinakerTrainingRegistrationList = 'homeSinakerTrainingRegistrationList';

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../auth/presentation/widgets/auth_form_widgets.dart';
 
 class ChangeLanguagePage extends StatefulWidget {
@@ -66,7 +67,9 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -108,9 +111,9 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -118,7 +121,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                             blurRadius: 14,
                             offset: const Offset(0, 6),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: _languageOptions
@@ -142,10 +145,14 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF3FF),
+                        color: context.appThemedSurfaceColor(
+                          const Color(0xFFEAF3FF),
+                        ),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: const Color(0xFF69A0FF),
+                          color: context.isDarkMode
+                              ? context.appBorderColor
+                              : const Color(0xFF69A0FF),
                           width: 2,
                         ),
                       ),
@@ -165,7 +172,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 height: 1.5,
-                                color: AppColors.textMuted,
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ),
@@ -211,9 +218,9 @@ class _LanguageOptionTile extends StatelessWidget {
             Container(
               width: 70,
               height: 70,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFE6F0FF),
+                color: context.appSubtleSurfaceColor,
               ),
               child: Icon(
                 option.icon,
@@ -228,7 +235,7 @@ class _LanguageOptionTile extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF303236),
+                  color: context.appThemedTextColor(const Color(0xFF303236)),
                 ),
               ),
             ),
@@ -241,6 +248,8 @@ class _LanguageOptionTile extends StatelessWidget {
                 border: Border.all(
                   color: isSelected
                       ? AppColors.welcomeAccent
+                      : context.isDarkMode
+                      ? context.appBorderColor
                       : const Color(0xFF979797),
                   width: isSelected ? 10 : 2.5,
                 ),

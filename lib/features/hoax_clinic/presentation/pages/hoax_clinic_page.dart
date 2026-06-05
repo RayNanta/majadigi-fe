@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class HoaxClinicPage extends StatelessWidget {
   const HoaxClinicPage({super.key});
@@ -18,13 +20,16 @@ class HoaxClinicPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'klinik-hoaks');
     context.pushNamed(RouteNames.homeHoaxClinicMain);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -73,7 +78,7 @@ class HoaxClinicPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.85,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 28),
@@ -152,7 +157,7 @@ class _HoaxHeroCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(36),
         boxShadow: [
           BoxShadow(
@@ -281,7 +286,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF16181D),
+        color: context.appThemedTextColor(const Color(0xFF16181D)),
       ),
     );
   }
@@ -303,7 +308,7 @@ class _FeatureCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -340,7 +345,7 @@ class _FeatureCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -366,7 +371,7 @@ class _WideFeatureCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -407,7 +412,7 @@ class _WideFeatureCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],
@@ -428,7 +433,7 @@ class _TimelineCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 26, 24, 26),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -544,7 +549,7 @@ class _TimelineStep extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF21242C),
+            color: context.appThemedTextColor(const Color(0xFF21242C)),
           ),
         ),
         const SizedBox(height: 8),
@@ -554,7 +559,7 @@ class _TimelineStep extends StatelessWidget {
             fontSize: 16,
             fontWeight: FontWeight.w500,
             height: 1.7,
-            color: AppColors.textMuted,
+            color: context.appMutedTextColor,
           ),
         ),
       ],

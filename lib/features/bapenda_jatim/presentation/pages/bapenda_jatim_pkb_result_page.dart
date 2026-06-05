@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class BapendaJatimPkbResultPage extends StatelessWidget {
   const BapendaJatimPkbResultPage({super.key, this.plateNumber});
@@ -46,7 +47,9 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
         : 'N 3315 TAK';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -143,9 +146,15 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(26, 24, 24, 24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF4F5),
+                        color: context.isDarkMode
+                            ? const Color(0xFF321B27)
+                            : const Color(0xFFFFF4F5),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFFFE3E6)),
+                        border: Border.all(
+                          color: context.isDarkMode
+                              ? const Color(0xFF632739)
+                              : const Color(0xFFFFE3E6),
+                        ),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,15 +221,15 @@ class _PlateStatusCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 22, 28, 22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +255,7 @@ class _PlateStatusCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 26,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
         ],
@@ -267,15 +276,15 @@ class _SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 28, 28, 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +294,7 @@ class _SectionCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
           const SizedBox(height: 28),
@@ -307,9 +316,13 @@ class _FiveYearFeeCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appElevatedSurfaceColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFD7D7D7)),
+        border: Border.all(
+          color: context.isDarkMode
+              ? context.appBorderColor
+              : const Color(0xFFD7D7D7),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +332,7 @@ class _FiveYearFeeCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF8A8A8A),
+              color: context.appThemedMutedTextColor(const Color(0xFF8A8A8A)),
             ),
           ),
           const SizedBox(height: 10),
@@ -328,7 +341,7 @@ class _FiveYearFeeCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF2A2E35),
+              color: context.appThemedTextColor(const Color(0xFF2A2E35)),
             ),
           ),
         ],
@@ -346,7 +359,7 @@ class _InfoRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final valueColor = item.highlight
         ? AppColors.welcomeAccent
-        : const Color(0xFF2A2E35);
+        : context.appThemedTextColor(const Color(0xFF2A2E35));
 
     final valueWeight = item.isTotal ? FontWeight.w800 : FontWeight.w700;
     final labelWeight = item.isTotal ? FontWeight.w600 : FontWeight.w500;
@@ -360,7 +373,7 @@ class _InfoRowWidget extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: labelWeight,
-              color: const Color(0xFF9A9A9A),
+              color: context.appThemedMutedTextColor(const Color(0xFF9A9A9A)),
             ),
           ),
         ),
