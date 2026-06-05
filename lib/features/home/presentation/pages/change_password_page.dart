@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../auth/presentation/widgets/auth_form_widgets.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -76,7 +77,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       onPressed: onPressed,
       icon: Icon(
         isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-        color: AppColors.outline,
+        color: context.appMutedTextColor,
         size: 28,
       ),
     );
@@ -85,7 +86,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -130,7 +133,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF303236),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF303236),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -154,7 +159,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                         height: 1.35,
                       ),
                     ),
@@ -164,7 +169,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF303236),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF303236),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -188,7 +195,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF303236),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF303236),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),

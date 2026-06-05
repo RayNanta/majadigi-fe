@@ -5,27 +5,20 @@ import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
-
-
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class IslamicCenterDetailPage extends StatefulWidget {
   final int facilityId;
 
-  const IslamicCenterDetailPage({
-    super.key,
-    required this.facilityId,
-  });
+  const IslamicCenterDetailPage({super.key, required this.facilityId});
 
   @override
   State<IslamicCenterDetailPage> createState() =>
       _IslamicCenterDetailPageState();
 }
 
-class _IslamicCenterDetailPageState
-    extends State<IslamicCenterDetailPage> {
-
-  final IslamicCenterService _service =
-  IslamicCenterService();
+class _IslamicCenterDetailPageState extends State<IslamicCenterDetailPage> {
+  final IslamicCenterService _service = IslamicCenterService();
 
   Map<String, dynamic>? facility;
 
@@ -33,8 +26,7 @@ class _IslamicCenterDetailPageState
 
   int selectedRating = 0;
 
-  final TextEditingController reviewController =
-  TextEditingController();
+  final TextEditingController reviewController = TextEditingController();
 
   @override
   void initState() {
@@ -44,9 +36,7 @@ class _IslamicCenterDetailPageState
 
   Future<void> loadDetail() async {
     try {
-      final result = await _service.getFacilityDetail(
-        widget.facilityId,
-      );
+      final result = await _service.getFacilityDetail(widget.facilityId);
 
       setState(() {
         facility = result;
@@ -85,29 +75,21 @@ class _IslamicCenterDetailPageState
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (facility == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Data tidak ditemukan'),
-        ),
-      );
+      return const Scaffold(body: Center(child: Text('Data tidak ditemukan')));
     }
 
-    final rooms =
-        facility!['rooms'] ?? [];
+    final rooms = facility!['rooms'] ?? [];
 
-    final reviews =
-        facility!['reviews'] ?? [];
+    final reviews = facility!['reviews'] ?? [];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -151,26 +133,26 @@ class _IslamicCenterDetailPageState
                       borderRadius: BorderRadius.circular(28),
                       child: facility!['thumbnail'] != null
                           ? Image.network(
-                        facility!['thumbnail'],
-                        width: double.infinity,
-                        height: 380,
-                        fit: BoxFit.cover,
-                      )
+                              facility!['thumbnail'],
+                              width: double.infinity,
+                              height: 380,
+                              fit: BoxFit.cover,
+                            )
                           : Image.asset(
-                        'assets/images/dummy_image.png',
-                        width: double.infinity,
-                        height: 380,
-                        fit: BoxFit.cover,
-                      ),
+                              'assets/images/dummy_image.png',
+                              width: double.infinity,
+                              height: 380,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     const SizedBox(height: 22),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -178,7 +160,7 @@ class _IslamicCenterDetailPageState
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Text(
                         facility!['description'] ?? '-',
@@ -186,7 +168,7 @@ class _IslamicCenterDetailPageState
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           height: 1.8,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
                       ),
                     ),
@@ -197,8 +179,8 @@ class _IslamicCenterDetailPageState
                       onTap: () => context.pushNamed(
                         RouteNames.homeIslamicCenterAulaRooms,
                         pathParameters: {
-                          'facilityId':widget.facilityId.toString()
-                        }
+                          'facilityId': widget.facilityId.toString(),
+                        },
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -215,7 +197,9 @@ class _IslamicCenterDetailPageState
                             room: room,
                             onTap: () => context.pushNamed(
                               RouteNames.homeIslamicCenterBooking,
-                              queryParameters: {'roomId': room['id'].toString()},
+                              queryParameters: {
+                                'roomId': room['id'].toString(),
+                              },
                             ),
                           );
                         },
@@ -226,9 +210,9 @@ class _IslamicCenterDetailPageState
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -236,7 +220,7 @@ class _IslamicCenterDetailPageState
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: [
@@ -245,7 +229,7 @@ class _IslamicCenterDetailPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2A2E35),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -263,8 +247,25 @@ class _IslamicCenterDetailPageState
                             maxLines: 4,
                             decoration: InputDecoration(
                               hintText: 'Tambahkan komentar...',
-                              border: OutlineInputBorder(
+                              hintStyle: GoogleFonts.plusJakartaSans(
+                                color: context.appMutedTextColor,
+                              ),
+                              filled: true,
+                              fillColor: context.isDarkMode
+                                  ? context.appSubtleSurfaceColor
+                                  : const Color(0xFFF7F9FF),
+                              enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: context.appBorderColor,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: const BorderSide(
+                                  color: AppColors.welcomeAccent,
+                                  width: 1.6,
+                                ),
                               ),
                             ),
                           ),
@@ -277,7 +278,9 @@ class _IslamicCenterDetailPageState
                                 if (selectedRating == 0) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Pilih rating terlebih dahulu'),
+                                      content: Text(
+                                        'Pilih rating terlebih dahulu',
+                                      ),
                                     ),
                                   );
                                   return;
@@ -286,7 +289,9 @@ class _IslamicCenterDetailPageState
                                 if (reviewController.text.trim().isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Ulasan tidak boleh kosong'),
+                                      content: Text(
+                                        'Ulasan tidak boleh kosong',
+                                      ),
                                     ),
                                   );
                                   return;
@@ -314,9 +319,7 @@ class _IslamicCenterDetailPageState
                                   await loadDetail();
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(e.toString()),
-                                    ),
+                                    SnackBar(content: Text(e.toString())),
                                   );
                                 }
                               },
@@ -411,7 +414,7 @@ class _SectionHeader extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appTextColor,
             ),
           ),
         ),
@@ -443,25 +446,25 @@ class _RoomCard extends StatelessWidget {
       width: 310,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Text(
+          Text(
             '${room['name'] ?? '-'}',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appTextColor,
             ),
           ),
           const SizedBox(height: 10),
@@ -471,7 +474,7 @@ class _RoomCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
-              color: const Color(0xFF8B8D94),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 6),
@@ -490,7 +493,7 @@ class _RoomCard extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.55,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 18),
@@ -500,16 +503,16 @@ class _RoomCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
-              color: const Color(0xFF8B8D94),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.groups_2_outlined,
                 size: 22,
-                color: Color(0xFF8B8D94),
+                color: context.appMutedTextColor,
               ),
               const SizedBox(width: 10),
               Text(
@@ -517,7 +520,7 @@ class _RoomCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF3B3D42),
+                  color: context.appTextColor,
                 ),
               ),
             ],
@@ -551,35 +554,29 @@ class _RatingRow extends StatelessWidget {
   final int rating;
   final ValueChanged<int> onChanged;
 
-  const _RatingRow({
-    required this.rating,
-    required this.onChanged,
-  });
+  const _RatingRow({required this.rating, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        5,
-            (index) {
-          final star = index + 1;
+      children: List.generate(5, (index) {
+        final star = index + 1;
 
-          return GestureDetector(
-            onTap: () => onChanged(star),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Icon(
-                Icons.star_rounded,
-                size: 38,
-                color: star <= rating
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFFD1D5DB),
-              ),
+        return GestureDetector(
+          onTap: () => onChanged(star),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Icon(
+              Icons.star_rounded,
+              size: 38,
+              color: star <= rating
+                  ? const Color(0xFFF59E0B)
+                  : const Color(0xFFD1D5DB),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 }
@@ -595,15 +592,15 @@ class _ReviewCard extends StatelessWidget {
       width: 320,
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,7 +609,9 @@ class _ReviewCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: const Color(0xFFE7F0FF),
+                backgroundColor: context.isDarkMode
+                    ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+                    : const Color(0xFFE7F0FF),
                 child: Icon(
                   Icons.person_rounded,
                   color: AppColors.welcomeAccent,
@@ -629,7 +628,7 @@ class _ReviewCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -658,7 +657,7 @@ class _ReviewCard extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.6,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],

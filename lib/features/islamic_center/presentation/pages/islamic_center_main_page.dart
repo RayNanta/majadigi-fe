@@ -5,6 +5,7 @@ import 'package:majadigi_mobile/features/islamic_center/services/islamic_center_
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class FacilityModel {
   final int id;
@@ -122,7 +123,9 @@ class _IslamicCenterMainPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -169,7 +172,7 @@ class _IslamicCenterMainPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF20242C),
+                        color: context.appTextColor,
                         height: 1.25,
                       ),
                     );
@@ -232,15 +235,15 @@ class _FacilityCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
-            ],
+            ]),
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 22),
@@ -298,7 +301,7 @@ class _FacilityCard extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF262A32),
+                          color: context.appTextColor,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -308,7 +311,7 @@ class _FacilityCard extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           height: 1.55,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -433,7 +436,9 @@ class _TagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F0FF),
+        color: context.isDarkMode
+            ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+            : const Color(0xFFE7F0FF),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(

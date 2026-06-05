@@ -5,24 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class TbcPersonalIdentityPage extends StatefulWidget {
-
   final Map<String, dynamic> formData;
 
-  const TbcPersonalIdentityPage({
-    super.key,
-    required this.formData,
-  });
+  const TbcPersonalIdentityPage({super.key, required this.formData});
 
   @override
   State<TbcPersonalIdentityPage> createState() =>
       _TbcPersonalIdentityPageState();
 }
 
-class _TbcPersonalIdentityPageState
-    extends State<TbcPersonalIdentityPage> {
-
+class _TbcPersonalIdentityPageState extends State<TbcPersonalIdentityPage> {
   late final TextEditingController _phoneController;
   late final TextEditingController _weightController;
   late final TextEditingController _heightController;
@@ -40,7 +35,7 @@ class _TbcPersonalIdentityPageState
 
   static final _yearOptions = List<int>.generate(
     DateTime.now().year - 1939,
-        (index) => DateTime.now().year - index,
+    (index) => DateTime.now().year - index,
   );
 
   static const _monthOptions = [
@@ -73,17 +68,9 @@ class _TbcPersonalIdentityPageState
     'Kabupaten Sidoarjo',
   ];
 
-  static const _districtOptions = [
-    'Klojen',
-    'Lowokwaru',
-    'Blimbing',
-  ];
+  static const _districtOptions = ['Klojen', 'Lowokwaru', 'Blimbing'];
 
-  static const _villageOptions = [
-    'Bareng',
-    'Dinoyo',
-    'Mulyorejo',
-  ];
+  static const _villageOptions = ['Bareng', 'Dinoyo', 'Mulyorejo'];
 
   @override
   void initState() {
@@ -107,45 +94,31 @@ class _TbcPersonalIdentityPageState
   }
 
   List<int> get _dayOptions {
-
-    if (_selectedYear == null ||
-        _selectedMonth == null) {
-
+    if (_selectedYear == null || _selectedMonth == null) {
       return List.generate(31, (i) => i + 1);
     }
 
-    final days = DateTime(
-      _selectedYear!,
-      _selectedMonth! + 1,
-      0,
-    ).day;
+    final days = DateTime(_selectedYear!, _selectedMonth! + 1, 0).day;
 
     return List.generate(days, (i) => i + 1);
   }
 
   int get _computedAge {
-
     if (_selectedYear == null ||
         _selectedMonth == null ||
         _selectedDay == null) {
-
       return 0;
     }
 
     final now = DateTime.now();
 
-    final birthDate = DateTime(
-      _selectedYear!,
-      _selectedMonth!,
-      _selectedDay!,
-    );
+    final birthDate = DateTime(_selectedYear!, _selectedMonth!, _selectedDay!);
 
     int age = now.year - birthDate.year;
 
     final hasBirthday =
         now.month > birthDate.month ||
-            (now.month == birthDate.month &&
-                now.day >= birthDate.day);
+        (now.month == birthDate.month && now.day >= birthDate.day);
 
     if (!hasBirthday) {
       age--;
@@ -159,58 +132,39 @@ class _TbcPersonalIdentityPageState
   }
 
   void _handleNext() {
-
     final fullData = {
-
       ...widget.formData,
 
-      "no_telp":
-      _phoneController.text,
+      "no_telp": _phoneController.text,
 
-      "tahun_lahir":
-      _selectedYear,
+      "tahun_lahir": _selectedYear,
 
-      "bulan_lahir":
-      _selectedMonth,
+      "bulan_lahir": _selectedMonth,
 
-      "tanggal_lahir":
-      _selectedDay,
+      "tanggal_lahir": _selectedDay,
 
-      "umur":
-      _ageController.text,
+      "umur": _ageController.text,
 
-      "berat_badan":
-      _weightController.text,
+      "berat_badan": _weightController.text,
 
-      "tinggi_badan":
-      _heightController.text,
+      "tinggi_badan": _heightController.text,
 
-      "alamat":
-      _addressController.text,
+      "alamat": _addressController.text,
 
-      "pekerjaan":
-      _selectedOccupation,
+      "pekerjaan": _selectedOccupation,
 
-      "kabupaten":
-      _selectedCity,
+      "kabupaten": _selectedCity,
 
-      "kecamatan":
-      _selectedDistrict,
+      "kecamatan": _selectedDistrict,
 
-      "kelurahan":
-      _selectedVillage,
+      "kelurahan": _selectedVillage,
     };
 
-    context.pushNamed(
-      RouteNames.homeTbcScreeningFormOne,
-      extra: fullData,
-    );
+    context.pushNamed(RouteNames.homeTbcScreeningFormOne, extra: fullData);
   }
 
   Future<void> _selectYear() async {
-
-    final result =
-    await _showOptionSheet<int>(
+    final result = await _showOptionSheet<int>(
       title: 'Pilih Tahun',
       options: _yearOptions,
       currentValue: _selectedYear,
@@ -225,17 +179,11 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectMonth() async {
-
-    final result =
-    await _showOptionSheet<int>(
+    final result = await _showOptionSheet<int>(
       title: 'Pilih Bulan',
-      options: List.generate(
-        _monthOptions.length,
-            (i) => i + 1,
-      ),
+      options: List.generate(_monthOptions.length, (i) => i + 1),
       currentValue: _selectedMonth,
-      labelBuilder:
-          (v) => _monthOptions[v - 1],
+      labelBuilder: (v) => _monthOptions[v - 1],
     );
 
     if (result == null) return;
@@ -246,9 +194,7 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectDay() async {
-
-    final result =
-    await _showOptionSheet<int>(
+    final result = await _showOptionSheet<int>(
       title: 'Pilih Tanggal',
       options: _dayOptions,
       currentValue: _selectedDay,
@@ -263,9 +209,7 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectOccupation() async {
-
-    final result =
-    await _showOptionSheet<String>(
+    final result = await _showOptionSheet<String>(
       title: 'Pilih Pekerjaan',
       options: _occupationOptions,
       currentValue: _selectedOccupation,
@@ -280,9 +224,7 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectCity() async {
-
-    final result =
-    await _showOptionSheet<String>(
+    final result = await _showOptionSheet<String>(
       title: 'Pilih Kabupaten/Kota',
       options: _cityOptions,
       currentValue: _selectedCity,
@@ -297,9 +239,7 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectDistrict() async {
-
-    final result =
-    await _showOptionSheet<String>(
+    final result = await _showOptionSheet<String>(
       title: 'Pilih Kecamatan',
       options: _districtOptions,
       currentValue: _selectedDistrict,
@@ -314,9 +254,7 @@ class _TbcPersonalIdentityPageState
   }
 
   Future<void> _selectVillage() async {
-
-    final result =
-    await _showOptionSheet<String>(
+    final result = await _showOptionSheet<String>(
       title: 'Pilih Kelurahan',
       options: _villageOptions,
       currentValue: _selectedVillage,
@@ -334,47 +272,35 @@ class _TbcPersonalIdentityPageState
     required String title,
     required List<T> options,
     required T? currentValue,
-    required String Function(T value)
-    labelBuilder,
+    required String Function(T value) labelBuilder,
   }) async {
-
     return showModalBottomSheet<T>(
       context: context,
 
-      backgroundColor: Colors.white,
+      backgroundColor: context.appSurfaceColor,
 
-      shape:
-      const RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
 
       builder: (context) {
-
         return SafeArea(
           child: Padding(
-            padding:
-            const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
 
             child: Column(
-              mainAxisSize:
-              MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
 
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-
                 Text(
                   title,
 
-                  style:
-                  GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
-                    fontWeight:
-                    FontWeight.w700,
+                    fontWeight: FontWeight.w700,
+                    color: context.appTextColor,
                   ),
                 ),
 
@@ -384,24 +310,27 @@ class _TbcPersonalIdentityPageState
                   child: ListView(
                     shrinkWrap: true,
 
-                    children:
-                    options.map((e) {
-
-                      final selected =
-                          e == currentValue;
+                    children: options.map((e) {
+                      final selected = e == currentValue;
 
                       return ListTile(
                         title: Text(
                           labelBuilder(e),
+                          style: GoogleFonts.plusJakartaSans(
+                            color: selected
+                                ? AppColors.welcomeAccent
+                                : context.appTextColor,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
                         ),
 
-                        trailing:
-                        selected
+                        trailing: selected
                             ? const Icon(
-                          Icons.check,
-                          color: AppColors
-                              .welcomeAccent,
-                        )
+                                Icons.check,
+                                color: AppColors.welcomeAccent,
+                              )
                             : null,
 
                         onTap: () {
@@ -421,46 +350,36 @@ class _TbcPersonalIdentityPageState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor:
-      const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
 
       appBar: AppBar(
-        backgroundColor:
-        AppColors.welcomeAccent,
+        backgroundColor: AppColors.welcomeAccent,
 
-        title: const Text(
-          'Formulir Identitas',
-        ),
+        title: const Text('Formulir Identitas'),
       ),
 
       body: SingleChildScrollView(
-        padding:
-        const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
 
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-
             const SizedBox(height: 10),
 
             _ProfileField(
               label: 'No Telepon',
               hintText: '08xxxxxxxxxx',
               controller: _phoneController,
-              keyboardType:
-              TextInputType.phone,
+              keyboardType: TextInputType.phone,
             ),
 
             const SizedBox(height: 20),
 
             _DropdownField(
               label: 'Tahun Lahir',
-              value:
-              _selectedYear?.toString(),
+              value: _selectedYear?.toString(),
               hintText: 'Pilih Tahun',
               onTap: _selectYear,
             ),
@@ -469,12 +388,9 @@ class _TbcPersonalIdentityPageState
 
             _DropdownField(
               label: 'Bulan Lahir',
-              value:
-              _selectedMonth == null
+              value: _selectedMonth == null
                   ? null
-                  : _monthOptions[
-              _selectedMonth! - 1
-              ],
+                  : _monthOptions[_selectedMonth! - 1],
               hintText: 'Pilih Bulan',
               onTap: _selectMonth,
             ),
@@ -483,8 +399,7 @@ class _TbcPersonalIdentityPageState
 
             _DropdownField(
               label: 'Tanggal Lahir',
-              value:
-              _selectedDay?.toString(),
+              value: _selectedDay?.toString(),
               hintText: 'Pilih Tanggal',
               onTap: _selectDay,
             ),
@@ -496,24 +411,19 @@ class _TbcPersonalIdentityPageState
               hintText: 'Masukkan umur',
               controller: _ageController,
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
 
             const SizedBox(height: 20),
 
             Row(
               children: [
-
                 Expanded(
                   child: _ProfileField(
                     label: 'Berat Badan',
                     hintText: '56',
-                    controller:
-                    _weightController,
-                    keyboardType:
-                    TextInputType.number,
+                    controller: _weightController,
+                    keyboardType: TextInputType.number,
                   ),
                 ),
 
@@ -523,10 +433,8 @@ class _TbcPersonalIdentityPageState
                   child: _ProfileField(
                     label: 'Tinggi Badan',
                     hintText: '160',
-                    controller:
-                    _heightController,
-                    keyboardType:
-                    TextInputType.number,
+                    controller: _heightController,
+                    keyboardType: TextInputType.number,
                   ),
                 ),
               ],
@@ -537,30 +445,24 @@ class _TbcPersonalIdentityPageState
             _ProfileField(
               label: 'Alamat',
               hintText: 'Masukkan alamat',
-              controller:
-              _addressController,
+              controller: _addressController,
             ),
 
             const SizedBox(height: 20),
 
             _DropdownField(
               label: 'Pekerjaan',
-              value:
-              _selectedOccupation,
-              hintText:
-              'Pilih pekerjaan',
-              onTap:
-              _selectOccupation,
+              value: _selectedOccupation,
+              hintText: 'Pilih pekerjaan',
+              onTap: _selectOccupation,
             ),
 
             const SizedBox(height: 20),
 
             _DropdownField(
               label: 'Kabupaten/Kota',
-              value:
-              _selectedCity,
-              hintText:
-              'Pilih kota',
+              value: _selectedCity,
+              hintText: 'Pilih kota',
               onTap: _selectCity,
             ),
 
@@ -568,24 +470,18 @@ class _TbcPersonalIdentityPageState
 
             _DropdownField(
               label: 'Kecamatan',
-              value:
-              _selectedDistrict,
-              hintText:
-              'Pilih kecamatan',
-              onTap:
-              _selectDistrict,
+              value: _selectedDistrict,
+              hintText: 'Pilih kecamatan',
+              onTap: _selectDistrict,
             ),
 
             const SizedBox(height: 20),
 
             _DropdownField(
               label: 'Kelurahan',
-              value:
-              _selectedVillage,
-              hintText:
-              'Pilih kelurahan',
-              onTap:
-              _selectVillage,
+              value: _selectedVillage,
+              hintText: 'Pilih kelurahan',
+              onTap: _selectVillage,
             ),
 
             const SizedBox(height: 40),
@@ -597,16 +493,11 @@ class _TbcPersonalIdentityPageState
               child: FilledButton(
                 onPressed: _handleNext,
 
-                style:
-                FilledButton.styleFrom(
-                  backgroundColor:
-                  AppColors
-                      .welcomeAccent,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.welcomeAccent,
                 ),
 
-                child: const Text(
-                  'Selanjutnya',
-                ),
+                child: const Text('Selanjutnya'),
               ),
             ),
           ],
@@ -617,13 +508,12 @@ class _TbcPersonalIdentityPageState
 }
 
 class _ProfileField extends StatelessWidget {
-
   const _ProfileField({
     required this.label,
     required this.hintText,
     required this.controller,
     this.keyboardType,
-    this.inputFormatters
+    this.inputFormatters,
   });
 
   final List<TextInputFormatter>? inputFormatters;
@@ -634,34 +524,38 @@ class _ProfileField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
-        Text(label),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: context.appThemedTextColor(const Color(0xFF55585E)),
+          ),
+        ),
 
         const SizedBox(height: 8),
 
         TextField(
           controller: controller,
-          keyboardType:
-          keyboardType,
+          keyboardType: keyboardType,
 
           decoration: InputDecoration(
             hintText: hintText,
+            hintStyle: GoogleFonts.plusJakartaSans(
+              color: context.appThemedMutedTextColor(const Color(0xFFA9AAB0)),
+            ),
             filled: true,
-            fillColor:
-            const Color(0xFFF0F0F2),
+            fillColor: context.isDarkMode
+                ? context.appSubtleSurfaceColor
+                : const Color(0xFFF0F0F2),
 
-            border:
-            OutlineInputBorder(
-              borderRadius:
-              BorderRadius.circular(16),
-              borderSide:
-              BorderSide.none,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
             ),
           ),
         ),
@@ -671,7 +565,6 @@ class _ProfileField extends StatelessWidget {
 }
 
 class _DropdownField extends StatelessWidget {
-
   const _DropdownField({
     required this.label,
     required this.value,
@@ -686,14 +579,18 @@ class _DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
-        Text(label),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: context.appThemedTextColor(const Color(0xFF55585E)),
+          ),
+        ),
 
         const SizedBox(height: 8),
 
@@ -703,22 +600,24 @@ class _DropdownField extends StatelessWidget {
           child: Container(
             width: double.infinity,
 
-            padding:
-            const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 18,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
 
             decoration: BoxDecoration(
-              color:
-              const Color(0xFFF0F0F2),
+              color: context.isDarkMode
+                  ? context.appSubtleSurfaceColor
+                  : const Color(0xFFF0F0F2),
 
-              borderRadius:
-              BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16),
             ),
 
             child: Text(
               value ?? hintText,
+              style: GoogleFonts.plusJakartaSans(
+                color: value == null
+                    ? context.appThemedMutedTextColor(const Color(0xFFA9AAB0))
+                    : context.appThemedTextColor(const Color(0xFF55585E)),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
@@ -728,46 +627,48 @@ class _DropdownField extends StatelessWidget {
 }
 
 class _ReadOnlyField extends StatelessWidget {
-
-  const _ReadOnlyField({
-    required this.label,
-    required this.value,
-  });
+  const _ReadOnlyField({required this.label, required this.value});
 
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
-        Text(label),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: context.appThemedTextColor(const Color(0xFF55585E)),
+          ),
+        ),
 
         const SizedBox(height: 8),
 
         Container(
           width: double.infinity,
 
-          padding:
-          const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 18,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
 
           decoration: BoxDecoration(
-            color:
-            const Color(0xFFF0F0F2),
+            color: context.isDarkMode
+                ? context.appSubtleSurfaceColor
+                : const Color(0xFFF0F0F2),
 
-            borderRadius:
-            BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16),
           ),
 
-          child: Text(value),
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              color: context.appTextColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ],
     );

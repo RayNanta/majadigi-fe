@@ -5,6 +5,7 @@ import 'package:majadigi_mobile/features/sinaker/services/sinaker_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class TrainingRegistrationDetail {
   final int id;
@@ -27,8 +28,7 @@ class TrainingRegistrationDetail {
     required this.centerName,
   });
 
-  factory TrainingRegistrationDetail.fromJson(
-      Map<String, dynamic> json) {
+  factory TrainingRegistrationDetail.fromJson(Map<String, dynamic> json) {
     return TrainingRegistrationDetail(
       id: json['id'],
       status: json['status'] ?? '',
@@ -37,11 +37,9 @@ class TrainingRegistrationDetail {
       nik: json['job_seeker']['nik'] ?? '',
       noTelp: json['job_seeker']['no_telp'] ?? '',
 
-      trainingName:
-      json['training']['nama_pelatihan'] ?? '',
+      trainingName: json['training']['nama_pelatihan'] ?? '',
 
-      centerName:
-      json['training']['center']['nama'] ?? '',
+      centerName: json['training']['center']['nama'] ?? '',
     );
   }
 }
@@ -61,7 +59,6 @@ class SinakerTrainingRegistrationCheckPage extends StatefulWidget {
 
 class _SinakerTrainingRegistrationCheckPageState
     extends State<SinakerTrainingRegistrationCheckPage> {
-
   final _service = SinakerService();
 
   TrainingRegistrationDetail? detail;
@@ -91,7 +88,6 @@ class _SinakerTrainingRegistrationCheckPageState
       });
     }
   }
-
 
   void _handleBack() {
     if (Navigator.of(context).canPop()) {
@@ -200,17 +196,27 @@ class _SinakerTrainingRegistrationCheckPageState
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return Scaffold(
+        backgroundColor: context.appThemedScaffoldColor(
+          const Color(0xFFF7F9FF),
         ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (detail == null) {
-      return const Scaffold(
+      return Scaffold(
+        backgroundColor: context.appThemedScaffoldColor(
+          const Color(0xFFF7F9FF),
+        ),
         body: Center(
-          child: Text('Data tidak ditemukan'),
+          child: Text(
+            'Data tidak ditemukan',
+            style: GoogleFonts.plusJakartaSans(
+              color: context.appTextColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       );
     }
@@ -218,7 +224,7 @@ class _SinakerTrainingRegistrationCheckPageState
     final data = detail!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -261,9 +267,9 @@ class _SinakerTrainingRegistrationCheckPageState
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(28, 28, 28, 28),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -271,7 +277,7 @@ class _SinakerTrainingRegistrationCheckPageState
                             blurRadius: 22,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: [
@@ -281,8 +287,10 @@ class _SinakerTrainingRegistrationCheckPageState
                               Container(
                                 width: 116,
                                 height: 116,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEAF2FF),
+                                decoration: BoxDecoration(
+                                  color: context.isDarkMode
+                                      ? context.appSubtleSurfaceColor
+                                      : const Color(0xFFEAF2FF),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
@@ -305,7 +313,9 @@ class _SinakerTrainingRegistrationCheckPageState
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 27,
                                           fontWeight: FontWeight.w800,
-                                          color: const Color(0xFF3B3F47),
+                                          color: context.appThemedTextColor(
+                                            const Color(0xFF3B3F47),
+                                          ),
                                           height: 1.2,
                                         ),
                                       ),
@@ -315,7 +325,10 @@ class _SinakerTrainingRegistrationCheckPageState
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF606596),
+                                          color: context
+                                              .appThemedMutedTextColor(
+                                                const Color(0xFF606596),
+                                              ),
                                         ),
                                       ),
                                     ],
@@ -325,7 +338,7 @@ class _SinakerTrainingRegistrationCheckPageState
                             ],
                           ),
                           const SizedBox(height: 26),
-                          const Divider(color: Color(0xFFE9EEFB), height: 1),
+                          Divider(color: context.appBorderColor, height: 1),
                           const SizedBox(height: 28),
                           Row(
                             children: [
@@ -352,9 +365,9 @@ class _SinakerTrainingRegistrationCheckPageState
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(28, 30, 28, 30),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -362,7 +375,7 @@ class _SinakerTrainingRegistrationCheckPageState
                             blurRadius: 22,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: _buildStatusTimeline(data),
                     ),
@@ -393,7 +406,7 @@ class _InfoColumn extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF606596),
+            color: context.appThemedMutedTextColor(const Color(0xFF606596)),
             letterSpacing: 2.2,
           ),
         ),
@@ -449,7 +462,7 @@ class _StatusStep extends StatelessWidget {
     _StatusStepState.completed => Colors.white,
     _StatusStepState.active => AppColors.welcomeAccent,
     _StatusStepState.upcoming => const Color(0xFF8DBAFF),
-    _StatusStepState.rejected => Colors.red
+    _StatusStepState.rejected => Colors.red,
   };
 
   Color get _titleColor => switch (state) {
@@ -466,11 +479,35 @@ class _StatusStep extends StatelessWidget {
     _StatusStepState.completed => AppColors.welcomeAccent,
     _StatusStepState.active => AppColors.welcomeAccent,
     _StatusStepState.upcoming => const Color(0xFFB4B8C2),
-    _StatusStepState.rejected => Colors.red
+    _StatusStepState.rejected => Colors.red,
   };
 
   @override
   Widget build(BuildContext context) {
+    final lineColor = context.isDarkMode && state == _StatusStepState.upcoming
+        ? context.appBorderColor
+        : _lineColor;
+    final circleColor =
+        context.isDarkMode && state != _StatusStepState.completed
+        ? context.appSubtleSurfaceColor
+        : _circleColor;
+    final innerCircleColor =
+        context.isDarkMode &&
+            state != _StatusStepState.completed &&
+            state != _StatusStepState.rejected
+        ? context.appSurfaceColor
+        : state == _StatusStepState.active
+        ? Colors.white
+        : state == _StatusStepState.completed
+        ? AppColors.welcomeAccent
+        : const Color(0xFFF5F8FF);
+    final titleColor = state == _StatusStepState.upcoming
+        ? context.appMutedTextColor
+        : context.appThemedTextColor(_titleColor);
+    final bodyColor = state == _StatusStepState.upcoming
+        ? context.appMutedTextColor
+        : context.appThemedMutedTextColor(_bodyColor);
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,7 +520,7 @@ class _StatusStep extends StatelessWidget {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: _circleColor,
+                    color: circleColor,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -491,11 +528,7 @@ class _StatusStep extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: state == _StatusStepState.active
-                          ? Colors.white
-                          : state == _StatusStepState.completed
-                          ? AppColors.welcomeAccent
-                          : const Color(0xFFF5F8FF),
+                      color: innerCircleColor,
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -508,7 +541,7 @@ class _StatusStep extends StatelessWidget {
                       width: 4,
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: _lineColor,
+                        color: lineColor,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),
@@ -528,7 +561,7 @@ class _StatusStep extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: _titleColor,
+                      color: titleColor,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -537,7 +570,7 @@ class _StatusStep extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 17,
                       fontWeight: FontWeight.w500,
-                      color: _bodyColor,
+                      color: bodyColor,
                       height: 1.7,
                     ),
                   ),

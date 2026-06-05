@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
-// ── Sesuaikan path import ini dengan lokasi SinakerService di project Anda ──
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../services/sinaker_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -26,7 +26,8 @@ class TrainingCenterModel {
   final String deskripsi;
   final TrainingCenterArtwork artwork;
 
-  factory TrainingCenterModel.fromJson(Map<String, dynamic> json, {
+  factory TrainingCenterModel.fromJson(
+    Map<String, dynamic> json, {
     TrainingCenterArtwork artwork = TrainingCenterArtwork.glassHall,
   }) {
     return TrainingCenterModel(
@@ -94,7 +95,7 @@ class _SinakerTrainingCentersPageState
     // Rotasi artwork agar tiap card punya variasi visual
     const artworks = TrainingCenterArtwork.values;
     final centers = raw.asMap().entries.map((entry) {
-      final json = entry.value as Map<String, dynamic>;
+      final json = entry.value;
       return TrainingCenterModel.fromJson(
         json,
         artwork: artworks[entry.key % artworks.length],
@@ -128,13 +129,13 @@ class _SinakerTrainingCentersPageState
     return _allCenters.where((item) {
       final matchesRegion =
           _selectedRegion == 'Semua Wilayah' || item.kota == _selectedRegion;
-      final matchesQuery = query.isEmpty ||
+      final matchesQuery =
+          query.isEmpty ||
           item.nama.toLowerCase().contains(query) ||
           item.kota.toLowerCase().contains(query);
       return matchesRegion && matchesQuery;
     }).toList();
   }
-
 
   void _handleBack() {
     if (Navigator.of(context).canPop()) {
@@ -152,11 +153,10 @@ class _SinakerTrainingCentersPageState
     );
   }
 
-
   Future<void> _pickRegion() async {
     final selected = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.appSurfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -173,7 +173,7 @@ class _SinakerTrainingCentersPageState
                   width: 56,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD6D9E1),
+                    color: context.appHandleColor,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -184,26 +184,28 @@ class _SinakerTrainingCentersPageState
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1E2330),
+                  color: context.appThemedTextColor(const Color(0xFF1E2330)),
                 ),
               ),
               const SizedBox(height: 14),
               ..._regions.map(
-                    (region) => ListTile(
+                (region) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
                     region,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF3C414A),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF3C414A),
+                      ),
                     ),
                   ),
                   trailing: region == _selectedRegion
                       ? const Icon(
-                    Icons.check_circle_rounded,
-                    color: AppColors.welcomeAccent,
-                  )
+                          Icons.check_circle_rounded,
+                          color: AppColors.welcomeAccent,
+                        )
                       : null,
                   onTap: () => context.pop(region),
                 ),
@@ -219,11 +221,10 @@ class _SinakerTrainingCentersPageState
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -275,10 +276,12 @@ class _SinakerTrainingCentersPageState
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.cloud_off_rounded,
                               size: 56,
-                              color: Color(0xFFB0B4BE),
+                              color: context.appThemedMutedTextColor(
+                                const Color(0xFFB0B4BE),
+                              ),
                             ),
                             const SizedBox(height: 18),
                             Text(
@@ -286,7 +289,7 @@ class _SinakerTrainingCentersPageState
                               textAlign: TextAlign.center,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
-                                color: const Color(0xFF7F848D),
+                                color: context.appMutedTextColor,
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -317,35 +320,43 @@ class _SinakerTrainingCentersPageState
                             children: [
                               // Search field
                               Material(
-                                color: const Color(0xFFF0F0F2),
+                                color: context.isDarkMode
+                                    ? context.appSubtleSurfaceColor
+                                    : const Color(0xFFF0F0F2),
                                 borderRadius: BorderRadius.circular(20),
                                 child: TextField(
                                   controller: _searchController,
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF2F3136),
+                                    color: context.appThemedTextColor(
+                                      const Color(0xFF2F3136),
+                                    ),
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'Cari nama BLK',
                                     hintStyle: GoogleFonts.plusJakartaSans(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF66666D),
+                                      color: context.appThemedMutedTextColor(
+                                        const Color(0xFF66666D),
+                                      ),
                                     ),
-                                    suffixIcon: const Padding(
-                                      padding: EdgeInsets.only(right: 14),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsets.only(right: 14),
                                       child: Icon(
                                         Icons.search_rounded,
                                         size: 34,
-                                        color: Color(0xFF66666D),
+                                        color: context.appThemedMutedTextColor(
+                                          const Color(0xFF66666D),
+                                        ),
                                       ),
                                     ),
-                                    suffixIconConstraints:
-                                    const BoxConstraints(minWidth: 56),
+                                    suffixIconConstraints: const BoxConstraints(
+                                      minWidth: 56,
+                                    ),
                                     border: InputBorder.none,
-                                    contentPadding:
-                                    const EdgeInsets.symmetric(
+                                    contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 22,
                                       vertical: 22,
                                     ),
@@ -363,14 +374,18 @@ class _SinakerTrainingCentersPageState
                                     vertical: 18,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF0F0F2),
+                                    color: context.isDarkMode
+                                        ? context.appSubtleSurfaceColor
+                                        : const Color(0xFFF0F0F2),
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.location_on_outlined,
-                                        color: Color(0xFF5E6169),
+                                        color: context.appThemedMutedTextColor(
+                                          const Color(0xFF5E6169),
+                                        ),
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
@@ -379,14 +394,18 @@ class _SinakerTrainingCentersPageState
                                           style: GoogleFonts.plusJakartaSans(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
-                                            color: const Color(0xFF5B5E66),
+                                            color: context.appThemedTextColor(
+                                              const Color(0xFF5B5E66),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      const Icon(
+                                      Icon(
                                         Icons.keyboard_arrow_down_rounded,
                                         size: 26,
-                                        color: Color(0xFF5E6169),
+                                        color: context.appThemedMutedTextColor(
+                                          const Color(0xFF5E6169),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -403,7 +422,9 @@ class _SinakerTrainingCentersPageState
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
-                                        color: const Color(0xFF383C45),
+                                        color: context.appThemedTextColor(
+                                          const Color(0xFF383C45),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -412,7 +433,9 @@ class _SinakerTrainingCentersPageState
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF383C45),
+                                      color: context.appThemedTextColor(
+                                        const Color(0xFF383C45),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -430,15 +453,14 @@ class _SinakerTrainingCentersPageState
                               'Tidak ada BLK yang cocok.',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
-                                color: const Color(0xFF9CA0AA),
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ),
                         )
                       else
                         SliverPadding(
-                          padding:
-                          const EdgeInsets.fromLTRB(24, 18, 24, 30),
+                          padding: const EdgeInsets.fromLTRB(24, 18, 24, 30),
                           sliver: SliverList.separated(
                             itemCount: centers.length,
                             itemBuilder: (context, index) =>
@@ -448,7 +470,7 @@ class _SinakerTrainingCentersPageState
                                       _openDetail(centers[index]),
                                 ),
                             separatorBuilder: (_, __) =>
-                            const SizedBox(height: 22),
+                                const SizedBox(height: 22),
                           ),
                         ),
                     ],
@@ -463,13 +485,8 @@ class _SinakerTrainingCentersPageState
   }
 }
 
-
-
 class _TrainingCenterCard extends StatelessWidget {
-  const _TrainingCenterCard({
-    required this.center,
-    required this.onDetailTap,
-  });
+  const _TrainingCenterCard({required this.center, required this.onDetailTap});
 
   final TrainingCenterModel center;
   final VoidCallback onDetailTap;
@@ -478,15 +495,15 @@ class _TrainingCenterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 22,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
@@ -513,7 +530,9 @@ class _TrainingCenterCard extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF383C45),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF383C45),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -521,10 +540,12 @@ class _TrainingCenterCard extends StatelessWidget {
                   // Kota
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         size: 16,
-                        color: Color(0xFF9CA0AA),
+                        color: context.appThemedMutedTextColor(
+                          const Color(0xFF9CA0AA),
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -532,7 +553,9 @@ class _TrainingCenterCard extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF9CA0AA),
+                          color: context.appThemedMutedTextColor(
+                            const Color(0xFF9CA0AA),
+                          ),
                         ),
                       ),
                     ],
@@ -547,13 +570,15 @@ class _TrainingCenterCard extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF7F848D),
+                      color: context.appThemedMutedTextColor(
+                        const Color(0xFF7F848D),
+                      ),
                       height: 1.55,
                     ),
                   ),
 
                   const SizedBox(height: 18),
-                  const Divider(color: Color(0xFFE9EEF9), height: 1),
+                  Divider(color: context.appBorderColor, height: 1),
                   const SizedBox(height: 10),
 
                   // CTA
@@ -635,8 +660,9 @@ class _CenterArtworkView extends StatelessWidget {
                   },
                   color: switch (artwork) {
                     TrainingCenterArtwork.glassHall => const Color(0xFFF6F6F7),
-                    TrainingCenterArtwork.urbanCampus =>
-                    const Color(0xFFCEDAD9),
+                    TrainingCenterArtwork.urbanCampus => const Color(
+                      0xFFCEDAD9,
+                    ),
                     TrainingCenterArtwork.techLab => const Color(0xFFE4EEF0),
                   },
                 ),
@@ -647,15 +673,13 @@ class _CenterArtworkView extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: 70,
-                child:
-                Container(height: 12, color: const Color(0xFF707C7E)),
+                child: Container(height: 12, color: const Color(0xFF707C7E)),
               ),
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 56,
-                child:
-                Container(height: 14, color: const Color(0xFF606A6D)),
+                child: Container(height: 14, color: const Color(0xFF606A6D)),
               ),
             ],
             if (artwork == TrainingCenterArtwork.techLab)
@@ -725,8 +749,7 @@ class _CenterArtworkView extends StatelessWidget {
       Positioned(
         left: x,
         bottom: 58,
-        child:
-        Container(width: 4, height: 162, color: const Color(0xFF9FC7DF)),
+        child: Container(width: 4, height: 162, color: const Color(0xFF9FC7DF)),
       ),
   ];
 

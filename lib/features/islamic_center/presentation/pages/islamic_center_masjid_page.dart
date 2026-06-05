@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class IslamicCenterMasjidPage extends StatelessWidget {
   const IslamicCenterMasjidPage({super.key});
@@ -70,7 +71,9 @@ class IslamicCenterMasjidPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -124,9 +127,9 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -134,7 +137,7 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Text(
                         'Masjid di Islamic Center Jawa Timur menjadi pusat ibadah yang megah dengan arsitektur yang indah dan atmosfer yang khusyuk. Memiliki kapasitas besar, masjid ini mampu menampung jamaah dalam jumlah banyak, baik untuk salat berjamaah, kajian, maupun kegiatan keislaman lainnya. Nuansa religius yang kuat serta fasilitas yang memadai menjadikan masjid ini sebagai tempat yang ideal untuk memperdalam ibadah dan mempererat kebersamaan umat.',
@@ -142,7 +145,7 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           height: 1.8,
-                          color: AppColors.textMuted,
+                          color: context.appMutedTextColor,
                         ),
                       ),
                     ),
@@ -179,9 +182,9 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -189,7 +192,7 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         children: [
@@ -198,7 +201,7 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2A2E35),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -211,7 +214,7 @@ class IslamicCenterMasjidPage extends StatelessWidget {
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textMuted,
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ),
@@ -301,15 +304,15 @@ class _RoomCard extends StatelessWidget {
     return Container(
       width: 305,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 26, 24, 24),
@@ -321,7 +324,7 @@ class _RoomCard extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF2A2E35),
+                color: context.appTextColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -331,7 +334,7 @@ class _RoomCard extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
-                color: const Color(0xFF9AA1AF),
+                color: context.appMutedTextColor,
               ),
             ),
             const SizedBox(height: 8),
@@ -350,7 +353,7 @@ class _RoomCard extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 height: 1.6,
-                color: AppColors.textMuted,
+                color: context.appMutedTextColor,
               ),
               maxLines: 5,
               overflow: TextOverflow.ellipsis,
@@ -362,16 +365,16 @@ class _RoomCard extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
-                color: const Color(0xFF9AA1AF),
+                color: context.appMutedTextColor,
               ),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.groups_2_outlined,
                   size: 22,
-                  color: Color(0xFF8B8D94),
+                  color: context.appMutedTextColor,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -379,7 +382,7 @@ class _RoomCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF565B66),
+                    color: context.appTextColor,
                   ),
                 ),
               ],
@@ -431,7 +434,7 @@ class _SectionHeader extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appTextColor,
             ),
           ),
         ),
@@ -491,15 +494,15 @@ class _ReviewCard extends StatelessWidget {
       width: 312,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(26),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,8 +512,10 @@ class _ReviewCard extends StatelessWidget {
               Container(
                 width: 48,
                 height: 48,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE8F0FF),
+                decoration: BoxDecoration(
+                  color: context.isDarkMode
+                      ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+                      : const Color(0xFFE8F0FF),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -528,7 +533,7 @@ class _ReviewCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -557,7 +562,7 @@ class _ReviewCard extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.w500,
               height: 1.7,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
             maxLines: 5,
             overflow: TextOverflow.ellipsis,

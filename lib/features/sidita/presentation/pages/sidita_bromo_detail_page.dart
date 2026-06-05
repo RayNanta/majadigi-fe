@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SiditaBromoDetailPage extends StatefulWidget {
   const SiditaBromoDetailPage({super.key});
@@ -39,7 +40,9 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -144,9 +147,9 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                               vertical: 18,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.appSurfaceColor,
                               borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
+                              boxShadow: context.appThemedCardShadows([
                                 BoxShadow(
                                   color: const Color(
                                     0xFF111827,
@@ -154,7 +157,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
                                 ),
-                              ],
+                              ]),
                             ),
                             child: const Row(
                               children: [
@@ -194,7 +197,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF20232B),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -204,7 +207,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               height: 1.8,
-                              color: AppColors.textMuted,
+                              color: context.appMutedTextColor,
                             ),
                           ),
                           const SizedBox(height: 28),
@@ -241,9 +244,9 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.fromLTRB(24, 24, 24, 26),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.appSurfaceColor,
                               borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
+                              boxShadow: context.appThemedCardShadows([
                                 BoxShadow(
                                   color: const Color(
                                     0xFF111827,
@@ -251,7 +254,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
                                 ),
-                              ],
+                              ]),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +265,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF262A31),
+                                      color: context.appTextColor,
                                     ),
                                   ),
                                 ),
@@ -277,10 +280,12 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                     hintStyle: GoogleFonts.plusJakartaSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFFB0B4BC),
+                                      color: context.appMutedTextColor,
                                     ),
                                     filled: true,
-                                    fillColor: const Color(0xFFF7F9FF),
+                                    fillColor: context.isDarkMode
+                                        ? context.appSearchSurfaceColor
+                                        : const Color(0xFFF7F9FF),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(18),
                                       borderSide: BorderSide.none,
@@ -290,7 +295,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF20232B),
+                                    color: context.appTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -326,7 +331,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF20232B),
+                                    color: context.appTextColor,
                                   ),
                                 ),
                               ),
@@ -420,7 +425,7 @@ class _HeroStatItem extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
-            color: const Color(0xFF9DA3AE),
+            color: context.appMutedTextColor,
           ),
         ),
         const SizedBox(height: 10),
@@ -447,7 +452,7 @@ class _HeroStatDivider extends StatelessWidget {
       width: 1,
       height: 54,
       margin: const EdgeInsets.symmetric(horizontal: 12),
-      color: const Color(0xFFE1E5F0),
+      color: context.appBorderColor,
     );
   }
 }
@@ -478,15 +483,15 @@ class _FeatureInfoCard extends StatelessWidget {
         compact ? 18 : 22,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,7 +503,7 @@ class _FeatureInfoCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: compact ? 18 : 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2A2E35),
+              color: context.appTextColor,
             ),
           ),
           if (value.isNotEmpty) ...[
@@ -508,7 +513,7 @@ class _FeatureInfoCard extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textMuted,
+                color: context.appMutedTextColor,
               ),
             ),
           ],
@@ -553,15 +558,15 @@ class _ReviewCard extends StatelessWidget {
       width: 320,
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,8 +576,10 @@ class _ReviewCard extends StatelessWidget {
               Container(
                 width: 48,
                 height: 48,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE7F0FF),
+                decoration: BoxDecoration(
+                  color: context.isDarkMode
+                      ? AppColors.welcomeAccent.withValues(alpha: 0.16)
+                      : const Color(0xFFE7F0FF),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -591,7 +598,7 @@ class _ReviewCard extends StatelessWidget {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -617,7 +624,7 @@ class _ReviewCard extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.7,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],

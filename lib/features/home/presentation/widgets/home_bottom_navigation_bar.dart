@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class HomeBottomNavigationBar extends StatelessWidget {
   const HomeBottomNavigationBar({
@@ -21,6 +21,11 @@ class HomeBottomNavigationBar extends StatelessWidget {
       _HomeNavItem(icon: Icons.person_rounded, label: 'Akun'),
     ];
 
+    final selectedColor = Theme.of(context).colorScheme.primary;
+    final inactiveColor = context.isDarkMode
+        ? const Color(0xFFB9C6DC)
+        : const Color(0xFF111111);
+
     return SafeArea(
       top: false,
       child: Padding(
@@ -28,12 +33,14 @@ class HomeBottomNavigationBar extends StatelessWidget {
         child: Container(
           height: 94,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(40),
-            border: Border.all(color: const Color(0xFFE9EAF0)),
+            border: Border.all(color: context.appBorderColor),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF111827).withValues(alpha: 0.06),
+                color: Colors.black.withValues(
+                  alpha: context.isDarkMode ? 0.28 : 0.06,
+                ),
                 blurRadius: 18,
                 offset: const Offset(0, -4),
               ),
@@ -54,9 +61,7 @@ class HomeBottomNavigationBar extends StatelessWidget {
                       Icon(
                         item.icon,
                         size: 32,
-                        color: isSelected
-                            ? AppColors.welcomeAccent
-                            : const Color(0xFF111111),
+                        color: isSelected ? selectedColor : inactiveColor,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -64,9 +69,7 @@ class HomeBottomNavigationBar extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? AppColors.welcomeAccent
-                              : const Color(0xFF111111),
+                          color: isSelected ? selectedColor : inactiveColor,
                         ),
                       ),
                     ],

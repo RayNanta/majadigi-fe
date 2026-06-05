@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:majadigi_mobile/app/app.dart';
+import 'package:majadigi_mobile/app/router/app_router.dart';
 import 'package:majadigi_mobile/core/providers/core_providers.dart';
+import 'package:majadigi_mobile/core/storage/storage_keys.dart';
+import 'package:majadigi_mobile/features/auth/routes.dart';
 import 'package:majadigi_mobile/features/home/routes.dart';
 
 void main() {
@@ -146,6 +149,43 @@ void main() {
     expect(find.text('Langkah 1 dari 2'), findsOneWidget);
   });
 
+  testWidgets('stores session and opens home from sign in', (
+    WidgetTester tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final sharedPreferences = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((ref) => sharedPreferences),
+        ],
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: AuthRoutes.signInPath,
+            routes: [...AuthRoutes.routes, ...HomeRoutes.routes],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).at(0), 'ray@example.com');
+    await tester.enterText(find.byType(TextField).at(1), 'rahasia123');
+    await tester.pump();
+
+    final signInButton = find.widgetWithText(FilledButton, 'Masuk');
+    await tester.ensureVisible(signInButton);
+    await tester.tap(signInButton);
+    await tester.pumpAndSettle();
+
+    expect(
+      sharedPreferences.getString(StorageKeys.authToken),
+      'session:ray@example.com',
+    );
+    expect(find.text('Layanan Saya'), findsOneWidget);
+  });
+
   testWidgets('opens daftar layanan saya from home layanan saya lainnya tile', (
     WidgetTester tester,
   ) async {
@@ -176,6 +216,53 @@ void main() {
     expect(find.text('Daftar Layanan Saya'), findsOneWidget);
     expect(find.text('Badan Pendapatan Daerah'), findsOneWidget);
   });
+
+  testWidgets(
+    'removes installed service from daftar layanan saya after long press confirmation',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: HomeRoutes.path,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final lainnyaLabel = find.text('Lainnya').first;
+      await tester.dragUntilVisible(
+        lainnyaLabel,
+        find.byType(CustomScrollView),
+        const Offset(0, -280),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(lainnyaLabel);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Daftar Layanan Saya'), findsOneWidget);
+      expect(find.text('Badan Pendapatan Daerah'), findsOneWidget);
+
+      await tester.longPress(find.text('Bapenda Jatim').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hapus layanan?'), findsOneWidget);
+      expect(find.text('Hapus'), findsOneWidget);
+      expect(find.text('Batal'), findsOneWidget);
+
+      await tester.tap(find.text('Hapus'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hapus layanan?'), findsNothing);
+      expect(find.text('Badan Pendapatan Daerah'), findsNothing);
+      expect(
+        find.text('Bapenda Jatim berhasil dihapus dari layanan saya.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('opens skrining tbc page from home layanan saya tile', (
     WidgetTester tester,
@@ -3331,6 +3418,57 @@ void main() {
     expect(find.text('Keluar'), findsOneWidget);
   });
 
+  testWidgets('clears session and returns to sign in from profile logout', (
+    WidgetTester tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      StorageKeys.authToken: 'demo-token',
+    });
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((ref) => sharedPreferences),
+      ],
+    );
+    addTearDown(container.dispose);
+    final router = container.read(appRouterProvider);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    router.go(HomeRoutes.profilePath);
+    await tester.pumpAndSettle();
+
+    expect(sharedPreferences.getString(StorageKeys.authToken), 'demo-token');
+    expect(find.text('Profile'), findsOneWidget);
+
+    final logoutButton = find.widgetWithText(OutlinedButton, 'Keluar');
+    await tester.ensureVisible(logoutButton);
+    await tester.tap(logoutButton);
+    await tester.pumpAndSettle();
+
+    expect(sharedPreferences.getString(StorageKeys.authToken), isNull);
+    expect(find.text('Masuk'), findsWidgets);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Kata Sandi'), findsOneWidget);
+
+    router.go(HomeRoutes.profilePath);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Masuk'), findsWidgets);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Kata Sandi'), findsOneWidget);
+    expect(find.text('Profile'), findsNothing);
+  });
+
   testWidgets('opens personal data page from profile menu', (
     WidgetTester tester,
   ) async {
@@ -3524,6 +3662,314 @@ void main() {
     expect(find.text('SEKILAS MAJADIGI'), findsOneWidget);
     expect(
       find.text('Inovasi Layanan Publik\nBerbasis Digital Jawa\nTimur'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens nawa bhakti category page from home catalog popup', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.path,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final addTileLabel = find.text('Tambah').first;
+    final addTile = find
+        .ancestor(of: addTileLabel, matching: find.byType(InkWell))
+        .first;
+    await tester.ensureVisible(addTile);
+    await tester.pumpAndSettle();
+    await tester.tap(addTile, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    final nawaTabLabel = find.text('Nawa Bhakti Satya').first;
+    final nawaTab = find
+        .ancestor(of: nawaTabLabel, matching: find.byType(InkWell))
+        .first;
+    await tester.tap(nawaTab, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    final catalogScrollable = find.byType(Scrollable).last;
+    final nawaLabels = <String>[
+      'Jatim\nLestari',
+      'Jatim\nKerja',
+      'Jatim\nSejahtera',
+      'Jatim\nBerkah &\nAmanah',
+      'Jatim\nHarmoni',
+      'Jatim\nAgro',
+      'Jatim\nCerdas',
+      'Jatim\nAkses',
+      'Jatim\nSehat',
+    ];
+
+    for (final label in nawaLabels) {
+      await tester.scrollUntilVisible(
+        find.text(label),
+        240,
+        scrollable: catalogScrollable,
+      );
+      expect(find.text(label), findsOneWidget);
+    }
+
+    final nawaHarmoniLabel = find.text('Jatim\nHarmoni');
+    final nawaHarmoniTile = find
+        .ancestor(of: nawaHarmoniLabel, matching: find.byType(InkWell))
+        .first;
+    await tester.tap(nawaHarmoniTile, warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Jatim Harmoni'), findsOneWidget);
+    expect(find.text('Islamic Center'), findsOneWidget);
+  });
+
+  testWidgets('renders all nawa bhakti category pages by route', (
+    WidgetTester tester,
+  ) async {
+    final expectations = <({String path, String title, String content})>[
+      (
+        path: HomeRoutes.nawaBhaktiLestariPath,
+        title: 'Jatim Lestari',
+        content: 'Belum ada layanan yang tersedia',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiKerjaPath,
+        title: 'Jatim Kerja',
+        content: 'Pelatihan Kerja (SINAKER)',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiSejahteraPath,
+        title: 'Jatim Sejahtera',
+        content: 'Harga Bahan Pokok (SISKAPERBAPO)',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiBerkahAmanahPath,
+        title: 'Jatim Berkah & Amanah',
+        content: 'Belum ada layanan yang tersedia',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiHarmoniPath,
+        title: 'Jatim Harmoni',
+        content: 'Islamic Center',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiAgroPath,
+        title: 'Jatim Agro',
+        content: 'Belum ada layanan yang tersedia',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiCerdasPath,
+        title: 'Jatim Cerdas',
+        content: 'Belum ada layanan yang tersedia',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiAksesPath,
+        title: 'Jatim Akses',
+        content: 'BAPENDA Jawa Timur',
+      ),
+      (
+        path: HomeRoutes.nawaBhaktiSehatPath,
+        title: 'Jatim Sehat',
+        content: 'RSUD Dr. Saiful Anwar',
+      ),
+    ];
+
+    for (final item in expectations) {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: item.path,
+              routes: HomeRoutes.routes,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(item.title), findsOneWidget);
+      expect(find.text(item.content), findsOneWidget);
+    }
+  });
+
+  testWidgets('opens sinaker page from jatim kerja service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiKerjaPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Pelatihan Kerja (SINAKER)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SINAKER'), findsOneWidget);
+    expect(find.text('Daftar Pelatihan Kerja'), findsNothing);
+    expect(find.text('Unduh Layanan'), findsOneWidget);
+  });
+
+  testWidgets('opens siskaperbapo page from jatim sejahtera service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiSejahteraPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Harga Bahan Pokok (SISKAPERBAPO)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SISKAPERBAPO'), findsOneWidget);
+    expect(
+      find.text(
+        'Sistem Informasi Ketersediaan dan Perkembangan Harga Bahan Pokok',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens islamic center page from jatim harmoni service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiHarmoniPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Islamic Center'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('ISLAMIC CENTER JAWA TIMUR'), findsOneWidget);
+    expect(find.text('Booking Instan'), findsOneWidget);
+    expect(find.text('Unduh Layanan'), findsOneWidget);
+  });
+
+  testWidgets('opens bapenda jatim page from jatim akses service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiAksesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('BAPENDA Jawa Timur'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('BAPENDA JATIM'), findsOneWidget);
+    expect(
+      find.text('Memudahkan warga Jawa Timur mengurus kewajiban pajak'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens emergency numbers page from jatim akses service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiAksesPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Nomor Darurat'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nomor Darurat'), findsOneWidget);
+    expect(
+      find.text('Berisi Nomor Darurat yang dapat dihubungi oleh masyarakat'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens rsud saiful anwar page from jatim sehat service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiSehatPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('RSUD Dr. Saiful Anwar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('RSUD SAIFUL ANWAR'), findsOneWidget);
+    expect(
+      find.text('Nikmati transparansi dalam layanan kesehatan.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('opens skrining tbc page from jatim sehat service card', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: GoRouter(
+            initialLocation: HomeRoutes.nawaBhaktiSehatPath,
+            routes: HomeRoutes.routes,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Skrining Mandiri TBC'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Skrining TBC Mandiri'), findsOneWidget);
+    expect(
+      find.text(
+        'Skrining mandiri tuberkulosis (TBC) secara online - gratis untuk warga Jawa Timur',
+      ),
       findsOneWidget,
     );
   });

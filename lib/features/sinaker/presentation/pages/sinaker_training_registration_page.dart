@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../services/sinaker_service.dart';
-
 
 class SinakerTrainingRegistrationPage extends StatefulWidget {
   final int trainingId;
@@ -24,7 +24,6 @@ class SinakerTrainingRegistrationPage extends StatefulWidget {
 
 class _SinakerTrainingRegistrationPageState
     extends State<SinakerTrainingRegistrationPage> {
-
   final _service = SinakerService();
 
   bool _isLoading = false;
@@ -77,9 +76,7 @@ class _SinakerTrainingRegistrationPageState
     if (!_isFormComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Lengkapi semua data pendaftaran terlebih dahulu.',
-          ),
+          content: Text('Lengkapi semua data pendaftaran terlebih dahulu.'),
         ),
       );
       return;
@@ -100,11 +97,9 @@ class _SinakerTrainingRegistrationPageState
       if (result['success'] == true) {
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['message']),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(result['message'])));
 
         context.pop();
       } else {
@@ -112,20 +107,16 @@ class _SinakerTrainingRegistrationPageState
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              result['message'] ?? 'Gagal mendaftar pelatihan',
-            ),
+            content: Text(result['message'] ?? 'Gagal mendaftar pelatihan'),
           ),
         );
       }
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Terjadi kesalahan: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -133,21 +124,14 @@ class _SinakerTrainingRegistrationPageState
         });
       }
     }
-
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Pendaftaran pelatihan barista akan kita lanjutkan berikutnya.',
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -192,7 +176,9 @@ class _SinakerTrainingRegistrationPageState
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF2D3162),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2D3162),
+                        ),
                         height: 1.22,
                       ),
                     ),
@@ -201,9 +187,9 @@ class _SinakerTrainingRegistrationPageState
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(26, 28, 26, 28),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(34),
-                        boxShadow: [
+                        boxShadow: context.appThemedCardShadows([
                           BoxShadow(
                             color: const Color(
                               0xFF111827,
@@ -211,7 +197,7 @@ class _SinakerTrainingRegistrationPageState
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
-                        ],
+                        ]),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +207,9 @@ class _SinakerTrainingRegistrationPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF2D3162),
+                              color: context.appThemedTextColor(
+                                const Color(0xFF2D3162),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -230,7 +218,9 @@ class _SinakerTrainingRegistrationPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF60658D),
+                              color: context.appThemedMutedTextColor(
+                                const Color(0xFF60658D),
+                              ),
                               height: 1.5,
                             ),
                           ),
@@ -293,13 +283,13 @@ class _SinakerTrainingRegistrationPageState
               ),
               child: _isLoading
                   ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
                   : const Text('Daftar'),
             ),
           ),
@@ -321,7 +311,7 @@ class _FormLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w800,
-        color: const Color(0xFF363A42),
+        color: context.appThemedTextColor(const Color(0xFF363A42)),
       ),
     );
   }
@@ -343,7 +333,9 @@ class _FormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFFF0F0F2),
+      color: context.isDarkMode
+          ? context.appSubtleSurfaceColor
+          : const Color(0xFFF0F0F2),
       borderRadius: BorderRadius.circular(22),
       child: TextField(
         controller: controller,
@@ -352,14 +344,14 @@ class _FormField extends StatelessWidget {
         style: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF2F3136),
+          color: context.appThemedTextColor(const Color(0xFF2F3136)),
         ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: GoogleFonts.plusJakartaSans(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF9A9EA6),
+            color: context.appThemedMutedTextColor(const Color(0xFF9A9EA6)),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 18,

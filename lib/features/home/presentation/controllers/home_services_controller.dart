@@ -30,4 +30,12 @@ class HomeSelectedServicesController extends Notifier<Set<String>> {
 
     state = {...state, id};
   }
+
+  void removeService(String id) {
+    if (!state.contains(id)) {
+      return;
+    }
+
+    state = {...state}..remove(id);
+  }
 }

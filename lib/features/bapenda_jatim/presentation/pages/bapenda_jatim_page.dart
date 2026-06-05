@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../../home/presentation/controllers/home_service_installation.dart';
 
 class BapendaJatimPage extends StatelessWidget {
   const BapendaJatimPage({super.key});
@@ -55,13 +57,16 @@ class BapendaJatimPage extends StatelessWidget {
   }
 
   void _handleDownload(BuildContext context) {
+    installHomeService(context, 'bapenda-jatim');
     context.pushNamed(RouteNames.homeBapendaJatimMain);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -105,7 +110,7 @@ class BapendaJatimPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appSurfaceColor,
                         borderRadius: BorderRadius.circular(36),
                         boxShadow: [
                           BoxShadow(
@@ -133,7 +138,7 @@ class BapendaJatimPage extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                         height: 1.85,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -208,7 +213,7 @@ class _BenefitCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -229,7 +234,7 @@ class _BenefitCard extends StatelessWidget {
               fontSize: 17,
               fontWeight: FontWeight.w700,
               height: 1.45,
-              color: const Color(0xFF2E3138),
+              color: context.appThemedTextColor(const Color(0xFF2E3138)),
             ),
           ),
           const SizedBox(height: 16),
@@ -239,7 +244,7 @@ class _BenefitCard extends StatelessWidget {
               fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.8,
-              color: AppColors.textMuted,
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -260,7 +265,7 @@ class _SectionHeading extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w800,
-        color: const Color(0xFF262B33),
+        color: context.appThemedTextColor(const Color(0xFF262B33)),
       ),
     );
   }
@@ -291,7 +296,7 @@ class _ProcedureCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
@@ -386,7 +391,9 @@ class _ProcedureStepRow extends StatelessWidget {
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                       height: 1.35,
-                      color: const Color(0xFF243058),
+                      color: context.appThemedTextColor(
+                        const Color(0xFF243058),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),

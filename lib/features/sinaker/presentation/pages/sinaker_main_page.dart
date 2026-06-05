@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class SinakerMainPage extends StatelessWidget {
   const SinakerMainPage({super.key});
@@ -52,7 +53,9 @@ class SinakerMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -125,15 +128,15 @@ class _SinakerMenuCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.appSurfaceColor,
             borderRadius: BorderRadius.circular(30),
-            boxShadow: [
+            boxShadow: context.appThemedCardShadows([
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
-            ],
+            ]),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,8 +144,10 @@ class _SinakerMenuCard extends StatelessWidget {
               Container(
                 width: 106,
                 height: 106,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF0F5FF),
+                decoration: BoxDecoration(
+                  color: context.isDarkMode
+                      ? context.appSubtleSurfaceColor
+                      : const Color(0xFFF0F5FF),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -164,7 +169,9 @@ class _SinakerMenuCard extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0C2B5A),
+                          color: context.appThemedTextColor(
+                            const Color(0xFF0C2B5A),
+                          ),
                           height: 1.3,
                         ),
                       ),
@@ -174,7 +181,9 @@ class _SinakerMenuCard extends StatelessWidget {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 17,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF4F5561),
+                          color: context.appThemedMutedTextColor(
+                            const Color(0xFF4F5561),
+                          ),
                           height: 1.5,
                         ),
                       ),

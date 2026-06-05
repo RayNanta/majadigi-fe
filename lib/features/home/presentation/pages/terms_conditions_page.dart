@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class TermsConditionsPage extends StatelessWidget {
   const TermsConditionsPage({super.key});
@@ -103,7 +104,9 @@ class TermsConditionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -170,15 +173,15 @@ class _TermsSectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +194,9 @@ class _TermsSectionCard extends StatelessWidget {
                 height: 24,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF3FF),
+                  color: context.isDarkMode
+                      ? context.appSubtleSurfaceColor
+                      : const Color(0xFFEAF3FF),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -211,7 +216,7 @@ class _TermsSectionCard extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     height: 1.35,
-                    color: const Color(0xFF3C424D),
+                    color: context.appThemedTextColor(const Color(0xFF3C424D)),
                   ),
                 ),
               ),
@@ -228,7 +233,9 @@ class _TermsSectionCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: const Color(0xFF717784),
+                    color: context.appThemedMutedTextColor(
+                      const Color(0xFF717784),
+                    ),
                   ),
                 ),
               ),
@@ -278,7 +285,7 @@ class _TermsBulletRow extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               height: 1.6,
-              color: const Color(0xFF717784),
+              color: context.appThemedMutedTextColor(const Color(0xFF717784)),
             ),
           ),
         ),

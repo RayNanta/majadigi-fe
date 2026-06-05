@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 import '../models/profile_data.dart';
 
 class PersonalDataPage extends StatelessWidget {
@@ -55,7 +56,9 @@ class PersonalDataPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -126,15 +129,15 @@ class _PersonalDataCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurfaceColor,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
+        boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
-        ],
+        ]),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -143,7 +146,7 @@ class _PersonalDataCard extends StatelessWidget {
             width: 82,
             height: 82,
             decoration: BoxDecoration(
-              color: const Color(0xFFE6F0FF),
+              color: context.appSubtleSurfaceColor,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Icon(item.icon, size: 42, color: AppColors.welcomeAccent),
@@ -159,7 +162,7 @@ class _PersonalDataCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF303236),
+                    color: context.appThemedTextColor(const Color(0xFF303236)),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -169,7 +172,7 @@ class _PersonalDataCard extends StatelessWidget {
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     height: 1.45,
-                    color: AppColors.textMuted,
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],

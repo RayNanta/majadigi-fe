@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class BapendaJatimNjkbPage extends StatefulWidget {
   const BapendaJatimNjkbPage({super.key});
@@ -77,7 +78,9 @@ class _BapendaJatimNjkbPageState extends State<BapendaJatimNjkbPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FF),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).scaffoldBackgroundColor
+          : const Color(0xFFF7F9FF),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -122,7 +125,9 @@ class _BapendaJatimNjkbPageState extends State<BapendaJatimNjkbPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2A2E35),
+                        color: context.appThemedTextColor(
+                          const Color(0xFF2A2E35),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -131,7 +136,7 @@ class _BapendaJatimNjkbPageState extends State<BapendaJatimNjkbPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 34),
@@ -207,7 +212,9 @@ class _BapendaJatimNjkbPageState extends State<BapendaJatimNjkbPage> {
               onPressed: _canSubmit ? _handleSubmit : null,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
-                disabledBackgroundColor: const Color(0xFFBFD4FF),
+                disabledBackgroundColor: context.isDarkMode
+                    ? const Color(0xFF294569)
+                    : const Color(0xFFBFD4FF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32),
                 ),
@@ -237,7 +244,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 17,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF2A2E35),
+        color: context.appThemedTextColor(const Color(0xFF2A2E35)),
       ),
     );
   }
@@ -262,14 +269,16 @@ class _DropdownField extends StatelessWidget {
       key: ValueKey('$hintText-${value ?? 'empty'}'),
       initialValue: value,
       onChanged: onChanged,
-      icon: const Icon(
+      icon: Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF555555),
+        color: context.appThemedTextColor(const Color(0xFF555555)),
         size: 28,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFF0F0F0),
+        fillColor: context.isDarkMode
+            ? context.appSubtleSurfaceColor
+            : const Color(0xFFF0F0F0),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 24,
           vertical: 22,
@@ -284,15 +293,15 @@ class _DropdownField extends StatelessWidget {
         style: GoogleFonts.plusJakartaSans(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF9A9A9A),
+          color: context.appThemedMutedTextColor(const Color(0xFF9A9A9A)),
         ),
       ),
       style: GoogleFonts.plusJakartaSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF2A2E35),
+        color: context.appThemedTextColor(const Color(0xFF2A2E35)),
       ),
-      dropdownColor: Colors.white,
+      dropdownColor: context.appSurfaceColor,
       items: items
           .map(
             (item) => DropdownMenuItem<String>(value: item, child: Text(item)),

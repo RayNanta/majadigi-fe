@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_theme_extensions.dart';
 
 class AuthTopBar extends StatelessWidget {
   const AuthTopBar({super.key});
@@ -61,26 +62,35 @@ class AuthInputField extends StatelessWidget {
       style: GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w500,
-        color: const Color(0xFF2F3136),
+        color: context.appThemedTextColor(const Color(0xFF2F3136)),
       ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w400,
-          color: AppColors.outline,
+          color: context.appThemedMutedTextColor(AppColors.outline),
         ),
-        prefixIcon: Icon(prefixIcon, color: AppColors.outline, size: 28),
+        prefixIcon: Icon(
+          prefixIcon,
+          color: context.appThemedMutedTextColor(AppColors.outline),
+          size: 28,
+        ),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.appThemedSurfaceColor(Colors.white),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 22,
           vertical: 24,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: const BorderSide(color: AppColors.outline, width: 2),
+          borderSide: BorderSide(
+            color: context.isDarkMode
+                ? context.appBorderColor
+                : AppColors.outline,
+            width: 2,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
@@ -115,7 +125,9 @@ class AuthPrimaryButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.welcomeAccent,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.disabled,
+          disabledBackgroundColor: context.isDarkMode
+              ? AppColors.welcomeAccent.withValues(alpha: 0.28)
+              : AppColors.disabled,
           disabledForegroundColor: Colors.white,
           minimumSize: Size.fromHeight(height),
           shape: RoundedRectangleBorder(
@@ -156,7 +168,7 @@ class AuthFooterPrompt extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF2F3136),
+              color: context.appThemedTextColor(const Color(0xFF2F3136)),
             ),
           ),
           TextButton(
@@ -206,7 +218,9 @@ class _AuthBrandLockup extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
-                  color: const Color(0xFF2D57C5),
+                  color: context.isDarkMode
+                      ? AppColors.welcomeAccent
+                      : const Color(0xFF2D57C5),
                 ),
               ),
               Text(
@@ -216,7 +230,7 @@ class _AuthBrandLockup extends StatelessWidget {
                   fontSize: 7,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.6,
-                  color: AppColors.textMuted,
+                  color: context.appMutedTextColor,
                 ),
               ),
             ],
@@ -236,15 +250,20 @@ class _AuthLanguageChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.outline, width: 2),
+        border: Border.all(
+          color: context.isDarkMode
+              ? context.appBorderColor
+              : AppColors.outline,
+          width: 2,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.language_rounded,
             size: 26,
-            color: Color(0xFF3D3F45),
+            color: context.appThemedTextColor(const Color(0xFF3D3F45)),
           ),
           const SizedBox(width: 10),
           Text(
@@ -252,7 +271,7 @@ class _AuthLanguageChip extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF3D3F45),
+              color: context.appThemedTextColor(const Color(0xFF3D3F45)),
             ),
           ),
         ],
