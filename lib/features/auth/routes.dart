@@ -28,8 +28,15 @@ final class AuthRoutes {
     GoRoute(
       path: signUpStepTwoPath,
       name: RouteNames.signUpStepTwo,
-      builder: (context, state) => const SignUpStepTwoPage(),
-    ),
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+
+        return SignUpStepTwoPage(
+          name: data['name'],
+          phone: data['phone'],
+          email: data['email'],
+        );
+      },    ),
     GoRoute(
       path: signUpStepThreePath,
       name: RouteNames.signUpStepThree,

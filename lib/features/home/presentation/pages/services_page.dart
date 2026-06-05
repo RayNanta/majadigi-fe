@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import '../../../../shared/extensions/responsive_extension.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
@@ -142,12 +142,16 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
                       itemCount: _visibleServices.length,
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 28,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.56,
-                          ),
+                      SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: context.isDesktop
+                            ? 6
+                            : context.isTablet
+                            ? 5
+                            : 4,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 0.58,
+                      ),
                       itemBuilder: (context, index) {
                         final service = _visibleServices[index];
                         final isInstalled = selectedServiceIds.contains(
@@ -308,6 +312,7 @@ class _CategoryChip extends StatelessWidget {
 class _ServicesCatalogTile extends StatelessWidget {
   const _ServicesCatalogTile({
     required this.item,
+
     required this.isInstalled,
     required this.onTap,
   });
@@ -337,20 +342,8 @@ class _ServicesCatalogTile extends StatelessWidget {
               color: context.appTextColor,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            isInstalled ? '✓ Terpasang' : '+ Tambah',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: isInstalled
-                  ? const Color(0xFF22B56B)
-                  : AppColors.welcomeAccent,
-            ),
-          ).wrapWithFitted(),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -365,15 +358,19 @@ extension on Text {
 }
 
 class _ServiceBadge extends StatelessWidget {
-  const _ServiceBadge({required this.item});
+  const _ServiceBadge({
+    required this.item,
+    required this.size,
+  });
 
   final HomeServiceItem item;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 86,
-      height: 86,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: item.badgeBackground,
@@ -390,12 +387,12 @@ class _ServiceBadge extends StatelessWidget {
       ),
       child: Center(
         child: item.icon != null
-            ? Icon(item.icon, size: 36, color: item.accentColor)
+            ? Icon(item.icon, size: size * 0.42, color: item.accentColor)
             : Text(
                 item.badgeText!,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: item.badgeText!.length > 3 ? 20 : 24,
+                  fontSize: size * 0.25,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                   color: item.accentColor,

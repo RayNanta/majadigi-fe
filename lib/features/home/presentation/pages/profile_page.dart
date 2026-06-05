@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:majadigi_mobile/features/auth/models/user_model.dart';
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../auth/services/auth_service.dart';
@@ -100,6 +102,7 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode =
         ref.watch(appThemeModeControllerProvider) == ThemeMode.dark;
+    final user = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: context.appThemedScaffoldColor(const Color(0xFFF7F9FF)),
       body: SafeArea(
@@ -136,7 +139,7 @@ class ProfilePage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const _ProfileSummaryCard(),
+                    _ProfileSummaryCard(user: user),
                     const SizedBox(height: 28),
                     const _ProfileSectionTitle(title: 'Akun dan Keamanan'),
                     const SizedBox(height: 16),
@@ -198,7 +201,11 @@ class ProfilePage extends ConsumerWidget {
 }
 
 class _ProfileSummaryCard extends StatelessWidget {
-  const _ProfileSummaryCard();
+  const _ProfileSummaryCard({
+    required this.user,
+  });
+
+  final UserModel? user;
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +238,7 @@ class _ProfileSummaryCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  demoProfileData.fullName,
+                  user?.name ?? '-',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -240,7 +247,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  demoProfileData.email,
+                  user?.email ?? '-',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.plusJakartaSans(
@@ -251,7 +258,7 @@ class _ProfileSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  demoProfileData.phoneNumber,
+                  user?.phone ?? '-',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

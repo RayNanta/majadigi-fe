@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import '../../services/auth_service.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../routes.dart';
 import '../widgets/auth_form_widgets.dart';
 
 class SignUpStepTwoPage extends StatefulWidget {
-  const SignUpStepTwoPage({super.key});
+  const SignUpStepTwoPage({
+    super.key,
+    required this.name,
+    required this.phone,
+    required this.email,
+  });
+
+  final String name;
+  final String phone;
+  final String email;
 
   @override
   State<SignUpStepTwoPage> createState() => _SignUpStepTwoPageState();
@@ -24,6 +33,7 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
 
   bool get _canSubmit {
     return _addressController.text.trim().isNotEmpty &&
@@ -88,8 +98,47 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
     _birthDateController.text = '$day/$month/$year';
   }
 
-  void _goToStepThree() {
-    context.go(AuthRoutes.signUpStepThreePath);
+  Future<void> _register() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await AuthService.register(
+        name: widget.name,
+        email: widget.email,
+        phone: widget.phone,
+        address: _addressController.text.trim(),
+        nik: _nikController.text.trim(),
+        birthDate: _birthDateController.text.trim(),
+        password: _passwordController.text,
+        passwordConfirmation: _confirmPasswordController.text,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registrasi berhasil'),
+        ),
+      );
+
+      context.go(AuthRoutes.signInPath);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -290,8 +339,10 @@ class _SignUpStepTwoPageState extends State<SignUpStepTwoPage> {
                           ),
                           const SizedBox(height: 56),
                           AuthPrimaryButton(
-                            label: 'Daftar',
-                            onPressed: _canSubmit ? _goToStepThree : null,
+                            label: _isLoading ? 'Memproses...' : 'Daftar',
+                            onPressed: (_canSubmit && !_isLoading)
+                                ? _register
+                                : null,
                           ),
                           const SizedBox(height: 42),
                           AuthFooterPrompt(

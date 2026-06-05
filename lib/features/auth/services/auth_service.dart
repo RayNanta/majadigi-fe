@@ -36,4 +36,41 @@ class AuthService {
   static Future<void> logout() async {
     await AuthStorage.clear();
   }
+
+  static Future<Map<String, dynamic>> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String address,
+    required String nik,
+    required String birthDate,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    final response = await ApiService.post(
+      '/auth/register',
+      {
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'address': address,
+        'nik': nik,
+        'birth_date': birthDate,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 ||
+        response.statusCode == 201) {
+      return data;
+    }
+
+    throw Exception(
+      data['message'] ?? 'Registrasi gagal',
+    );
+  }
+
 }
