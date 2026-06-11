@@ -9,18 +9,11 @@ import '../../../../shared/theme/app_theme_extensions.dart';
 class BapendaJatimNjkbResultPage extends StatelessWidget {
   const BapendaJatimNjkbResultPage({
     super.key,
-    this.vehicleType,
-    this.brand,
-    this.year,
-    this.model,
-    this.trim,
+    required this.data,
   });
 
-  final String? vehicleType;
-  final String? brand;
-  final String? year;
-  final String? model;
-  final String? trim;
+  final Map<String, dynamic> data;
+
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -29,35 +22,6 @@ class BapendaJatimNjkbResultPage extends StatelessWidget {
     }
 
     context.goNamed(RouteNames.homeBapendaJatimNjkb);
-  }
-
-  String get _displayVehicleType =>
-      _normalizedOrDefault(vehicleType, 'SEPEDA MOTOR');
-
-  String get _displayBrand => _normalizedOrDefault(brand, 'HONDA');
-
-  String get _displayYear => _normalizedOrDefault(year, '1980');
-
-  String get _displayTypeValue {
-    final normalizedModel = (model ?? '').trim().toLowerCase();
-
-    switch (normalizedModel) {
-      case 'beat':
-        return '110CC';
-      case 'vario':
-        return '125CC';
-      case 'avanza':
-        return '1300CC';
-      case 'nmax':
-        return '155CC';
-      default:
-        final fallbackTrim = (trim ?? '').trim();
-        if (fallbackTrim.isNotEmpty) {
-          return fallbackTrim.toUpperCase();
-        }
-
-        return '110CC';
-    }
   }
 
   static String _normalizedOrDefault(String? value, String fallback) {
@@ -71,25 +35,75 @@ class BapendaJatimNjkbResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final spesifikasi = Map<String, dynamic>.from(data?['spesifikasi'] ?? {});
+    final tarif = Map<String, dynamic>.from(data?['tarif_pajak_kepemilikan'] ?? {});
+    final pnbp = Map<String, dynamic>.from(data?['pnbp_polri'] ?? {});
+
     final vehicleIdentity = [
-      _InfoRow(label: 'Model', value: _displayVehicleType),
-      _InfoRow(label: 'Merk', value: _displayBrand),
-      _InfoRow(label: 'Tipe', value: _displayTypeValue),
-      _InfoRow(label: 'Tahun Dibuat', value: _displayYear),
-      const _InfoRow(label: 'PKB Plat Hitam', value: '16.500'),
-      const _InfoRow(label: 'Opsen PKB Plat Hitam', value: '11.000'),
-      const _InfoRow(label: 'PKB Plat Merah', value: '5.500'),
-      const _InfoRow(label: 'Opsen PKB Plat Merah', value: '4.000'),
-      const _InfoRow(label: 'PKB Plat Kuning', value: '9.000'),
-      const _InfoRow(label: 'Opsen PKB Plat Kuning', value: '6.000'),
-      const _InfoRow(label: 'BBN 1', value: '136.000'),
-      const _InfoRow(label: 'BBN 2', value: '0'),
+      _InfoRow(
+        label: 'Model',
+        value: spesifikasi['model'].toString(),
+      ),
+      _InfoRow(
+        label: 'Merk',
+        value: spesifikasi['merk'].toString(),
+      ),
+      _InfoRow(
+        label: 'Tipe',
+        value: spesifikasi['tipe_spesifik'].toString(),
+      ),
+      _InfoRow(
+        label: 'CC',
+        value: spesifikasi['cc'].toString(),
+      ),
+      _InfoRow(
+        label: 'Tahun Dibuat',
+        value: spesifikasi['tahun_dibuat'].toString(),
+      ),
+      _InfoRow(
+        label: 'Nilai Jual Dasar',
+        value: 'Rp ${spesifikasi['nilai_jual_dasar']}',
+      ),
+      _InfoRow(
+        label: 'PKB Plat Hitam',
+        value: tarif['plat_hitam_pribadi'].toString(),
+      ),
+      _InfoRow(
+        label: 'PKB Plat Hitam Progresif',
+        value: tarif['plat_hitam_progresif'].toString(),
+      ),
+      _InfoRow(
+        label: 'PKB Plat Merah',
+        value: tarif['plat_merah_dinas'].toString(),
+      ),
+      _InfoRow(
+        label: 'PKB Plat Kuning',
+        value: tarif['plat_kuning_umum'].toString(),
+      ),
+      _InfoRow(
+        label: 'BBN 1',
+        value: tarif['bbn_1'].toString(),
+      ),
+      _InfoRow(
+        label: 'BBN 2',
+        value: tarif['bbn_2'].toString(),
+      ),
     ];
 
-    const nonTaxRevenue = [
-      _InfoRow(label: 'PNBP BPKB', value: '225.000'),
-      _InfoRow(label: 'PNBP STNK', value: '100.000'),
-      _InfoRow(label: 'PNBP TNKB', value: '60.000'),
+    final nonTaxRevenue = [
+      _InfoRow(
+        label: 'PNBP BPKB',
+        value: 'Rp ${pnbp['penerbitan_bpkb']}',
+      ),
+      _InfoRow(
+        label: 'PNBP STNK',
+        value: 'Rp ${pnbp['penerbitan_stnk']}',
+      ),
+      _InfoRow(
+        label: 'PNBP TNKB',
+        value: 'Rp ${pnbp['penerbitan_tnkb']}',
+      ),
     ];
 
     return Scaffold(

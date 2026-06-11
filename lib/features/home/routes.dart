@@ -163,7 +163,7 @@ final class HomeRoutes {
   static const siskaperbapoPath = '/layanan/siskaper-bapo';
   static const siskaperbapoMainPath = '/layanan/siskaper-bapo/utama';
   static const siskaperbapoBawangMerahPath =
-      '/layanan/siskaper-bapo/utama/bawang-merah';
+      '/layanan/siskaper-bapo/utama/bawang-merah/id';
   static const emergencyNumbersPath = '/layanan/nomor-darurat';
   static const emergencyNumbersMainPath = '/layanan/nomor-darurat/utama';
   static const hoaxClinicPath = '/layanan/klinik-hoaks';
@@ -279,9 +279,11 @@ final class HomeRoutes {
     GoRoute(
       path: bapendaJatimPkbResultPath,
       name: RouteNames.homeBapendaJatimPkbResult,
-      builder: (context, state) => BapendaJatimPkbResultPage(
-        plateNumber: state.uri.queryParameters['plate'],
-      ),
+      builder: (context, state) {
+        return BapendaJatimPkbResultPage(
+          data: state.extra as Map<String, dynamic>,
+        );
+      },
     ),
     GoRoute(
       path: bapendaJatimNjkbPath,
@@ -292,16 +294,8 @@ final class HomeRoutes {
       path: bapendaJatimNjkbResultPath,
       name: RouteNames.homeBapendaJatimNjkbResult,
       builder: (context, state) {
-        final payload = state.extra is Map<String, String>
-            ? state.extra! as Map<String, String>
-            : const <String, String>{};
-
         return BapendaJatimNjkbResultPage(
-          vehicleType: payload['vehicleType'],
-          brand: payload['brand'],
-          year: payload['year'],
-          model: payload['model'],
-          trim: payload['trim'],
+          data: state.extra as Map<String, dynamic>,
         );
       },
     ),
@@ -546,7 +540,11 @@ final class HomeRoutes {
     GoRoute(
       path: siskaperbapoBawangMerahPath,
       name: RouteNames.homeSiskaperbapoBawangMerah,
-      builder: (context, state) => const SiskaperbapoBawangMerahPage(),
+      builder: (context, state) {
+        return SiskaperbapoDetailPage(
+          commodityData: state.extra,
+        );
+      },
     ),
     GoRoute(
       path: emergencyNumbersPath,

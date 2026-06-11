@@ -100,7 +100,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _openServiceCatalogBottomSheet() async {
-    final selectedServiceId = await showModalBottomSheet<String?>(
+    await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -112,19 +112,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       },
     );
-
-    if (!mounted || selectedServiceId == null) {
-      return;
-    }
-
-    final selectedServiceIds = ref.read(homeSelectedServiceIdsProvider);
-    final routeName = routeNameForHomeServiceId(
-      selectedServiceId,
-      isInstalled: selectedServiceIds.contains(selectedServiceId),
-    );
-    if (routeName != null) {
-      context.pushNamed(routeName);
-    }
   }
 
   void _handleMyServiceTap(HomeServiceItem item) {
@@ -565,7 +552,7 @@ class _HomeServiceTile extends StatelessWidget {
   }
 }
 
-class _ServiceCatalogBottomSheet extends StatefulWidget {
+class _ServiceCatalogBottomSheet extends ConsumerStatefulWidget {
   const _ServiceCatalogBottomSheet({
     required this.services,
     required this.selectedServiceIds,
@@ -575,12 +562,12 @@ class _ServiceCatalogBottomSheet extends StatefulWidget {
   final Set<String> selectedServiceIds;
 
   @override
-  State<_ServiceCatalogBottomSheet> createState() =>
+  ConsumerState<_ServiceCatalogBottomSheet> createState() =>
       _ServiceCatalogBottomSheetState();
 }
 
 class _ServiceCatalogBottomSheetState
-    extends State<_ServiceCatalogBottomSheet> {
+    extends ConsumerState<_ServiceCatalogBottomSheet> {
   late final TextEditingController _searchController;
   late final Set<String> _selectedIds;
 
@@ -626,7 +613,15 @@ class _ServiceCatalogBottomSheetState
       return;
     }
 
-    Navigator.of(context).pop(service.id);
+    ref
+        .read(homeSelectedServiceIdsProvider.notifier)
+        .addService(service.id);
+
+    setState(() {
+      _selectedIds.add(service.id);
+    });
+
+    Navigator.of(context).pop();
   }
 
   void _handleOpenNawaBhakti(HomeServiceItem service) {

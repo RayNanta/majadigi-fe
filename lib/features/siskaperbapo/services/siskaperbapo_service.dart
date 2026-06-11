@@ -1,13 +1,26 @@
 import 'dart:convert';
-
 import '../../../core/api/api_service.dart';
 
 class SiskaperbapoService {
+
   Future<List<dynamic>> getHargaPokok() async {
-    final response = await ApiService.get('/harga-pokok');
+    final res = await ApiService.get('/harga-bahan');
 
-    final data = jsonDecode(response.body);
+    print('STATUS: ${res.statusCode}');
+    print('BODY: ${res.body}');
 
-    return data['data'] ?? [];
+    final body = jsonDecode(res.body);
+
+    return List<dynamic>.from(body['data'] ?? []);
+  }
+
+  Future<Map<String, dynamic>> getHargaPokokDetail(
+      int id,
+      ) async {
+    final res = await ApiService.get('/harga-bahan/$id');
+
+    final body = jsonDecode(res.body);
+
+    return body['data'];
   }
 }

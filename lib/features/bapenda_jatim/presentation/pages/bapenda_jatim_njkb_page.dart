@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/bapenda_jatim/services/bapenda_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -62,17 +63,37 @@ class _BapendaJatimNjkbPageState extends State<BapendaJatimNjkbPage> {
     context.goNamed(RouteNames.homeBapendaJatimMain);
   }
 
-  void _handleSubmit() {
-    context.pushNamed(
-      RouteNames.homeBapendaJatimNjkbResult,
-      extra: <String, String>{
-        'vehicleType': _selectedVehicleType ?? '',
-        'brand': _selectedBrand ?? '',
-        'year': _selectedYear ?? '',
-        'model': _selectedModel ?? '',
-        'trim': _selectedTrim ?? '',
-      },
-    );
+  final _service = BapendaService();
+
+  Future<void> _handleSubmit() async {
+    try {
+      final result = await _service.cekNjkb(
+        jenisKendaraan: _selectedVehicleType,
+        merkKendaraan: _selectedBrand,
+        tahunPembuatan: _selectedYear,
+        modelTipeSpesifik:
+        '${_selectedModel ?? ''} ${_selectedTrim ?? ''}',
+      );
+      print(result);
+
+      if (result.isEmpty) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Data NJKB tidak ditemukan'),
+          ),
+        );
+        return;
+      }
+      context.pushNamed(
+        RouteNames.homeBapendaJatimNjkbResult,
+        extra: result.isNotEmpty ? result.first : null,
+      );
+
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override

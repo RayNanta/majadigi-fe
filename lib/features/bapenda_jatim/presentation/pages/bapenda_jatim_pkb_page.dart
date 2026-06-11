@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/bapenda_jatim/services/bapenda_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -13,6 +14,9 @@ class BapendaJatimPkbPage extends StatefulWidget {
   @override
   State<BapendaJatimPkbPage> createState() => _BapendaJatimPkbPageState();
 }
+
+final _bapendaService = BapendaService();
+bool _isLoading = false;
 
 class _BapendaJatimPkbPageState extends State<BapendaJatimPkbPage> {
   final _plateNumberController = TextEditingController();
@@ -31,13 +35,51 @@ class _BapendaJatimPkbPageState extends State<BapendaJatimPkbPage> {
     context.goNamed(RouteNames.homeBapendaJatimMain);
   }
 
-  void _handleSubmit() {
-    context.pushNamed(
-      RouteNames.homeBapendaJatimPkbResult,
-      queryParameters: {
-        'plate': _plateNumberController.text.trim().toUpperCase(),
-      },
-    );
+  Future<void> _handleSubmit() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final result = await _bapendaService.cekPajak(
+        nomorPolisi: _plateNumberController.text
+            .trim()
+            .toUpperCase(),
+        nomorRangka: _chassisNumberController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        context.pushNamed(
+          RouteNames.homeBapendaJatimPkbResult,
+          extra: result['data'],
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'] ??
+                  'Data kendaraan tidak ditemukan',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $e'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -161,8 +203,16 @@ class _BapendaJatimPkbPageState extends State<BapendaJatimPkbPage> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              child: const Text('Cari Data'),
-            ),
+              child: _isLoading
+                  ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: Colors.white,
+                ),
+              )
+                  : const Text('Cari Data'),            ),
           ),
         ),
       ),

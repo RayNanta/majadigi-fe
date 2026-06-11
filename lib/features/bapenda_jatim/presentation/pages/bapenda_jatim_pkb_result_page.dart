@@ -7,29 +7,12 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 
 class BapendaJatimPkbResultPage extends StatelessWidget {
-  const BapendaJatimPkbResultPage({super.key, this.plateNumber});
+  const BapendaJatimPkbResultPage({
+    super.key,
+    required this.data,
+  });
 
-  final String? plateNumber;
-
-  static const _vehicleIdentity = [
-    _InfoRow(label: 'Nopol', value: 'N 3315 TAK'),
-    _InfoRow(label: 'Warna', value: 'HITAM'),
-    _InfoRow(label: 'Model', value: 'SEPEDA MOTOR'),
-    _InfoRow(label: 'Tipe', value: 'X1B02N04L0'),
-    _InfoRow(label: 'Tahun Dibuat', value: '2015'),
-    _InfoRow(label: 'Masa Pajak', value: '29-06-2026', highlight: true),
-  ];
-
-  static const _annualFees = [
-    _InfoRow(label: 'PKB', value: '101.500'),
-    _InfoRow(label: 'PKB Progresif', value: '0'),
-    _InfoRow(label: 'Opsen PKB', value: '67.000'),
-    _InfoRow(label: 'Opsen PKB Progresif', value: '0'),
-    _InfoRow(label: 'SWDKLLJ', value: '35.000'),
-    _InfoRow(label: 'Parkir Berlangganan', value: '20.000'),
-    _InfoRow(label: 'Pengesahan STNK', value: '0'),
-    _InfoRow(label: 'Total/Jumlah', value: '223.500', isTotal: true),
-  ];
+  final Map<String, dynamic> data;
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
@@ -42,9 +25,85 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayedPlate = plateNumber?.trim().isNotEmpty == true
-        ? plateNumber!.trim().toUpperCase()
-        : 'N 3315 TAK';
+
+    final identitas = data['identitas'] ?? {};
+    final tahunan = data['rincian_tahunan'] ?? {};
+    final limaTahunan = data['rincian_lima_tahunan'] ?? {};
+    final biayaStnk =
+        limaTahunan['biaya_cetak_stnk_baru'] ?? 0;
+
+    final biayaTnkb =
+        limaTahunan['biaya_cetak_tnkb_baru'] ?? 0;
+
+    final statusAktif =
+        identitas['status_keaktifan']?.toString() == 'Aktif';
+
+    final keamananAlert =
+        data['keamanan_alert']?.toString() ?? '';
+
+    final vehicleIdentity = [
+      _InfoRow(
+        label: 'Nopol',
+        value: identitas['nomor_polisi'] ?? '-',
+      ),
+      _InfoRow(
+        label: 'Warna',
+        value: identitas['warna'] ?? '-',
+      ),
+      _InfoRow(
+        label: 'Model',
+        value: identitas['model'] ?? '-',
+      ),
+      _InfoRow(
+        label: 'Tipe',
+        value: identitas['tipe'] ?? '-',
+      ),
+      _InfoRow(
+        label: 'Tahun Dibuat',
+        value: identitas['tahun_pembuatan']?.toString() ?? '-',
+      ),
+      _InfoRow(
+        label: 'Masa Pajak',
+        value: identitas['jatuh_tempo_pajak'] ?? '-',
+        highlight: true,
+      ),
+    ];
+
+    final annualFees = [
+      _InfoRow(
+        label: 'PKB',
+        value: tahunan['pkb_dasar']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'PKB Progresif',
+        value: tahunan['pkb_progresif']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'Opsen PKB',
+        value: tahunan['opsen_pkb']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'SWDKLLJ',
+        value: tahunan['swdkllj']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'Parkir Berlangganan',
+        value: tahunan['parkir_berlangganan']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'Pengesahan STNK',
+        value: tahunan['biaya_pengesahan_stnk']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'Denda',
+        value: tahunan['total_denda']?.toString() ?? '0',
+      ),
+      _InfoRow(
+        label: 'Total/Jumlah',
+        value: tahunan['total_keseluruhan_tahunan']?.toString() ?? '0',
+        isTotal: true,
+      ),
+    ];
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -89,16 +148,17 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _PlateStatusCard(plateNumber: displayedPlate),
-                    const SizedBox(height: 24),
+                    _PlateStatusCard(
+                      plateNumber: identitas['nomor_polisi'] ?? '-',
+                      isActive: statusAktif,
+                    ),                    const SizedBox(height: 24),
                     _SectionCard(
                       title: 'Identitas Kendaraan',
                       child: Column(
                         children: [
-                          for (final item in _vehicleIdentity)
-                            Padding(
+                          for (final item in vehicleIdentity)                            Padding(
                               padding: EdgeInsets.only(
-                                bottom: item == _vehicleIdentity.last ? 0 : 22,
+                                bottom: item == vehicleIdentity.last ? 0 : 22,
                               ),
                               child: _InfoRowWidget(item: item),
                             ),
@@ -110,10 +170,9 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
                       title: 'Biaya Penul Tahunan',
                       child: Column(
                         children: [
-                          for (final item in _annualFees)
-                            Padding(
+                          for (final item in annualFees)                            Padding(
                               padding: EdgeInsets.only(
-                                bottom: item == _annualFees.last ? 0 : 18,
+                                bottom: item == annualFees.last ? 0 : 18,
                               ),
                               child: _InfoRowWidget(item: item),
                             ),
@@ -124,18 +183,18 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
                     _SectionCard(
                       title: 'Biaya Penul 5 Tahunan',
                       child: Row(
-                        children: const [
+                        children: [
                           Expanded(
                             child: _FiveYearFeeCard(
                               title: 'Cetak STNK',
-                              value: '100.000',
+                              value: biayaStnk.toString(),
                             ),
                           ),
-                          SizedBox(width: 16),
-                          Expanded(
+                          const SizedBox(width: 16),
+                           Expanded(
                             child: _FiveYearFeeCard(
                               title: 'Cetak TNKB',
-                              value: '60.000',
+                              value: biayaTnkb.toString(),
                             ),
                           ),
                         ],
@@ -183,7 +242,7 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(
-                                    'Apabila masa berlaku STNK anda telah habis (Mati), harap segera melakukan pendaftaran ulang di kantor Samsat terdekat untuk menghindari denda administratif dan kendala operasional kendaraan.',
+                                    keamananAlert,
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -211,9 +270,13 @@ class BapendaJatimPkbResultPage extends StatelessWidget {
 }
 
 class _PlateStatusCard extends StatelessWidget {
-  const _PlateStatusCard({required this.plateNumber});
+  const _PlateStatusCard({
+    required this.plateNumber,
+    required this.isActive,
+  });
 
   final String plateNumber;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +304,7 @@ class _PlateStatusCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              'AKTIF',
+              isActive ? 'AKTIF' : 'MATI',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,

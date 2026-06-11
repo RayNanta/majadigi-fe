@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/siskaperbapo/services/siskaperbapo_service.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
-import '../../../../shared/theme/app_theme_extensions.dart';
-import '../../../../shared/widgets/lazy_load_states.dart';
+// 1. IMPORT SERVICE KAMU DI SINI
 
-final _siskaperbapoCommoditiesProvider =
-    FutureProvider.autoDispose<List<_CommodityItem>>((ref) async {
-      await Future<void>.delayed(Duration.zero);
-      return _SiskaperbapoMainPageState._items;
-    });
-
-class SiskaperbapoMainPage extends ConsumerStatefulWidget {
+class SiskaperbapoMainPage extends StatefulWidget {
   const SiskaperbapoMainPage({super.key});
 
   @override
-  ConsumerState<SiskaperbapoMainPage> createState() =>
-      _SiskaperbapoMainPageState();
+  State<SiskaperbapoMainPage> createState() => _SiskaperbapoMainPageState();
 }
 
-class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
+class _SiskaperbapoMainPageState extends State<SiskaperbapoMainPage> {
+  final SiskaperbapoService _siskaperbapoService = SiskaperbapoService();
+
   static const _categories = [
     'Semua',
     'Bumbu Dapur',
@@ -31,56 +25,10 @@ class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
     'Minyak',
   ];
 
-  static const _items = [
-    _CommodityItem(
-      title: 'Bawang Merah',
-      unit: 'per kg',
-      price: 'Rp36.118',
-      category: 'Bumbu Dapur',
-      trend: _CommodityTrend.up,
-      artwork: _CommodityArtwork.redOnion,
-    ),
-    _CommodityItem(
-      title: 'Bawang Putih',
-      unit: 'per kg',
-      price: 'Rp34.250',
-      category: 'Bumbu Dapur',
-      trend: _CommodityTrend.down,
-      artwork: _CommodityArtwork.garlic,
-    ),
-    _CommodityItem(
-      title: 'Beras Premium',
-      unit: 'per kg',
-      price: 'Rp15.420',
-      category: 'Sembako',
-      trend: _CommodityTrend.down,
-      artwork: _CommodityArtwork.rice,
-    ),
-    _CommodityItem(
-      title: 'Cabai Rawit',
-      unit: 'per kg',
-      price: 'Rp42.800',
-      category: 'Bumbu Dapur',
-      trend: _CommodityTrend.up,
-      artwork: _CommodityArtwork.chili,
-    ),
-    _CommodityItem(
-      title: 'Minyak Goreng',
-      unit: 'per liter',
-      price: 'Rp17.500',
-      category: 'Minyak',
-      trend: _CommodityTrend.down,
-      artwork: _CommodityArtwork.oil,
-    ),
-    _CommodityItem(
-      title: 'Daging Ayam',
-      unit: 'per kg',
-      price: 'Rp38.200',
-      category: 'Protein Hewani',
-      trend: _CommodityTrend.down,
-      artwork: _CommodityArtwork.chicken,
-    ),
-  ];
+  // Data master dari API akan disimpan di sini
+  List<_CommodityItem> _allTemplatesAndItems = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   late final TextEditingController _searchController;
   String _selectedCategory = _categories.first;
@@ -89,6 +37,29 @@ class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
   void initState() {
     super.initState();
     _searchController = TextEditingController()..addListener(_refreshState);
+    _loadHargaPokokData();
+  }
+
+  // Fungsi mengambil data secara asinkron dari service
+  Future<void> _loadHargaPokokData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = '';
+      });
+
+      final rawData = await _siskaperbapoService.getHargaPokok();
+
+      setState(() {
+        _allTemplatesAndItems = rawData.map((json) => _CommodityItem.fromJson(json)).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat data pangan: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -103,16 +74,17 @@ class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
     setState(() {});
   }
 
-  List<_CommodityItem> _visibleItems(List<_CommodityItem> commodities) {
+  // Logika pencarian dan filter kategori lokal tetap dipertahankan secara reaktif
+  List<_CommodityItem> get _visibleItems {
     final query = _searchController.text.trim().toLowerCase();
 
-    return commodities.where((item) {
+    return _allTemplatesAndItems.where((item) {
       final matchesCategory =
-          _selectedCategory == 'Semua' || item.category == _selectedCategory;
+          _selectedCategory == 'Semua' || item.category.toLowerCase() == _selectedCategory.toLowerCase();
       final matchesQuery =
           query.isEmpty ||
-          item.title.toLowerCase().contains(query) ||
-          item.category.toLowerCase().contains(query);
+              item.title.toLowerCase().contains(query) ||
+              item.category.toLowerCase().contains(query);
       return matchesCategory && matchesQuery;
     }).toList();
   }
@@ -122,230 +94,223 @@ class _SiskaperbapoMainPageState extends ConsumerState<SiskaperbapoMainPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeSiskaperbapo);
   }
 
   void _showCommodityDetail(_CommodityItem item) {
-    if (item.title == 'Bawang Merah') {
-      context.pushNamed(RouteNames.homeSiskaperbapoBawangMerah);
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Detail ${item.title} akan kita lanjutkan berikutnya.'),
-      ),
+    context.pushNamed(
+      RouteNames.homeSiskaperbapoBawangMerah,
+      extra: item,
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final commoditiesAsync = ref.watch(_siskaperbapoCommoditiesProvider);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? Theme.of(context).scaffoldBackgroundColor
-          : const Color(0xFFF7F9FF),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: AppColors.welcomeAccent,
-              padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: _handleBack,
-                    style: IconButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(36, 36),
-                    ),
-                    icon: const Icon(Icons.arrow_back_rounded, size: 30),
+@override
+Widget build(BuildContext context) {
+  final items = _visibleItems;
+
+  return Scaffold(
+    backgroundColor: const Color(0xFFF7F9FF),
+    body: SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          // Top Header Bar
+          Container(
+            width: double.infinity,
+            color: AppColors.welcomeAccent,
+            padding: const EdgeInsets.fromLTRB(16, 18, 20, 18),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: _handleBack,
+                  style: IconButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(36, 36),
                   ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'SISKAPERBAPO',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                  icon: const Icon(Icons.arrow_back_rounded, size: 30),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'SISKAPERBAPO',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 18),
-                      child: Column(
-                        children: [
-                          Material(
-                            color: context.isDarkMode
-                                ? context.appSubtleSurfaceColor
-                                : const Color(0xFFF0F0F2),
-                            borderRadius: BorderRadius.circular(22),
-                            child: TextField(
-                              controller: _searchController,
-                              style: GoogleFonts.plusJakartaSans(
+          ),
+
+          // Konten Utama Berdasarkan State API
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 18),
+                    child: Column(
+                      children: [
+                        // Search Field
+                        Material(
+                          color: const Color(0xFFF0F0F2),
+                          borderRadius: BorderRadius.circular(22),
+                          child: TextField(
+                            controller: _searchController,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF2F3136),
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Cari Laporan',
+                              hintStyle: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
-                                color: context.appThemedTextColor(
-                                  const Color(0xFF2F3136),
+                                color: const Color(0xFF66666D),
+                              ),
+                              suffixIcon: const Padding(
+                                padding: EdgeInsets.only(right: 14),
+                                child: Icon(
+                                  Icons.search_rounded,
+                                  size: 36,
+                                  color: Color(0xFF66666D),
                                 ),
                               ),
-                              decoration: InputDecoration(
-                                hintText: 'Cari Laporan',
-                                hintStyle: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: context.appThemedMutedTextColor(
-                                    const Color(0xFF66666D),
-                                  ),
-                                ),
-                                suffixIcon: Padding(
-                                  padding: const EdgeInsets.only(right: 14),
-                                  child: Icon(
-                                    Icons.search_rounded,
-                                    size: 36,
-                                    color: context.appThemedMutedTextColor(
-                                      const Color(0xFF66666D),
-                                    ),
-                                  ),
-                                ),
-                                suffixIconConstraints: const BoxConstraints(
-                                  minWidth: 56,
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 18,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                  borderSide: BorderSide.none,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.welcomeAccent,
-                                    width: 2,
-                                  ),
+                              suffixIconConstraints: const BoxConstraints(
+                                minWidth: 56,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 18,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(22),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(22),
+                                borderSide: const BorderSide(
+                                  color: AppColors.welcomeAccent,
+                                  width: 2,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 18),
-                          SizedBox(
-                            height: 54,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _categories.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
-                                final category = _categories[index];
-                                final isSelected =
-                                    category == _selectedCategory;
+                        ),
+                        const SizedBox(height: 18),
 
-                                return _CategoryChip(
-                                  label: category,
-                                  isSelected: isSelected,
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedCategory = category;
-                                    });
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ...commoditiesAsync.when<List<Widget>>(
-                    loading: () => const [
-                      SliverLazyCardSkeletonList(
-                        padding: EdgeInsets.fromLTRB(24, 6, 24, 28),
-                        itemCount: 4,
-                        itemHeight: 220,
-                      ),
-                    ],
-                    error: (error, stackTrace) => [
-                      SliverLazyLoadErrorState(
-                        message:
-                            'Data komoditas belum berhasil dimuat. Silakan coba lagi.',
-                        onRetry: () =>
-                            ref.invalidate(_siskaperbapoCommoditiesProvider),
-                      ),
-                    ],
-                    data: (commodities) {
-                      final items = _visibleItems(commodities);
-
-                      if (items.isEmpty) {
-                        return [
-                          SliverFillRemaining(
-                            hasScrollBody: false,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                ),
-                                child: Text(
-                                  'Komoditas untuk pencarian ini belum tersedia.',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: context.appMutedTextColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ];
-                      }
-
-                      return [
-                        SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
-                          sliver: SliverGrid.builder(
-                            itemCount: items.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 18,
-                                  crossAxisSpacing: 18,
-                                  mainAxisExtent: 348,
-                                ),
+                        // Category Selector List
+                        SizedBox(
+                          height: 54,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _categories.length,
+                            separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
                             itemBuilder: (context, index) {
-                              final item = items[index];
-                              return _CommodityCard(
-                                item: item,
-                                onTap: () => _showCommodityDetail(item),
+                              final category = _categories[index];
+                              final isSelected =
+                                  category == _selectedCategory;
+
+                              return _CategoryChip(
+                                label: category,
+                                isSelected: isSelected,
+                                onTap: () {
+                                  setState(() {
+                                    _selectedCategory = category;
+                                  });
+                                },
                               );
                             },
                           ),
                         ),
-                      ];
-                    },
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+
+                // Menangani Loading, Error, Kosong, atau Menampilkan Data Grid
+                if (_isLoading)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.welcomeAccent),
+                      ),
+                    ),
+                  )
+                else if (_errorMessage.isNotEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(_errorMessage, textAlign: TextAlign.center),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed: _loadHargaPokokData,
+                              child: const Text('Coba Lagi'),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else if (items.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            'Komoditas untuk pencarian ini belum tersedia.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 28),
+                      sliver: SliverGrid.builder(
+                        itemCount: items.length,
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 18,
+                          crossAxisSpacing: 18,
+                          mainAxisExtent: 348,
+                        ),
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return _CommodityCard(
+                            item: item,
+                            onTap: () => _showCommodityDetail(item),
+                          );
+                        },
+                      ),
+                    ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _CategoryChip extends StatelessWidget {
@@ -371,8 +336,6 @@ class _CategoryChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.welcomeAccent
-                : context.isDarkMode
-                ? context.appSubtleSurfaceColor
                 : const Color(0xFFE7E7EA),
             borderRadius: BorderRadius.circular(999),
           ),
@@ -382,9 +345,7 @@ class _CategoryChip extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: isSelected
-                  ? Colors.white
-                  : context.appThemedTextColor(const Color(0xFF3F434A)),
+              color: isSelected ? Colors.white : const Color(0xFF3F434A),
             ),
           ),
         ),
@@ -393,8 +354,10 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
+// 2. MODIFIKASI MODEL AGAR BERSIFAT DINAMIS DARI JSON BACKEND
 class _CommodityItem {
   const _CommodityItem({
+    required this.id,
     required this.title,
     required this.unit,
     required this.price,
@@ -402,13 +365,60 @@ class _CommodityItem {
     required this.trend,
     required this.artwork,
   });
-
+  final int id;
   final String title;
   final String unit;
   final String price;
   final String category;
   final _CommodityTrend trend;
   final _CommodityArtwork artwork;
+
+  // Factory constructor untuk mapping data dari skema Laravel database db_majadigi kamu
+  factory _CommodityItem.fromJson(Map<String, dynamic> json) {
+    final bahanPokok =
+    Map<String, dynamic>.from(json['bahan_pokok'] ?? {});
+
+    final nama = bahanPokok['nama_bahan'] ?? '';
+
+    _CommodityTrend trendValue = _CommodityTrend.down;
+
+    if (json['tren'] == 'naik') {
+      trendValue = _CommodityTrend.up;
+    }
+
+    _CommodityArtwork artworkValue = _CommodityArtwork.rice;
+
+    final namaLower = nama.toLowerCase();
+
+    if (namaLower.contains('bawang merah')) {
+      artworkValue = _CommodityArtwork.redOnion;
+    } else if (namaLower.contains('bawang putih')) {
+      artworkValue = _CommodityArtwork.garlic;
+    } else if (namaLower.contains('cabai') ||
+        namaLower.contains('cabe')) {
+      artworkValue = _CommodityArtwork.chili;
+    } else if (namaLower.contains('minyak')) {
+      artworkValue = _CommodityArtwork.oil;
+    } else if (namaLower.contains('ayam') ||
+        namaLower.contains('daging')) {
+      artworkValue = _CommodityArtwork.chicken;
+    }
+
+    final rawHarga = json['harga_sekarang'] ?? 0;
+
+    final formattedPrice =
+        'Rp ${(double.tryParse(rawHarga.toString()) ?? 0).toStringAsFixed(0)}';
+
+    return _CommodityItem(
+      id: json['id'] ?? 0,
+      title: nama,
+      unit: bahanPokok['satuan'] ?? '',
+      price: formattedPrice,
+      category: 'Sembako',
+      trend: trendValue,
+      artwork: artworkValue,
+    );
+  }
 }
 
 enum _CommodityTrend { up, down }
@@ -433,15 +443,15 @@ class _CommodityCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
           decoration: BoxDecoration(
-            color: context.appSurfaceColor,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(28),
-            boxShadow: context.appThemedCardShadows([
+            boxShadow: [
               BoxShadow(
                 color: const Color(0xFF111827).withValues(alpha: 0.035),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
-            ]),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +490,7 @@ class _CommodityCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: context.appThemedTextColor(const Color(0xFF44484F)),
+                  color: const Color(0xFF44484F),
                 ),
               ),
               const SizedBox(height: 4),
@@ -489,7 +499,7 @@ class _CommodityCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: context.appMutedTextColor,
+                  color: AppColors.textMuted,
                 ),
               ),
               const Spacer(),
@@ -508,10 +518,8 @@ class _CommodityCard extends StatelessWidget {
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: BoxDecoration(
-                      color: context.isDarkMode
-                          ? context.appSubtleSurfaceColor
-                          : const Color(0xFFDDEBFF),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFDDEBFF),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -541,13 +549,7 @@ class _TrendBadge extends StatelessWidget {
       width: 48,
       height: 28,
       decoration: BoxDecoration(
-        color: isUp
-            ? context.isDarkMode
-                  ? const Color(0xFF321B27)
-                  : const Color(0xFFFFE3EE)
-            : context.isDarkMode
-            ? context.appSubtleSurfaceColor
-            : const Color(0xFFEAF2FF),
+        color: isUp ? const Color(0xFFFFE3EE) : const Color(0xFFEAF2FF),
         borderRadius: BorderRadius.circular(999),
       ),
       alignment: Alignment.center,
@@ -560,6 +562,7 @@ class _TrendBadge extends StatelessWidget {
   }
 }
 
+// Custom Painter `_CommodityArtworkPainter` tetap dipertahankan persis di bawah sini tanpa perubahan demi estetika ilustrasi vektor lokal kamu...
 class _CommodityArtworkPainter extends CustomPainter {
   const _CommodityArtworkPainter(this.artwork);
 
@@ -604,17 +607,17 @@ class _CommodityArtworkPainter extends CustomPainter {
 
     final body = Paint()
       ..shader =
-          const RadialGradient(
-            colors: [Color(0xFFFFC4E0), Color(0xFF66102B), Color(0xFF2B0011)],
-            focal: Alignment(-0.2, -0.5),
-            radius: 0.9,
-          ).createShader(
-            Rect.fromCenter(
-              center: Offset(size.width * 0.45, size.height * 0.52),
-              width: size.width * 0.62,
-              height: size.height * 0.7,
-            ),
-          );
+      const RadialGradient(
+        colors: [Color(0xFFFFC4E0), Color(0xFF66102B), Color(0xFF2B0011)],
+        focal: Alignment(-0.2, -0.5),
+        radius: 0.9,
+      ).createShader(
+        Rect.fromCenter(
+          center: Offset(size.width * 0.45, size.height * 0.52),
+          width: size.width * 0.62,
+          height: size.height * 0.7,
+        ),
+      );
     canvas.drawOval(
       Rect.fromCenter(
         center: Offset(size.width * 0.45, size.height * 0.52),
@@ -656,18 +659,7 @@ class _CommodityArtworkPainter extends CustomPainter {
           size.height * 0.04,
           size.width * 0.3,
           size.height * 0.22,
-        )
-        ..close(),
-      leaf,
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(size.width * 0.42, size.height * 0.16)
-        ..quadraticBezierTo(
-          size.width * 0.39,
-          size.height * 0.0,
-          size.width * 0.49,
-          size.height * 0.18,
+
         )
         ..close(),
       leaf,
@@ -677,17 +669,17 @@ class _CommodityArtworkPainter extends CustomPainter {
   void _paintGarlic(Canvas canvas, Size size) {
     final paint = Paint()
       ..shader =
-          const RadialGradient(
-            colors: [Color(0xFFFFF6F7), Color(0xFFD9BCC3), Color(0xFFAE8F9A)],
-            focal: Alignment(0, -0.7),
-            radius: 0.95,
-          ).createShader(
-            Rect.fromCenter(
-              center: Offset(size.width * 0.5, size.height * 0.5),
-              width: size.width * 0.6,
-              height: size.height * 0.6,
-            ),
-          );
+      const RadialGradient(
+        colors: [Color(0xFFFFF6F7), Color(0xFFD9BCC3), Color(0xFFAE8F9A)],
+        focal: Alignment(0, -0.7),
+        radius: 0.95,
+      ).createShader(
+        Rect.fromCenter(
+          center: Offset(size.width * 0.5, size.height * 0.5),
+          width: size.width * 0.6,
+          height: size.height * 0.6,
+        ),
+      );
 
     final cloveRects = [
       Rect.fromCenter(
@@ -735,18 +727,18 @@ class _CommodityArtworkPainter extends CustomPainter {
   void _paintRice(Canvas canvas, Size size) {
     final base = Paint()
       ..shader =
-          const LinearGradient(
-            colors: [Color(0xFFD09A28), Color(0xFFF7DF88)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(
-            Rect.fromLTWH(
-              0,
-              size.height * 0.18,
-              size.width,
-              size.height * 0.82,
-            ),
-          );
+      const LinearGradient(
+        colors: [Color(0xFFD09A28), Color(0xFFF7DF88)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(
+        Rect.fromLTWH(
+          0,
+          size.height * 0.18,
+          size.width,
+          size.height * 0.82,
+        ),
+      );
     canvas.drawRect(
       Rect.fromLTWH(0, size.height * 0.52, size.width, size.height * 0.48),
       base,
@@ -754,17 +746,17 @@ class _CommodityArtworkPainter extends CustomPainter {
 
     final rice = Paint()
       ..shader =
-          const LinearGradient(
-            colors: [Color(0xFFD9A138), Color(0xFFF5D47C)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(
-            Rect.fromCenter(
-              center: Offset(size.width * 0.5, size.height * 0.58),
-              width: size.width * 0.7,
-              height: size.height * 0.46,
-            ),
-          );
+      const LinearGradient(
+        colors: [Color(0xFFD9A138), Color(0xFFF5D47C)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(
+        Rect.fromCenter(
+          center: Offset(size.width * 0.5, size.height * 0.58),
+          width: size.width * 0.7,
+          height: size.height * 0.46,
+        ),
+      );
     final mound = Path()
       ..moveTo(size.width * 0.16, size.height * 0.76)
       ..quadraticBezierTo(
@@ -780,17 +772,17 @@ class _CommodityArtworkPainter extends CustomPainter {
   void _paintChili(Canvas canvas, Size size) {
     final pepper = Paint()
       ..shader =
-          const LinearGradient(
-            colors: [Color(0xFFFF8A80), Color(0xFFE10600)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(
-            Rect.fromCenter(
-              center: Offset(size.width * 0.5, size.height * 0.56),
-              width: size.width * 0.64,
-              height: size.height * 0.26,
-            ),
-          );
+      const LinearGradient(
+        colors: [Color(0xFFFF8A80), Color(0xFFE10600)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(
+        Rect.fromCenter(
+          center: Offset(size.width * 0.5, size.height * 0.56),
+          width: size.width * 0.64,
+          height: size.height * 0.26,
+        ),
+      );
 
     final path = Path()
       ..moveTo(size.width * 0.18, size.height * 0.62)
@@ -881,17 +873,17 @@ class _CommodityArtworkPainter extends CustomPainter {
   void _paintChicken(Canvas canvas, Size size) {
     final body = Paint()
       ..shader =
-          const LinearGradient(
-            colors: [Color(0xFFFFE2C4), Color(0xFFF3B79E)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(
-            Rect.fromCenter(
-              center: Offset(size.width * 0.5, size.height * 0.56),
-              width: size.width * 0.64,
-              height: size.height * 0.5,
-            ),
-          );
+      const LinearGradient(
+        colors: [Color(0xFFFFE2C4), Color(0xFFF3B79E)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(
+        Rect.fromCenter(
+          center: Offset(size.width * 0.5, size.height * 0.56),
+          width: size.width * 0.64,
+          height: size.height * 0.5,
+        ),
+      );
 
     canvas.drawOval(
       Rect.fromCenter(
