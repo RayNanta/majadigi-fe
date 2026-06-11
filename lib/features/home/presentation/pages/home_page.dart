@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // <--- 1. IMPOR UTAMA UNTUK MEMBACA DATA LOKAL
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -10,6 +11,39 @@ import '../data/home_service_catalog.dart';
 import '../data/home_service_destinations.dart';
 import '../models/home_service_item.dart';
 import '../widgets/home_bottom_navigation_bar.dart';
+
+// ✅ DEKLARASI CLASS MODEL PEMBANTU DIATAS AGAR BISA DIBACA OLEH DATA STATIS VARIABEL
+class HomeStatItem {
+  const HomeStatItem({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.accentColor,
+    required this.iconBackground,
+  });
+
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color accentColor;
+  final Color iconBackground;
+}
+
+class HomeNewsItem {
+  const HomeNewsItem({
+    required this.title,
+    required this.tag,
+    required this.icon,
+    required this.startColor,
+    required this.endColor,
+  });
+
+  final String title;
+  final String tag;
+  final IconData icon;
+  final Color startColor;
+  final Color endColor;
+}
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -41,15 +75,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     filledBadge: true,
   );
 
-  static const _stats = <_HomeStatItem>[
-    _HomeStatItem(
+  static const _stats = <HomeStatItem>[
+    HomeStatItem(
       title: 'Jumlah Penduduk',
       value: '42.089.271',
       icon: Icons.groups_2_rounded,
       accentColor: AppColors.welcomeAccent,
       iconBackground: Color(0xFFEFF5FF),
     ),
-    _HomeStatItem(
+    HomeStatItem(
       title: 'Pertumbuhan Penduduk',
       value: '0,73%',
       icon: Icons.trending_up_rounded,
@@ -58,32 +92,38 @@ class _HomePageState extends ConsumerState<HomePage> {
     ),
   ];
 
-  static const _newsItems = <_HomeNewsItem>[
-    _HomeNewsItem(
+  static const _newsItems = <HomeNewsItem>[
+    HomeNewsItem(
       title:
-          'Gubernur Khofifah Buka Ajang Talenta Prestasi Murid Jawa Timur 2026',
+      'Gubernur Khofifah Buka Ajang Talenta Prestasi Murid Jawa Timur 2026',
       tag: 'Pemprov Jatim',
       icon: Icons.campaign_rounded,
       startColor: Color(0xFFD4B08A),
       endColor: Color(0xFF8D5E37),
     ),
-    _HomeNewsItem(
+    HomeNewsItem(
       title:
-          'KONI Jatim Mulai Seleksi Atlet Unggulan untuk Persiapan PON XXI Tahun Depan',
+      'KONI Jatim Mulai Seleksi Atlet Unggulan untuk Persiapan PON XXI Tahun Depan',
       tag: 'Olahraga',
       icon: Icons.emoji_events_rounded,
       startColor: Color(0xFFF8E7C4),
       endColor: Color(0xFFF4BE45),
     ),
-    _HomeNewsItem(
+    HomeNewsItem(
       title:
-          'Khofifah Dorong Beasiswa dan Kolaborasi untuk Mahasiswa Jawa Timur',
+      'Khofifah Dorong Beasiswa dan Kolaborasi untuk Mahasiswa Jawa Timur',
       tag: 'Pendidikan',
       icon: Icons.school_rounded,
       startColor: Color(0xFFD7E8FF),
       endColor: Color(0xFF6AA3FF),
     ),
   ];
+
+  // 🔄 FUNGSI ASYNC DIUBAH MENJADI FUTURE AGAR DIKONSUMSI OLEH FUTUREBUILDER DI BAWAH
+  Future<String> _fetchLocalName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_real_name') ?? "User Majadigi";
+  }
 
   @override
   void dispose() {
@@ -143,71 +183,79 @@ class _HomePageState extends ConsumerState<HomePage> {
     final selectedServices = ref.watch(homeSelectedServicesProvider);
     final myServices = [_addTile, ...selectedServices, _moreTile];
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _HomeHeader(
-              searchController: _searchController,
-              onSearchTap: () {
-                _showComingSoon('Pencarian layanan akan segera tersedia.');
-              },
-              onNotificationTap: () {
-                _showComingSoon('Notifikasi akan segera tersedia.');
-              },
-            ),
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const _SectionTitle(
-                            title: 'Mungkin Anda Butuh (Rekomendasi AI)',
+    // ✅ REASSURE UTUH: Menggunakan FutureBuilder tepat di atas Scaffold agar layout visual tidak bergeser/berubah 1 milimeter pun!
+    return FutureBuilder<String>(
+      future: _fetchLocalName(),
+      builder: (context, snapshot) {
+        // Mengambil nama dinamis akun aktif, jika proses baca delay pakai teks "Memuat..."
+        final dynamicName = snapshot.data ?? "Memuat...";
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                _HomeHeader(
+                  userName: dynamicName, // <--- AKURAT & REAL-TIME MENGIKUTI AKUN YANG DI-INPUTKAN
+                  searchController: _searchController,
+                  onSearchTap: () {
+                    _showComingSoon('Pencarian layanan akan segera tersedia.');
+                  },
+                  onNotificationTap: () {
+                    _showComingSoon('Notifikasi akan segera tersedia.');
+                  },
+                ),
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _SectionTitle(
+                                title: 'Mungkin Anda Butuh (Rekomendasi AI)',
+                              ),
+                              const SizedBox(height: 24),
+                              _HomeServiceGrid(
+                                items: recommendedServices,
+                                onTap: (item) {
+                                  _showComingSoon(
+                                    '${item.displayTitle} akan segera tersedia.',
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 40),
+                              const _SectionTitle(title: 'Layanan Saya'),
+                              const SizedBox(height: 24),
+                              _HomeServiceGrid(
+                                items: myServices,
+                                onTap: _handleMyServiceTap,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 24),
-                          _HomeServiceGrid(
-                            items: recommendedServices,
-                            onTap: (item) {
-                              _showComingSoon(
-                                '${item.displayTitle} akan segera tersedia.',
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 40),
-                          const _SectionTitle(title: 'Layanan Saya'),
-                          const SizedBox(height: 24),
-                          _HomeServiceGrid(
-                            items: myServices,
-                            onTap: _handleMyServiceTap,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                  const SliverToBoxAdapter(
-                    child: ColoredBox(
-                      color: Color(0xFFF2F4FB),
-                      child: SizedBox(height: 16),
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const _SectionTitle(title: 'Jawa Timur dalam Angka'),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: _stats
-                                .map(
-                                  (stat) => Expanded(
+                      const SliverToBoxAdapter(
+                        child: ColoredBox(
+                          color: Color(0xFFF2F4FB),
+                          child: SizedBox(height: 16),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const _SectionTitle(title: 'Jawa Timur dalam Angka'),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: _stats
+                                    .map(
+                                      (stat) => Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.only(
                                         right: stat == _stats.first ? 12 : 0,
@@ -216,69 +264,73 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     ),
                                   ),
                                 )
-                                .toList(),
-                          ),
-                          const SizedBox(height: 40),
-                          const _SectionTitle(title: 'Berita Jawa Timur'),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 248,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _newsItems.length,
-                              separatorBuilder: (context, index) =>
+                                    .toList(),
+                              ),
+                              const SizedBox(height: 40),
+                              const _SectionTitle(title: 'Berita Jawa Timur'),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 248,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _newsItems.length,
+                                  separatorBuilder: (context, index) =>
                                   const SizedBox(width: 18),
-                              itemBuilder: (context, index) {
-                                final item = _newsItems[index];
+                                  itemBuilder: (context, index) {
+                                    final item = _newsItems[index];
 
-                                return _NewsCard(
-                                  item: item,
-                                  onTap: () {
-                                    _showComingSoon(
-                                      'Detail berita akan segera tersedia.',
+                                    return _NewsCard(
+                                      item: item,
+                                      onTap: () {
+                                        _showComingSoon(
+                                          'Detail berita akan segera tersedia.',
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                            ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                            ],
                           ),
-                          const SizedBox(height: 24),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: HomeBottomNavigationBar(
-        selectedIndex: 0,
-        onTap: (index) {
-          if (index == 0) {
-            return;
-          }
+          ),
+          bottomNavigationBar: HomeBottomNavigationBar(
+            selectedIndex: 0,
+            onTap: (index) {
+              if (index == 0) {
+                return;
+              }
 
-          if (index == 1) {
-            context.goNamed(RouteNames.homeServices);
-            return;
-          }
+              if (index == 1) {
+                context.goNamed(RouteNames.homeServices);
+                return;
+              }
 
-          context.goNamed(RouteNames.homeProfile);
-        },
-      ),
+              context.goNamed(RouteNames.homeProfile);
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader({
+    required this.userName,
     required this.searchController,
     required this.onSearchTap,
     required this.onNotificationTap,
   });
 
+  final String userName;
   final TextEditingController searchController;
   final VoidCallback onSearchTap;
   final VoidCallback onNotificationTap;
@@ -337,7 +389,9 @@ class _HomeHeader extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Anggun Amalia',
+                          userName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,
@@ -742,35 +796,35 @@ class _ServiceCatalogBottomSheetState
                   Expanded(
                     child: _visibleServices.isEmpty
                         ? Center(
-                            child: Text(
-                              'Layanan tidak ditemukan.',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textMuted,
-                              ),
-                            ),
-                          )
+                      child: Text(
+                        'Layanan tidak ditemukan.',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    )
                         : GridView.builder(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            itemCount: _visibleServices.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  mainAxisSpacing: 28,
-                                  crossAxisSpacing: 14,
-                                  childAspectRatio: 0.56,
-                                ),
-                            itemBuilder: (context, index) {
-                              final service = _visibleServices[index];
+                      padding: const EdgeInsets.only(bottom: 12),
+                      itemCount: _visibleServices.length,
+                      gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 28,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: 0.56,
+                      ),
+                      itemBuilder: (context, index) {
+                        final service = _visibleServices[index];
 
-                              return _CatalogServiceTile(
-                                item: service,
-                                isAdded: _selectedIds.contains(service.id),
-                                onAdd: () => _handleAddService(service),
-                              );
-                            },
-                          ),
+                        return _CatalogServiceTile(
+                          item: service,
+                          isAdded: _selectedIds.contains(service.id),
+                          onAdd: () => _handleAddService(service),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -908,26 +962,26 @@ class _ServiceBadge extends StatelessWidget {
         boxShadow: item.filledBadge
             ? []
             : [
-                BoxShadow(
-                  color: const Color(0xFF111827).withValues(alpha: 0.05),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+          BoxShadow(
+            color: const Color(0xFF111827).withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Center(
         child: item.icon != null
             ? Icon(item.icon, size: iconSize, color: item.accentColor)
             : Text(
-                item.badgeText!,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: badgeFontSize,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                  color: item.accentColor,
-                ),
-              ),
+          item.badgeText!,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: badgeFontSize,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+            color: item.accentColor,
+          ),
+        ),
       ),
     );
   }
@@ -936,7 +990,7 @@ class _ServiceBadge extends StatelessWidget {
 class _StatCard extends StatelessWidget {
   const _StatCard({required this.item});
 
-  final _HomeStatItem item;
+  final HomeStatItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -994,7 +1048,7 @@ class _StatCard extends StatelessWidget {
 class _NewsCard extends StatelessWidget {
   const _NewsCard({required this.item, required this.onTap});
 
-  final _HomeNewsItem item;
+  final HomeNewsItem item;
   final VoidCallback onTap;
 
   @override
@@ -1084,36 +1138,4 @@ class _NewsCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _HomeStatItem {
-  const _HomeStatItem({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.accentColor,
-    required this.iconBackground,
-  });
-
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color accentColor;
-  final Color iconBackground;
-}
-
-class _HomeNewsItem {
-  const _HomeNewsItem({
-    required this.title,
-    required this.tag,
-    required this.icon,
-    required this.startColor,
-    required this.endColor,
-  });
-
-  final String title;
-  final String tag;
-  final IconData icon;
-  final Color startColor;
-  final Color endColor;
 }

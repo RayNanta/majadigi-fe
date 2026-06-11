@@ -1,7 +1,11 @@
+import '../../auth_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart'; // <--- Tambah impor Dio untuk menangkap DioException secara spesifik
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../home/routes.dart';
@@ -21,10 +25,12 @@ class _SignInPageState extends State<SignInPage> {
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _isLoading = false; // <--- Flag loading state untuk feedback user
 
   bool get _canSubmit {
     return _emailController.text.trim().isNotEmpty &&
-        _passwordController.text.isNotEmpty;
+        _passwordController.text.isNotEmpty &&
+        !_isLoading; // Tombol otomatis mati saat loading biar ga keduplikat klik
   }
 
   @override
@@ -50,9 +56,63 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   void _showPlaceholderMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 5), // Ditambah durasinya biar kebaca panjang erornya
+    ));
+  }
+
+  // 🛠️ LOGIKA HIT API + DIAGNOSIS KONEKSI NETWORK JALUR LIVE
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = AuthService();
+
+      final isSuccess = await authService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (isSuccess) {
+        if (mounted) {
+          context.go(HomeRoutes.path); // Sukses, lempar ke dashboard dinamis
+        }
+      } else {
+        if (mounted) {
+          _showPlaceholderMessage('BE Menolak Akses: Email/Password salah atau Format JSON tidak cocok.');
+        }
+      }
+    } on DioException catch (dioError) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      // RACIK PESAN DIAGNOSIS UNTUK DITAMPILKAN DI SNACKBAR EMULATOR
+      String debugMessage = "DioError [${dioError.type.toString().split('.').last}]: ";
+      if (dioError.response != null) {
+        debugMessage += "Status ${dioError.response?.statusCode}\nRespon: ${dioError.response?.data}";
+      } else {
+        debugMessage += "${dioError.message}\nDetail: ${dioError.error}";
+      }
+
+      if (mounted) {
+        _showPlaceholderMessage(debugMessage);
+      }
+    } catch (generalError) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        _showPlaceholderMessage('Eror Sistem Global: $generalError');
+      }
+    }
   }
 
   @override
@@ -69,12 +129,7 @@ class _SignInPageState extends State<SignInPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    24,
-                    18,
-                    24,
-                    viewInsets.bottom + 24,
-                  ),
+                  padding: EdgeInsets.fromLTRB(24, 18, 24, viewInsets.bottom + 24),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - viewInsets.bottom - 42,
@@ -167,8 +222,7 @@ class _SignInPageState extends State<SignInPage> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 visualDensity: VisualDensity.compact,
                               ),
                               const SizedBox(width: 10),
@@ -188,8 +242,7 @@ class _SignInPageState extends State<SignInPage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: AppColors.welcomeAccent,
                                   padding: EdgeInsets.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   minimumSize: Size.zero,
                                   textStyle: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
@@ -202,17 +255,14 @@ class _SignInPageState extends State<SignInPage> {
                           ),
                           const SizedBox(height: 52),
                           AuthPrimaryButton(
-                            label: 'Masuk',
-                            onPressed: _canSubmit
-                                ? () => context.go(HomeRoutes.path)
-                                : null,
+                            label: _isLoading ? 'Memuat...' : 'Masuk',
+                            onPressed: _canSubmit ? _handleLogin : null,
                           ),
                           const SizedBox(height: 42),
                           AuthFooterPrompt(
                             promptText: 'Belum punya akun?',
                             actionText: 'Daftar dulu',
-                            onPressed: () =>
-                                context.go(AuthRoutes.signUpStepOnePath),
+                            onPressed: () => context.go(AuthRoutes.signUpStepOnePath),
                           ),
                           const Spacer(),
                         ],

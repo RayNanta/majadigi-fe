@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // <--- 1. AKU TAMBAHIN INI
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../routes.dart';
@@ -51,8 +52,15 @@ class _SignUpStepOnePageState extends State<SignUpStepOnePage> {
     super.dispose();
   }
 
-  void _goToStepTwo() {
-    context.go(AuthRoutes.signUpStepTwoPath);
+  // 2. KODE INI AKU MODIFIKASI BIAR NYIMPEN NAMA PAS REGISTER
+  Future<void> _goToStepTwo() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Simpan nama yang diketik user ke loker HP dengan kata kunci 'user_real_name'
+    await prefs.setString('user_real_name', _fullNameController.text.trim());
+
+    if (mounted) {
+      context.go(AuthRoutes.signUpStepTwoPath);
+    }
   }
 
   @override
@@ -69,12 +77,7 @@ class _SignUpStepOnePageState extends State<SignUpStepOnePage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    24,
-                    18,
-                    24,
-                    viewInsets.bottom + 24,
-                  ),
+                  padding: EdgeInsets.fromLTRB(24, 18, 24, viewInsets.bottom + 24),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - viewInsets.bottom - 42,
@@ -110,9 +113,7 @@ class _SignUpStepOnePageState extends State<SignUpStepOnePage> {
                               value: 0.5,
                               minHeight: 8,
                               backgroundColor: AppColors.disabled,
-                              valueColor: AlwaysStoppedAnimation(
-                                AppColors.welcomeAccent,
-                              ),
+                              valueColor: AlwaysStoppedAnimation(AppColors.welcomeAccent),
                             ),
                           ),
                           const SizedBox(height: 14),
