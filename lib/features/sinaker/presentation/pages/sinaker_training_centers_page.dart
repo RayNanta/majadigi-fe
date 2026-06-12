@@ -146,11 +146,7 @@ class _SinakerTrainingCentersPageState
   }
 
   void _openDetail(TrainingCenterModel center) {
-    context.pushNamed(
-      RouteNames.homeSinakerTrainingList,
-      pathParameters: {'centerId': center.id.toString()},
-      extra: center.nama,
-    );
+    context.pushNamed(RouteNames.homeSinakerTrainingList);
   }
 
   Future<void> _pickRegion() async {
