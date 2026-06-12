@@ -18,19 +18,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       final isSplashRoute = location == SplashRoutes.path;
       final isWelcomeRoute = location == WelcomeRoutes.path;
+
+      // 1. KELUARKAN Step 3 dari daftar Auth Route
       final isAuthRoute =
           location == AuthRoutes.signInPath ||
-          location == AuthRoutes.signUpStepOnePath ||
-          location == AuthRoutes.signUpStepTwoPath ||
-          location == AuthRoutes.signUpStepThreePath;
-      final isPublicRoute = isSplashRoute || isWelcomeRoute || isAuthRoute;
+              location == AuthRoutes.signUpStepOnePath ||
+              location == AuthRoutes.signUpStepTwoPath;
+
+      // 2. Buat variabel khusus untuk Step 3
+      final isStepThreeRoute = location == AuthRoutes.signUpStepThreePath;
+
+      // 3. Tambahkan Step 3 ke daftar Public Route agar tetap bisa diakses
+      final isPublicRoute = isSplashRoute || isWelcomeRoute || isAuthRoute || isStepThreeRoute;
 
       if (!hasSession && !isPublicRoute) {
         return AuthRoutes.signInPath;
       }
 
       if (hasSession && (isWelcomeRoute || isAuthRoute)) {
-        return HomeRoutes.path;
+        // 4. Jika user sudah login tapi membuka halaman Welcome/SignIn,
+        // arahkan mereka ke Step 3 (Pemilihan Layanan) alih-alih langsung ke Home.
+        return AuthRoutes.signUpStepThreePath;
       }
 
       return null;

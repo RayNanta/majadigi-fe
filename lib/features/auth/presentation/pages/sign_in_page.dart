@@ -77,7 +77,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         ),
       );
 
-      context.go(HomeRoutes.path);
+      context.go(AuthRoutes.signUpStepThreePath);
     } catch (e) {
       if (!mounted) return;
 
