@@ -5,9 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/sidita_models.dart';
 
 class SiditaBromoDetailPage extends StatefulWidget {
-  const SiditaBromoDetailPage({super.key});
+  final DestinasiModel destinasi;
+
+  const SiditaBromoDetailPage({
+    super.key,
+    required this.destinasi,
+  });
 
   @override
   State<SiditaBromoDetailPage> createState() => _SiditaBromoDetailPageState();
@@ -65,7 +71,8 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Gunung Bromo',
+                      // 🟢 DINAMIS: Nama tempat di App Bar
+                      widget.destinasi.namaWisata ?? 'Detail Destinasi',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -90,7 +97,16 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.asset(
+                              widget.destinasi.fotoUrl != null && widget.destinasi.fotoUrl!.isNotEmpty
+                                  ? Image.network(
+                                widget.destinasi.fotoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Image.asset(
+                                  'assets/images/dummy_image.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                                  : Image.asset(
                                 'assets/images/dummy_image.png',
                                 fit: BoxFit.cover,
                               ),
@@ -119,14 +135,16 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                             children: [
                               Row(
                                 children: [
-                                  _InfoChip(label: 'Gunung Aktif'),
+                                  const _InfoChip(label: 'Wisata Alam'),
                                   const SizedBox(width: 10),
-                                  _InfoChip(label: 'Jawa Timur'),
+                                  // 🟢 DINAMIS: Kabupaten Kota di atas judul besar
+                                  _InfoChip(label: widget.destinasi.kabupatenKota ?? 'Jawa Timur'),
                                 ],
                               ),
                               const SizedBox(height: 18),
                               Text(
-                                'Gunung Bromo',
+                                // 🟢 DINAMIS: Nama tempat utama
+                                widget.destinasi.namaWisata ?? '-',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 36,
                                   fontWeight: FontWeight.w700,
@@ -159,23 +177,23 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                 ),
                               ]),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
                                 Expanded(
                                   child: _HeroStatItem(
                                     label: 'LOKASI',
-                                    value: 'Tengger',
+                                    value: widget.destinasi.kecamatan ?? widget.destinasi.kabupatenKota ?? '-',
                                   ),
                                 ),
                                 _HeroStatDivider(),
                                 Expanded(
                                   child: _HeroStatItem(
                                     label: 'BIAYA MASUK',
-                                    value: 'IDR 250k',
+                                    value: widget.destinasi.harga,
                                   ),
                                 ),
                                 _HeroStatDivider(),
-                                Expanded(
+                                const Expanded(
                                   child: _HeroStatItem(
                                     label: 'WAKTU TERBAIK',
                                     value: 'Apr - Okt',
@@ -193,7 +211,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tentang Gunung Bromo',
+                            'Tentang ${widget.destinasi.namaWisata}',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
@@ -202,7 +220,7 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            'Gunung Bromo berada di ketinggian 2.329 meter. Tempat ini bukan hanya indah secara alam, tapi juga memberi pengalaman yang terasa istimewa. Bromo berada di dalam kaldera Tengger yang luas, dikelilingi oleh “Lautan Pasir” yang membuat pemandangannya terlihat unik seperti dunia lain. Saat pagi hari, kawah Bromo mengeluarkan asap putih dengan langit biru keunguan di belakangnya. Pemandangan ini sangat indah, seolah-olah kita berdiri di ujung dunia.',
+                            widget.destinasi.deskripsi ?? 'Belum ada deskripsi untuk destinasi wisata ini.',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -211,29 +229,36 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 28),
-                          const _FeatureInfoCard(
+                          _FeatureInfoCard(
                             icon: Icons.landscape_rounded,
                             title: 'Ketinggian',
-                            value: '2,329mdpl',
+                            // 🟢 DINAMIS: Menampilkan ketinggian mdpl dinamis (contoh: 800mdpl)
+                            value: widget.destinasi.ketinggianMdpl != null
+                                ? '${widget.destinasi.ketinggianMdpl}mdpl'
+                                : '2,329mdpl',
                             fullWidth: true,
                           ),
                           const SizedBox(height: 18),
-                          const Row(
+                          Row(
                             children: [
                               Expanded(
                                 child: _FeatureInfoCard(
                                   icon: Icons.device_thermostat_rounded,
-                                  title: '5°C – 15°C',
-                                  value: '',
+                                  // 🟢 DINAMIS: Menampilkan suhu rata-rata dari database seeder
+                                  title: widget.destinasi.rataRataSuhu != null
+                                      ? '${widget.destinasi.rataRataSuhu}°C'
+                                      : '5°C – 15°C',
+                                  value: 'Suhu Rata-rata',
                                   compact: true,
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Expanded(
                                 child: _FeatureInfoCard(
-                                  icon: Icons.location_on_outlined,
-                                  title: '45km',
-                                  value: '',
+                                  icon: Icons.stars_rounded,
+                                  // 🟢 DINAMIS: Menampilkan rating riil objek (contoh: Rating 4.5)
+                                  title: 'Rating ${widget.destinasi.rating ?? "0"}',
+                                  value: 'Wisatawan',
                                   compact: true,
                                 ),
                               ),
@@ -358,13 +383,13 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
                                 _ReviewCard(
                                   name: 'Alex Rivera',
                                   review:
-                                      '"The sunrise was absolutely breathtaking. Make sure to bring a warm jacket, it\'s freezing before dawn!"',
+                                  '"The sunrise was absolutely breathtaking. Make sure to bring a warm jacket, it\'s freezing before dawn!"',
                                 ),
                                 SizedBox(width: 16),
                                 _ReviewCard(
                                   name: 'Nadia Putri',
                                   review:
-                                      '"Unreal landscape and the jeep route feels like an adventure from start to finish."',
+                                  '"Unreal landscape and the jeep route feels like an adventure from start to finish."',
                                 ),
                               ],
                             ),
@@ -383,9 +408,9 @@ class _SiditaBromoDetailPageState extends State<SiditaBromoDetailPage> {
   }
 }
 
+// ==================== SUB-WIDGET COMPONENT ====================
 class _InfoChip extends StatelessWidget {
   const _InfoChip({required this.label});
-
   final String label;
 
   @override
@@ -410,7 +435,6 @@ class _InfoChip extends StatelessWidget {
 
 class _HeroStatItem extends StatelessWidget {
   const _HeroStatItem({required this.label, required this.value});
-
   final String label;
   final String value;
 
@@ -548,7 +572,6 @@ class _StarRow extends StatelessWidget {
 
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard({required this.name, required this.review});
-
   final String name;
   final String review;
 
@@ -605,7 +628,7 @@ class _ReviewCard extends StatelessWidget {
                     Row(
                       children: List.generate(
                         5,
-                        (index) => const Icon(
+                            (index) => const Icon(
                           Icons.star_rounded,
                           size: 14,
                           color: Color(0xFFFFC84A),

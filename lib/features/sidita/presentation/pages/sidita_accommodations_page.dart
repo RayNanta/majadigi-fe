@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/sidita_models.dart';
 
 class SiditaAccommodationsPage extends StatefulWidget {
   const SiditaAccommodationsPage({super.key});
@@ -15,40 +16,24 @@ class SiditaAccommodationsPage extends StatefulWidget {
 }
 
 class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
-  static const _regions = ['Malang', 'Jawa Timur', 'Surabaya', 'Banyuwangi'];
-
-  static const _featuredProperty = _SiditaAccommodationItem(
-    title: 'The Singhasari\nResort',
-    location: 'Batu, Jawa Timur',
-    price: 'Rp 2.450.000',
-    unit: '/malam',
-    badgeText: 'FEATURED LUXURY',
-    routeName: RouteNames.homeSiditaSinghasari,
-  );
-
-  static const _popularProperties = [
-    _SiditaAccommodationItem(
-      title: 'Grand City Hall Surabaya',
-      location: 'Surabaya Pusat',
-      price: 'Rp 1.450.000',
-      unit: '/malam',
-    ),
-    _SiditaAccommodationItem(
-      title: 'Oak Tree Glamping',
-      location: 'Batu, Malang',
-      price: 'Rp 850.000',
-      unit: '/malam',
-    ),
-    _SiditaAccommodationItem(
-      title: 'Jaya Sands Resort',
-      location: 'Banyuwangi',
-      price: 'Rp 2.100.000',
-      unit: '/malam',
-    ),
-  ];
+  static const _regions = ['Semua', 'Malang', 'Mojokerto', 'Surabaya', 'Banyuwangi'];
 
   final TextEditingController _searchController = TextEditingController();
   String _selectedRegion = _regions.first;
+  Future<List<AkomodasiModel>> fetchAkomodasi() async {
+    return [
+      AkomodasiModel(
+        id: 1,
+        namaAkomodasi: 'Resort Grand Padusan',
+        kabupatenKota: 'Kabupaten Mojokerto',
+        deskripsi: 'Penginapan nyaman dengan fasilitas kolam air hangat pribadi dan pemandangan pinus.',
+        harga: 'IDR 350000',
+        rating: '4.7',
+        fotoUrl: 'assets/images/resort_padusan.jpg',
+        fasilitasPopuler: ['Kolam Air Hangat', 'Free Wi-Fi', 'Restoran'],
+      )
+    ];
+  }
 
   @override
   void dispose() {
@@ -61,38 +46,19 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeSiditaMain);
   }
 
-  void _openAccommodation(_SiditaAccommodationItem item) {
-    final routeName = item.routeName;
-    if (routeName != null) {
-      context.pushNamed(routeName);
-      return;
-    }
-
-    _showPlaceholder(item.title);
-  }
-
-  void _showPlaceholder(String label) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label akan kita lanjutkan berikutnya.')),
+  // 🟢 Kirim objek model akomodasi secara utuh via extra GoRouter ke halaman detail
+  void _openAccommodationDetail(AkomodasiModel item) {
+    context.pushNamed(
+      RouteNames.homeSiditaSinghasari, // Pakai nama route detail akomodasimu rill
+      extra: item,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final query = _searchController.text.trim().toLowerCase();
-    final visibleProperties = _popularProperties.where((property) {
-      if (query.isEmpty) {
-        return true;
-      }
-
-      return property.title.toLowerCase().contains(query) ||
-          property.location.toLowerCase().contains(query);
-    }).toList();
-
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? Theme.of(context).scaffoldBackgroundColor
@@ -101,6 +67,7 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
         bottom: false,
         child: Column(
           children: [
+            // App Bar Container
             Container(
               width: double.infinity,
               color: AppColors.welcomeAccent,
@@ -130,136 +97,157 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _SearchField(
-                      controller: _searchController,
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      decoration: BoxDecoration(
-                        color: context.isDarkMode
-                            ? context.appSearchSurfaceColor
-                            : const Color(0xFFF0F0F2),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedRegion,
-                          icon: Icon(
-                            Icons.expand_more_rounded,
-                            color: context.appMutedTextColor,
-                            size: 28,
-                          ),
-                          dropdownColor: context.appSurfaceColor,
-                          borderRadius: BorderRadius.circular(18),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: context.appTextColor,
-                          ),
-                          items: _regions.map((region) {
-                            return DropdownMenuItem<String>(
-                              value: region,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    size: 22,
-                                    color: context.appMutedTextColor,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(region),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
 
-                            setState(() {
-                              _selectedRegion = value;
-                            });
-                          },
-                        ),
+            // Body Area dengan FutureBuilder
+            Expanded(
+              child: FutureBuilder<List<AkomodasiModel>>(
+                future: fetchAkomodasi(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.welcomeAccent));
+                  }
+
+                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Gagal mengambil data akomodasi rill.',
+                        style: GoogleFonts.plusJakartaSans(color: context.appMutedTextColor),
                       ),
-                    ),
-                    const SizedBox(height: 22),
-                    Text(
-                      'Rekomendasi Utama',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: context.appTextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    _FeaturedAccommodationCard(
-                      item: _featuredProperty,
-                      onTap: () => _openAccommodation(_featuredProperty),
-                    ),
-                    const SizedBox(height: 28),
-                    Row(
+                    );
+                  }
+
+                  final allItems = snapshot.data!;
+                  final query = _searchController.text.trim().toLowerCase();
+
+                  // Filter berdasarkan Pencarian & Region Dropdown
+                  final visibleProperties = allItems.where((property) {
+                    final matchesSearch = property.namaAkomodasi.toLowerCase().contains(query) ||
+                        property.kabupatenKota.toLowerCase().contains(query);
+                    final matchesRegion = _selectedRegion == 'Semua' ||
+                        property.kabupatenKota.toLowerCase().contains(_selectedRegion.toLowerCase());
+                    return matchesSearch && matchesRegion;
+                  }).toList();
+
+                  // Pisahkan rekomendasi utama (index 0) dan terpopuler sisanya jika ada
+                  final featuredProperty = visibleProperties.isNotEmpty ? visibleProperties.first : null;
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            'Properti Terpopuler',
+                        _SearchField(
+                          controller: _searchController,
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Region Dropdown
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          decoration: BoxDecoration(
+                            color: context.isDarkMode
+                                ? context.appSearchSurfaceColor
+                                : const Color(0xFFF0F0F2),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedRegion,
+                              icon: Icon(
+                                Icons.expand_more_rounded,
+                                color: context.appMutedTextColor,
+                                size: 28,
+                              ),
+                              dropdownColor: context.appSurfaceColor,
+                              borderRadius: BorderRadius.circular(18),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: context.appTextColor,
+                              ),
+                              items: _regions.map((region) {
+                                return DropdownMenuItem<String>(
+                                  value: region,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_on_outlined, size: 22, color: context.appMutedTextColor),
+                                      const SizedBox(width: 10),
+                                      Text(region),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setState(() {
+                                  _selectedRegion = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+
+                        // Section Rekomendasi Utama
+                        if (featuredProperty != null) ...[
+                          Text(
+                            'Rekomendasi Utama',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
+                              fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: context.appTextColor,
                             ),
                           ),
+                          const SizedBox(height: 18),
+                          _FeaturedAccommodationCard(
+                            item: featuredProperty,
+                            onTap: () => _openAccommodationDetail(featuredProperty),
+                          ),
+                          const SizedBox(height: 28),
+                        ],
+
+                        // Section Properti Terpopuler
+                        Text(
+                          'Properti Terpopuler',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: context.appTextColor,
+                          ),
                         ),
-                        TextButton(
-                          onPressed: () =>
-                              _showPlaceholder('Semua properti akomodasi'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.welcomeAccent,
-                            textStyle: GoogleFonts.plusJakartaSans(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
+                        const SizedBox(height: 12),
+
+                        // Render Sisa List Akomodasi
+                        ...visibleProperties.map(
+                              (property) => Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: _PopularAccommodationCard(
+                              item: property,
+                              onTap: () => _openAccommodationDetail(property),
                             ),
                           ),
-                          child: const Text('Lihat Semua'),
                         ),
+
+                        if (visibleProperties.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 32),
+                            child: Center(
+                              child: Text(
+                                'Belum ada akomodasi yang cocok.',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.appMutedTextColor,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    ...visibleProperties.map(
-                      (property) => Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: _PopularAccommodationCard(
-                          item: property,
-                          onTap: () => _openAccommodation(property),
-                        ),
-                      ),
-                    ),
-                    if (visibleProperties.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 32),
-                        child: Center(
-                          child: Text(
-                            'Belum ada akomodasi yang cocok.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: context.appMutedTextColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -269,88 +257,11 @@ class _SiditaAccommodationsPageState extends State<SiditaAccommodationsPage> {
   }
 }
 
-class _SiditaAccommodationItem {
-  const _SiditaAccommodationItem({
-    required this.title,
-    required this.location,
-    required this.price,
-    required this.unit,
-    this.badgeText,
-    this.routeName,
-  });
-
-  final String title;
-  final String location;
-  final String price;
-  final String unit;
-  final String? badgeText;
-  final String? routeName;
-}
-
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.controller, required this.onChanged});
-
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      onChanged: onChanged,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        color: context.appTextColor,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Cari Destinasi Wisata',
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: context.appMutedTextColor,
-        ),
-        filled: true,
-        fillColor: context.isDarkMode
-            ? context.appSearchSurfaceColor
-            : const Color(0xFFF0F0F2),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 20,
-        ),
-        suffixIcon: Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: Icon(
-            Icons.search_rounded,
-            color: context.appMutedTextColor,
-            size: 34,
-          ),
-        ),
-        suffixIconConstraints: const BoxConstraints(minWidth: 58),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(
-            color: AppColors.welcomeAccent,
-            width: 1.2,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+// 🟢 CARD REKOMENDASI UTAMA DINAMIS
 class _FeaturedAccommodationCard extends StatelessWidget {
   const _FeaturedAccommodationCard({required this.item, required this.onTap});
 
-  final _SiditaAccommodationItem item;
+  final AkomodasiModel item;
   final VoidCallback onTap;
 
   @override
@@ -368,7 +279,13 @@ class _FeaturedAccommodationCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset('assets/images/dummy_image.png', fit: BoxFit.cover),
+                // Menggunakan trik dinamis lokal asset
+                Image.asset(
+                  item.fotoUrl ?? 'assets/images/padusan_main.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Image.asset('assets/images/padusan_main.jpg', fit: BoxFit.cover),
+                ),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -383,32 +300,28 @@ class _FeaturedAccommodationCard extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(26, 26, 26, 26),
+                  padding: const EdgeInsets.all(26),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.88),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
-                          item.badgeText ?? '',
+                          '★ ${item.rating}',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
-                            color: const Color(0xFF8C8F96),
+                            color: Colors.orange,
                           ),
                         ),
                       ),
                       const Spacer(),
                       Text(
-                        item.title,
+                        item.namaAkomodasi,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
@@ -418,7 +331,7 @@ class _FeaturedAccommodationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        item.location,
+                        item.kabupatenKota,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -437,10 +350,11 @@ class _FeaturedAccommodationCard extends StatelessWidget {
   }
 }
 
+// 🟢 CARD PROPERTI TERPOPULER DINAMIS
 class _PopularAccommodationCard extends StatelessWidget {
   const _PopularAccommodationCard({required this.item, required this.onTap});
 
-  final _SiditaAccommodationItem item;
+  final AkomodasiModel item;
   final VoidCallback onTap;
 
   @override
@@ -459,15 +373,17 @@ class _PopularAccommodationCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(22),
                 child: Image.asset(
-                  'assets/images/dummy_image.png',
+                  item.fotoUrl ?? 'assets/images/padusan_main.jpg',
                   width: double.infinity,
                   height: 206,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Image.asset('assets/images/padusan_main.jpg', fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(height: 18),
               Text(
-                item.title,
+                item.namaAkomodasi,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -476,7 +392,7 @@ class _PopularAccommodationCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                item.location,
+                item.kabupatenKota,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -498,7 +414,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: item.price,
+                      text: item.harga,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -506,7 +422,7 @@ class _PopularAccommodationCard extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: item.unit,
+                      text: ' /malam',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -523,3 +439,5 @@ class _PopularAccommodationCard extends StatelessWidget {
     );
   }
 }
+
+// _SearchField widget tetap sama seperti kodingan lamamu...

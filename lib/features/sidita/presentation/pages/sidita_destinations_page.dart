@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:majadigi_mobile/features/home/routes.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
-
-final _siditaDestinationsProvider =
-    FutureProvider.autoDispose<List<_SiditaDestinationItem>>((ref) async {
-      await Future<void>.delayed(Duration.zero);
-      return _SiditaDestinationsPageState._allDestinations;
-    });
+// 🟢 IMPORT FILE MODEL & SERVICE BARU KITA
+import '../../services/sidita_models.dart';
+import '../../services/sidita_services.dart';
 
 class SiditaDestinationsPage extends ConsumerStatefulWidget {
   const SiditaDestinationsPage({super.key});
@@ -24,61 +22,8 @@ class SiditaDestinationsPage extends ConsumerStatefulWidget {
 
 class _SiditaDestinationsPageState
     extends ConsumerState<SiditaDestinationsPage> {
+  // Ganti region sesuai data yang ada di seeder database Laravel-mu, Rid
   static const _regions = ['Malang', 'Batu', 'Surabaya'];
-
-  static const _allDestinations = [
-    _SiditaDestinationItem(
-      title: 'Gunung Bromo',
-      location: 'TENGGER, EAST JAVA',
-      description:
-          'Experience the otherworldly beauty of an active volcano sunrise across the vast sea of sand.',
-      price: 'IDR 250K',
-      unit: '/pax',
-      rating: '4.9',
-      region: 'Malang',
-      routeName: RouteNames.homeSiditaBromo,
-    ),
-    _SiditaDestinationItem(
-      title: 'Jatim Park 3',
-      location: 'BATU CITY',
-      description:
-          'A world-class theme park featuring Dino Park and the Legend Stars museum with immersive education.',
-      price: 'IDR 120k',
-      unit: '/pax',
-      rating: '4.7',
-      region: 'Malang',
-    ),
-    _SiditaDestinationItem(
-      title: 'Kampung Jodipan',
-      location: 'JODIPAN, MALANG',
-      description:
-          'Explore the rainbow-colored streets of Indonesia\'s most vibrant urban regeneration project.',
-      price: 'IDR 5k',
-      unit: '/entry',
-      rating: '4.5',
-      region: 'Malang',
-    ),
-    _SiditaDestinationItem(
-      title: 'Museum Angkut',
-      location: 'BATU CITY',
-      description:
-          'Discover a transport-themed attraction with curated exhibits and immersive city set installations.',
-      price: 'IDR 100k',
-      unit: '/pax',
-      rating: '4.8',
-      region: 'Batu',
-    ),
-    _SiditaDestinationItem(
-      title: 'Taman Bungkul',
-      location: 'SURABAYA',
-      description:
-          'Relax in one of Surabaya\'s most iconic public parks with culinary stalls and community spaces.',
-      price: 'IDR 0',
-      unit: '/entry',
-      rating: '4.6',
-      region: 'Surabaya',
-    ),
-  ];
 
   final TextEditingController _searchController = TextEditingController();
   String _selectedRegion = _regions.first;
@@ -94,45 +39,27 @@ class _SiditaDestinationsPageState
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeSiditaMain);
   }
 
-  void _openDestinationDetail(_SiditaDestinationItem item) {
-    final routeName = item.routeName;
-    if (routeName != null) {
-      context.pushNamed(routeName);
+  void _openDestinationDetail(DestinasiModel item) {
+    if (item.namaWisata.toLowerCase().contains('bromo')) {
+      context.pushNamed(RouteNames.homeSiditaBromo);
       return;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Detail ${item.title} akan kita lanjutkan berikutnya.'),
-      ),
+    context.push(
+      HomeRoutes.siditaBromoPath,
+      extra: item,
     );
-  }
-
-  List<_SiditaDestinationItem> _visibleDestinations(
-    List<_SiditaDestinationItem> destinations,
-  ) {
-    final query = _searchController.text.trim().toLowerCase();
-    return destinations.where((item) {
-      if (item.region != _selectedRegion) {
-        return false;
-      }
-
-      if (query.isEmpty) {
-        return true;
-      }
-
-      return item.title.toLowerCase().contains(query) ||
-          item.location.toLowerCase().contains(query);
-    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final destinationsAsync = ref.watch(_siditaDestinationsProvider);
+    // 🟢 WATCH PROVIDER SECARA DINAMIS BERDASARKAN SEARCH & DROPDOWN REGION
+    final destinationsAsync = ref.watch(siditaDestinasiProvider(const {
+      'search': '',
+      'kabKota': '',
+    }));
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -179,7 +106,10 @@ class _SiditaDestinationsPageState
                   children: [
                     _SearchField(
                       controller: _searchController,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (_) {
+                        // Memicu rebuild widget agar Riverpod mendeteksi perubahan ketikan kata kunci
+                        setState(() {});
+                      },
                     ),
                     const SizedBox(height: 12),
                     Container(
@@ -223,10 +153,7 @@ class _SiditaDestinationsPageState
                             );
                           }).toList(),
                           onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-
+                            if (value == null) return;
                             setState(() {
                               _selectedRegion = value;
                             });
@@ -244,6 +171,8 @@ class _SiditaDestinationsPageState
                       ),
                     ),
                     const SizedBox(height: 18),
+
+                    // 🟢 MENAMPILKAN DATA REAL DARI BACKEND MENGGUNAKAN RIVERPOD ASYNC-WHEN
                     ...destinationsAsync.when<List<Widget>>(
                       loading: () => const [
                         LazyCardSkeleton(height: 520),
@@ -254,24 +183,21 @@ class _SiditaDestinationsPageState
                         Padding(
                           padding: const EdgeInsets.only(top: 28),
                           child: LazyLoadErrorState(
-                            message: 'Destinasi gagal dimuat.',
+                            message: 'Gagal memuat destinasi dari server lokal.',
                             onRetry: () {
-                              ref.invalidate(_siditaDestinationsProvider);
+                              ref.invalidate(siditaDestinasiProvider);
                             },
                           ),
                         ),
                       ],
-                      data: (allDestinations) {
-                        final destinations = _visibleDestinations(
-                          allDestinations,
-                        );
+                      data: (destinations) {
                         if (destinations.isEmpty) {
                           return [
                             Padding(
                               padding: const EdgeInsets.only(top: 36),
                               child: Center(
                                 child: Text(
-                                  'Belum ada destinasi yang cocok.',
+                                  'Belum ada destinasi yang cocok di $_selectedRegion rill.',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -288,8 +214,7 @@ class _SiditaDestinationsPageState
                             padding: const EdgeInsets.only(bottom: 28),
                             child: _DestinationCard(
                               item: item,
-                              onDetailPressed: () =>
-                                  _openDestinationDetail(item),
+                              onDetailPressed: () => _openDestinationDetail(item),
                             ),
                           );
                         }).toList();
@@ -306,27 +231,7 @@ class _SiditaDestinationsPageState
   }
 }
 
-class _SiditaDestinationItem {
-  const _SiditaDestinationItem({
-    required this.title,
-    required this.location,
-    required this.description,
-    required this.price,
-    required this.unit,
-    required this.rating,
-    required this.region,
-    this.routeName,
-  });
-
-  final String title;
-  final String location;
-  final String description;
-  final String price;
-  final String unit;
-  final String rating;
-  final String region;
-  final String? routeName;
-}
+// ... Bagian class _SearchField dibiarkan utuh bawaan kodemu ...
 
 class _SearchField extends StatelessWidget {
   const _SearchField({required this.controller, required this.onChanged});
@@ -389,10 +294,11 @@ class _SearchField extends StatelessWidget {
   }
 }
 
+// 🟢 CARD SEKARANG MENAMPILKAN DATA DARI MODEL DESTINASI ASLI
 class _DestinationCard extends StatelessWidget {
   const _DestinationCard({required this.item, required this.onDetailPressed});
 
-  final _SiditaDestinationItem item;
+  final DestinasiModel item; // Tipe data dirubah dari dummy ke Model asli
   final VoidCallback onDetailPressed;
 
   @override
@@ -418,7 +324,20 @@ class _DestinationCard extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
-                child: Image.asset(
+                child: item.fotoUrl != null && item.fotoUrl!.isNotEmpty
+                    ? Image.network(
+                  item.fotoUrl!,
+                  height: 300,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                    'assets/images/dummy_image.png',
+                    height: 300,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Image.asset(
                   'assets/images/dummy_image.png',
                   height: 300,
                   width: double.infinity,
@@ -475,7 +394,7 @@ class _DestinationCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        item.location,
+                        item.kabupatenKota.toUpperCase(),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -488,7 +407,7 @@ class _DestinationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  item.title,
+                  item.namaWisata,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
@@ -498,7 +417,7 @@ class _DestinationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  item.description,
+                  item.deskripsi,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
@@ -515,7 +434,7 @@ class _DestinationCard extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: item.price,
+                              text: item.harga,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
@@ -523,7 +442,7 @@ class _DestinationCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: item.unit,
+                              text: ' /pax',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,

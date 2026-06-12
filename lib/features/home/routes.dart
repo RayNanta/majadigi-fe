@@ -56,6 +56,7 @@ import '../nawa_bhakti/presentation/pages/jatim_sehat_page.dart';
 import '../nawa_bhakti/presentation/pages/jatim_sejahtera_page.dart';
 import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_main_page.dart';
 import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_page.dart';
+import '../sidita/services/sidita_models.dart';
 import '../sidita/presentation/pages/sidita_accommodations_page.dart';
 import '../sidita/presentation/pages/sidita_bromo_detail_page.dart';
 import '../sidita/presentation/pages/sidita_destinations_page.dart';
@@ -446,7 +447,14 @@ final class HomeRoutes {
     GoRoute(
       path: siditaBromoPath,
       name: RouteNames.homeSiditaBromo,
-      builder: (context, state) => const SiditaBromoDetailPage(),
+      builder: (context, state) {
+        // Ambil objek model yang dikirim lewat argument extra saat navigasi rill
+        final dataWisata = state.extra as DestinasiModel;
+
+        return SiditaBromoDetailPage(
+          destinasi: dataWisata,
+        );
+      },
     ),
     GoRoute(
       path: siditaEventsPath,
