@@ -58,19 +58,18 @@ import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_main_page.dart
 import '../rsud_saiful_anwar/presentation/pages/rsud_saiful_anwar_page.dart';
 import '../sidita/services/sidita_models.dart';
 import '../sidita/presentation/pages/sidita_accommodations_page.dart';
-import '../sidita/presentation/pages/sidita_bromo_detail_page.dart';
+import '../sidita/presentation/pages/sidita_destinations_detail_page.dart';
 import '../sidita/presentation/pages/sidita_destinations_page.dart';
 import '../sidita/presentation/pages/sidita_events_page.dart';
 import '../sidita/presentation/pages/sidita_main_page.dart';
-import '../sidita/presentation/pages/sidita_pasar_djadoel_page.dart';
+import '../sidita/presentation/pages/sidita_events_detail_page.dart';
 import '../sidita/presentation/pages/sidita_page.dart';
-import '../sidita/presentation/pages/sidita_singhasari_page.dart';
+import '../sidita/presentation/pages/sidita_accommodations_detail_page.dart';
 import '../sidita/presentation/pages/sidita_travelers_page.dart';
 import '../sinaker/presentation/pages/sinaker_main_page.dart';
 import '../sinaker/presentation/pages/sinaker_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_center_sumenep_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_centers_page.dart';
-import '../sinaker/presentation/pages/sinaker_training_registration_list.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_check_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_detail_page.dart';
 import '../sinaker/presentation/pages/sinaker_training_registration_page.dart';
@@ -84,6 +83,7 @@ import '../tbc_screening/presentation/pages/tbc_result_negative_page.dart';
 import '../tbc_screening/presentation/pages/tbc_screening_form_one_page.dart';
 import '../tbc_screening/presentation/pages/tbc_screening_form_two_page.dart';
 import '../tbc_screening/presentation/pages/tbc_screening_page.dart';
+import '../sidita/presentation/pages/sidita_accommodations_detail_page.dart';
 
 final class HomeRoutes {
   HomeRoutes._();
@@ -328,22 +328,22 @@ final class HomeRoutes {
       name: RouteNames.homeIslamicCenterAulaRooms,
       builder: (context, state) {
         return IslamicCenterAulaRoomsPage(
-            facilityId: int.parse(
-                state.pathParameters['facilityId']!,
-            ),
+          facilityId: int.parse(
+            state.pathParameters['facilityId']!,
+          ),
         );
       },
     ),
     GoRoute(
-      path: islamicCenterBookingPath,
-      name: RouteNames.homeIslamicCenterBooking,
-      builder: (context, state){
-        return IslamicCenterBookingPage(
-          roomId: int.parse(
-            state.uri.queryParameters['roomId']!,
-          ),
-        );
-      }
+        path: islamicCenterBookingPath,
+        name: RouteNames.homeIslamicCenterBooking,
+        builder: (context, state){
+          return IslamicCenterBookingPage(
+            roomId: int.parse(
+              state.uri.queryParameters['roomId']!,
+            ),
+          );
+        }
     ),
     GoRoute(
       path: islamicCenterAsramaPath,
@@ -439,18 +439,22 @@ final class HomeRoutes {
       name: RouteNames.homeSiditaTravelers,
       builder: (context, state) => const SiditaTravelersPage(),
     ),
+    // 🟢 UPDATE UTAMA: Mengambil argument 'extra' bertipe 'AkomodasiModel' rill
     GoRoute(
       path: siditaSinghasariPath,
       name: RouteNames.homeSiditaSinghasari,
-      builder: (context, state) => const SiditaSinghasariPage(),
+      builder: (context, state) {
+        final dataAkomodasi = state.extra as AkomodasiModel;
+        return SiditaSinghasariPage(
+          akomodasi: dataAkomodasi,
+        );
+      },
     ),
     GoRoute(
       path: siditaBromoPath,
       name: RouteNames.homeSiditaBromo,
       builder: (context, state) {
-        // Ambil objek model yang dikirim lewat argument extra saat navigasi rill
         final dataWisata = state.extra as DestinasiModel;
-
         return SiditaBromoDetailPage(
           destinasi: dataWisata,
         );
@@ -464,7 +468,14 @@ final class HomeRoutes {
     GoRoute(
       path: siditaPasarDjadoelPath,
       name: RouteNames.homeSiditaPasarDjadoel,
-      builder: (context, state) => const SiditaPasarDjadoelPage(),
+      builder: (context, state) {
+        // 🟢 Ambil objek model EventWisataModel yang dikirim lewat extra argument rill
+        final dataEvent = state.extra as EventWisataModel;
+
+        return SiditaPasarDjadoelPage(
+          event: dataEvent,
+        );
+      },
     ),
     GoRoute(
       path: sinakerPath,
@@ -476,27 +487,16 @@ final class HomeRoutes {
       name: RouteNames.homeSinakerMain,
       builder: (context, state) => const SinakerMainPage(),
     ),
-     GoRoute(
-       path: sinakerTrainingListPath,
-       name: RouteNames.homeSinakerTrainingList,
-       builder: (context, state) => const SinakerTrainingListPage(),
-     ),
+    GoRoute(
+      path: sinakerTrainingListPath,
+      name: RouteNames.homeSinakerTrainingList,
+      builder: (context, state) => const SinakerTrainingListPage(),
+    ),
     GoRoute(
       path: sinakerTrainingRegistrationListPath,
       name: RouteNames.homeSinakerTrainingRegistrationList,
       builder: (context, state) => const SinakerTrainingRegistrationListPage(),
     ),
-    // GoRoute(
-    //   name: RouteNames.homeSinakerTrainingList,
-    //   path: '/layanan/sinaker/utama/pelatihan/:centerId',
-    //   builder: (context, state) {
-    //     final id = state.pathParameters['centerId'];
-    //     return SinakerTrainingListPage(
-    //       centerId: id != null ? int.parse(id) : null,
-    //       centerName: state.extra as String? ?? 'Daftar Pelatihan',
-    //     );
-    //   },
-    // ),
     GoRoute(
       path: sinakerTrainingCentersPath,
       name: RouteNames.homeSinakerTrainingCenters,
@@ -613,10 +613,7 @@ final class HomeRoutes {
       path: '/tbc-personal-identity',
       name: RouteNames.homeTbcPersonalIdentity,
       builder: (context, state) {
-
-        final data =
-        state.extra as Map<String, dynamic>;
-
+        final data = state.extra as Map<String, dynamic>;
         return TbcPersonalIdentityPage(
           formData: data,
         );
@@ -625,12 +622,8 @@ final class HomeRoutes {
     GoRoute(
       path: '/tbc-screening-form-one',
       name: RouteNames.homeTbcScreeningFormOne,
-
       builder: (context, state) {
-
-        final data =
-        state.extra as Map<String, dynamic>;
-
+        final data = state.extra as Map<String, dynamic>;
         return TbcScreeningFormOnePage(
           screeningData: data,
         );
@@ -640,10 +633,7 @@ final class HomeRoutes {
       path: '/tbc-screening-form-two',
       name: RouteNames.homeTbcScreeningFormTwo,
       builder: (context, state) {
-
-        final screeningData =
-        state.extra as Map<String, dynamic>;
-
+        final screeningData = state.extra as Map<String, dynamic>;
         return TbcScreeningFormTwoPage(
           screeningData: screeningData,
         );
@@ -652,12 +642,8 @@ final class HomeRoutes {
     GoRoute(
       path: tbcResultPositivePath,
       name: RouteNames.homeTbcResultPositive,
-
       builder: (context, state) {
-
-        final data =
-        state.extra as Map<String, dynamic>;
-
+        final data = state.extra as Map<String, dynamic>;
         return TbcResultPositivePage(
           resultData: data,
         );
@@ -666,12 +652,8 @@ final class HomeRoutes {
     GoRoute(
       path: tbcResultNegativePath,
       name: RouteNames.homeTbcResultNegative,
-
       builder: (context, state) {
-
-        final data =
-        state.extra as Map<String, dynamic>;
-
+        final data = state.extra as Map<String, dynamic>;
         return TbcResultNegativePage(
           resultData: data,
         );

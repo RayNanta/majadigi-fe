@@ -8,7 +8,6 @@ import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
-// 🟢 IMPORT FILE MODEL & SERVICE BARU KITA
 import '../../services/sidita_models.dart';
 import '../../services/sidita_services.dart';
 
@@ -22,11 +21,22 @@ class SiditaDestinationsPage extends ConsumerStatefulWidget {
 
 class _SiditaDestinationsPageState
     extends ConsumerState<SiditaDestinationsPage> {
-  // Ganti region sesuai data yang ada di seeder database Laravel-mu, Rid
-  static const _regions = ['Malang', 'Batu', 'Surabaya'];
+
+  // ✅ FIX: Pisahkan label (tampil di UI) dan value (dikirim ke BE)
+  // Value harus match PERSIS dengan kolom kabupaten_kota di database
+  static const Map<String, String> _regionOptions = {
+    'Semua'       : '',
+    'Mojokerto'   : 'Kabupaten Mojokerto',
+    'Probolinggo' : 'Kabupaten Probolinggo',
+    'Malang'      : 'Kabupaten Malang',
+    'Batu'        : 'Kota Batu',
+    'Surabaya'    : 'Kota Surabaya',
+  };
 
   final TextEditingController _searchController = TextEditingController();
-  String _selectedRegion = _regions.first;
+
+  // _selectedRegion menyimpan KEY dari map (label ringkas untuk UI)
+  String _selectedRegion = 'Semua';
 
   @override
   void dispose() {
@@ -44,7 +54,10 @@ class _SiditaDestinationsPageState
 
   void _openDestinationDetail(DestinasiModel item) {
     if (item.namaWisata.toLowerCase().contains('bromo')) {
-      context.pushNamed(RouteNames.homeSiditaBromo);
+      context.pushNamed(
+        RouteNames.homeSiditaBromo,
+        extra: item,
+      );
       return;
     }
     context.push(
@@ -55,11 +68,17 @@ class _SiditaDestinationsPageState
 
   @override
   Widget build(BuildContext context) {
-    // 🟢 WATCH PROVIDER SECARA DINAMIS BERDASARKAN SEARCH & DROPDOWN REGION
-    final destinationsAsync = ref.watch(siditaDestinasiProvider(const {
-      'search': '',
-      'kabKota': '',
-    }));
+    // ✅ FIX: Gunakan SiditaFilterParams (immutable, hashCode benar)
+    // sehingga Riverpod tidak infinite rebuild
+    final destinationsAsync = ref.watch(
+      siditaDestinasiProvider(
+        SiditaFilterParams(
+          search: _searchController.text.trim(),
+          // Ambil VALUE dari map berdasarkan KEY yang dipilih
+          kabKota: _regionOptions[_selectedRegion] ?? '',
+        ),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -69,6 +88,7 @@ class _SiditaDestinationsPageState
         bottom: false,
         child: Column(
           children: [
+            // ==================== APP BAR ====================
             Container(
               width: double.infinity,
               color: AppColors.welcomeAccent,
@@ -98,20 +118,24 @@ class _SiditaDestinationsPageState
                 ],
               ),
             ),
+
+            // ==================== BODY ====================
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // SEARCH FIELD
                     _SearchField(
                       controller: _searchController,
                       onChanged: (_) {
-                        // Memicu rebuild widget agar Riverpod mendeteksi perubahan ketikan kata kunci
                         setState(() {});
                       },
                     ),
                     const SizedBox(height: 12),
+
+                    // ✅ DROPDOWN FILTER (pakai KEY map sebagai value dropdown)
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -136,9 +160,10 @@ class _SiditaDestinationsPageState
                             fontWeight: FontWeight.w500,
                             color: context.appTextColor,
                           ),
-                          items: _regions.map((region) {
+                          // Iterasi dari KEYS map (label ringkas)
+                          items: _regionOptions.keys.map((label) {
                             return DropdownMenuItem<String>(
-                              value: region,
+                              value: label,
                               child: Row(
                                 children: [
                                   Icon(
@@ -147,7 +172,7 @@ class _SiditaDestinationsPageState
                                     color: context.appMutedTextColor,
                                   ),
                                   const SizedBox(width: 10),
-                                  Text(region),
+                                  Text(label),
                                 ],
                               ),
                             );
@@ -162,6 +187,7 @@ class _SiditaDestinationsPageState
                       ),
                     ),
                     const SizedBox(height: 22),
+
                     Text(
                       'Destinasi $_selectedRegion',
                       style: GoogleFonts.plusJakartaSans(
@@ -172,7 +198,7 @@ class _SiditaDestinationsPageState
                     ),
                     const SizedBox(height: 18),
 
-                    // 🟢 MENAMPILKAN DATA REAL DARI BACKEND MENGGUNAKAN RIVERPOD ASYNC-WHEN
+                    // ==================== DATA BINDING ====================
                     ...destinationsAsync.when<List<Widget>>(
                       loading: () => const [
                         LazyCardSkeleton(height: 520),
@@ -197,7 +223,7 @@ class _SiditaDestinationsPageState
                               padding: const EdgeInsets.only(top: 36),
                               child: Center(
                                 child: Text(
-                                  'Belum ada destinasi yang cocok di $_selectedRegion rill.',
+                                  'Belum ada destinasi yang cocok di $_selectedRegion.',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -214,7 +240,8 @@ class _SiditaDestinationsPageState
                             padding: const EdgeInsets.only(bottom: 28),
                             child: _DestinationCard(
                               item: item,
-                              onDetailPressed: () => _openDestinationDetail(item),
+                              onDetailPressed: () =>
+                                  _openDestinationDetail(item),
                             ),
                           );
                         }).toList();
@@ -231,7 +258,7 @@ class _SiditaDestinationsPageState
   }
 }
 
-// ... Bagian class _SearchField dibiarkan utuh bawaan kodemu ...
+// ==================== SUB-WIDGET COMPONENTS ====================
 
 class _SearchField extends StatelessWidget {
   const _SearchField({required this.controller, required this.onChanged});
@@ -251,7 +278,8 @@ class _SearchField extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: context.appMutedTextColor,
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+        prefixIconConstraints:
+        const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 14),
           child: Icon(
@@ -260,7 +288,8 @@ class _SearchField extends StatelessWidget {
             color: context.appMutedTextColor,
           ),
         ),
-        suffixIconConstraints: const BoxConstraints(minHeight: 0, minWidth: 0),
+        suffixIconConstraints:
+        const BoxConstraints(minHeight: 0, minWidth: 0),
         filled: true,
         fillColor: context.isDarkMode
             ? context.appSearchSurfaceColor
@@ -294,11 +323,13 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-// 🟢 CARD SEKARANG MENAMPILKAN DATA DARI MODEL DESTINASI ASLI
 class _DestinationCard extends StatelessWidget {
-  const _DestinationCard({required this.item, required this.onDetailPressed});
+  const _DestinationCard({
+    required this.item,
+    required this.onDetailPressed,
+  });
 
-  final DestinasiModel item; // Tipe data dirubah dari dummy ke Model asli
+  final DestinasiModel item;
   final VoidCallback onDetailPressed;
 
   @override
@@ -330,12 +361,13 @@ class _DestinationCard extends StatelessWidget {
                   height: 300,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.asset(
-                    'assets/images/dummy_image.png',
-                    height: 300,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      Image.asset(
+                        'assets/images/dummy_image.png',
+                        height: 300,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                 )
                     : Image.asset(
                   'assets/images/dummy_image.png',

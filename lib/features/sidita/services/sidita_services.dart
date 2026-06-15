@@ -1,41 +1,135 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/api/api_service.dart'; // Sesuaikan relative path ke ApiService timmu
+import 'package:http/http.dart' as http;
 import 'sidita_models.dart';
 
-class SiditaService {
-  Future<List<DestinasiModel>> getDestinasi({String search = '', String kabKota = ''}) async {
-    try {
-      String endpoint = '/v1/wisata';
-      List<String> params = [];
+class SiditaFilterParams {
+  final String search;
+  final String kabKota;
 
+  const SiditaFilterParams({
+    this.search = '',
+    this.kabKota = '',
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! SiditaFilterParams) return false;
+    return search == other.search && kabKota == other.kabKota;
+  }
+
+  @override
+  int get hashCode => search.hashCode ^ kabKota.hashCode;
+}
+
+class SiditaService {
+  static const String _baseUrl = 'http://127.0.0.1:8080/api';
+
+  static const Map<String, String> _headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Host': 'majadigi.test',
+  };
+
+  Future<List<DestinasiModel>> getDestinasi({
+    String search = '',
+    String kabKota = '',
+  }) async {
+    try {
+      String urlString = '$_baseUrl/v1/wisata';
+      final List<String> params = [];
       if (search.isNotEmpty) params.add('search=$search');
       if (kabKota.isNotEmpty) params.add('kabupaten_kota=$kabKota');
-      if (params.isNotEmpty) endpoint += '?${params.join('&')}';
+      if (params.isNotEmpty) urlString += '?${params.join('&')}';
 
-      final response = await ApiService.get(endpoint);
+      print('=== SIDITA DEBUG ===');
+      print('URL: $urlString');
+
+      final response = await http.get(Uri.parse(urlString), headers: _headers);
+
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final List<dynamic> listData = responseData['data'] ?? [];
-        return listData.map((e) => DestinasiModel.fromJson(e)).toList();
+        final responseData = json.decode(response.body) as Map<String, dynamic>;
+        final listData = (responseData['data'] ?? []) as List<dynamic>;
+        print('Jumlah data: ${listData.length}');
+        return listData.map((e) => DestinasiModel.fromJson(e as Map<String, dynamic>)).toList();
       } else {
-        throw Exception('Gagal mengambil data destinasi (${response.statusCode})');
+        throw Exception('Server me-return status: ${response.statusCode}');
       }
-    } catch (e){
-      throw Exception('Koneksi bermasalah: $e');
+    } catch (e) {
+      print('ERROR: $e');
+      throw Exception('Gagal mengambil destinasi: $e');
+    }
+  }
+
+  Future<List<AkomodasiModel>> getAkomodasi({
+    String search = '',
+    String kabKota = '',
+  }) async {
+    try {
+      String urlString = '$_baseUrl/v1/akomodasi';
+      final List<String> params = [];
+      if (search.isNotEmpty) params.add('search=$search');
+      if (kabKota.isNotEmpty) params.add('kabupaten_kota=$kabKota');
+      if (params.isNotEmpty) urlString += '?${params.join('&')}';
+
+      final response = await http.get(Uri.parse(urlString), headers: _headers);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body) as Map<String, dynamic>;
+        final listData = (responseData['data'] ?? []) as List<dynamic>;
+        return listData.map((e) => AkomodasiModel.fromJson(e as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception('Server me-return status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Gagal mengambil akomodasi: $e');
+    }
+  }
+
+  Future<List<EventWisataModel>> getEvent({
+    String search = '',
+    String kabKota = '',
+  }) async {
+    try {
+      String urlString = '$_baseUrl/v1/event';
+      final List<String> params = [];
+      if (search.isNotEmpty) params.add('search=$search');
+      if (kabKota.isNotEmpty) params.add('kabupaten_kota=$kabKota');
+      if (params.isNotEmpty) urlString += '?${params.join('&')}';
+
+      final response = await http.get(Uri.parse(urlString), headers: _headers);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body) as Map<String, dynamic>;
+        final listData = (responseData['data'] ?? []) as List<dynamic>;
+        return listData.map((e) => EventWisataModel.fromJson(e as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception('Server me-return status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Gagal mengambil data event: $e');
     }
   }
 }
+// ==================== PROVIDER GLOBAL (OUTSIDE CLASS) ====================
 
-// Provider Utama Service
 final siditaServiceProvider = Provider<SiditaService>((ref) => SiditaService());
 
-// FutureProvider Utama yang akan dipantau oleh UI secara real-time
-final siditaDestinasiProvider = FutureProvider.family<List<DestinasiModel>, Map<String, String>>((ref, argument) async {
+final siditaDestinasiProvider = FutureProvider.family<List<DestinasiModel>, SiditaFilterParams>((ref, params) async {
   final service = ref.watch(siditaServiceProvider);
-  return service.getDestinasi(
-    search: argument['search'] ?? '',
-    kabKota: argument['kabKota'] ?? '',
-  );
+  return service.getDestinasi(search: params.search, kabKota: params.kabKota);
+});
+
+final siditaAkomodasiProvider = FutureProvider.family<List<AkomodasiModel>, SiditaFilterParams>((ref, params) async {
+  final service = ref.watch(siditaServiceProvider);
+  return service.getAkomodasi(search: params.search, kabKota: params.kabKota);
+});
+
+final siditaEventProvider = FutureProvider.family<List<EventWisataModel>, SiditaFilterParams>((ref, params) async {
+  final service = ref.watch(siditaServiceProvider);
+  return service.getEvent(search: params.search, kabKota: params.kabKota);
 });

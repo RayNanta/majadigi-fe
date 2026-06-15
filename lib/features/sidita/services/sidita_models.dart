@@ -61,28 +61,56 @@ class DestinasiModel {
   }
 }
 
-class EventModel {
+class EventWisataModel {
   final int id;
   final String namaEvent;
+  final String deskripsiAcara;
+  final String? posterEvent;
+  final String penyelenggara;
+  final String tanggalMulai;
+  final String tanggalSelesai;
+  final String jamOperasional;
+  final String namaTempatLokasi;
   final String kabupatenKota;
-  final String deskripsi;
-  final String? fotoUrl;
+  final bool isBerbayar;
+  final String hargaTiket;
 
-  EventModel({
+  EventWisataModel({
     required this.id,
     required this.namaEvent,
+    required this.deskripsiAcara,
+    this.posterEvent,
+    required this.penyelenggara,
+    required this.tanggalMulai,
+    required this.tanggalSelesai,
+    required this.jamOperasional,
+    required this.namaTempatLokasi,
     required this.kabupatenKota,
-    required this.deskripsi,
-    this.fotoUrl,
+    required this.isBerbayar,
+    required this.hargaTiket,
   });
 
-  factory EventModel.fromJson(Map<String, dynamic> json) {
-    return EventModel(
+  factory EventWisataModel.fromJson(Map<String, dynamic> json) {
+    // Format mata uang ringkas untuk harga tiket rill
+    String hargaText = 'Gratis';
+    if (json['is_berbayar'] == true || json['is_berbayar'] == 1) {
+      final harga = json['harga_tiket'];
+      hargaText = harga != null ? 'IDR ${harga.toString().split('.')[0]}' : 'Berbayar';
+    }
+
+    return EventWisataModel(
       id: json['id'] ?? 0,
       namaEvent: json['nama_event']?.toString() ?? '',
+      deskripsiAcara: json['deskripsi_acara']?.toString() ?? '',
+      posterEvent: json['poster_event']?.toString(),
+      penyelenggara: json['penyelenggara']?.toString() ?? '',
+      tanggalMulai: json['tanggal_mulai']?.toString() ?? '',
+      tanggalSelesai: json['tanggal_selesai']?.toString() ?? '',
+      jamOperasional: json['jam_operasional']?.toString() ?? '',
+      namaTempatLokasi: json['nama_tempat_lokasi']?.toString() ?? '',
       kabupatenKota: json['kabupaten_kota']?.toString() ?? '',
-      deskripsi: json['deskripsi']?.toString() ?? '',
-      fotoUrl: json['foto_url']?.toString(),
+      isBerbayar: json['is_berbayar'] == true || json['is_berbayar'] == 1,
+      hargaTiket: hargaText,
     );
   }
 }
@@ -95,7 +123,6 @@ class AkomodasiModel {
   final String harga;
   final String? fotoUrl;
   final String rating;
-  // Tambahan field opsional jika UI detail akomodasi butuh list fasilitas
   final List<String> fasilitasPopuler;
 
   AkomodasiModel({

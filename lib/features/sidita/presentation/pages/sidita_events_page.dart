@@ -7,12 +7,8 @@ import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
-
-final _siditaEventsProvider =
-    FutureProvider.autoDispose<List<_SiditaEventItem>>((ref) async {
-      await Future<void>.delayed(Duration.zero);
-      return _SiditaEventsPageState._events;
-    });
+import '../../services/sidita_models.dart';
+import '../../services/sidita_services.dart';
 
 class SiditaEventsPage extends ConsumerStatefulWidget {
   const SiditaEventsPage({super.key});
@@ -22,62 +18,16 @@ class SiditaEventsPage extends ConsumerStatefulWidget {
 }
 
 class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
-  static const _regions = ['Jawa Timur', 'Malang', 'Surabaya'];
-
-  static const _events = [
-    _SiditaEventItem(
-      title: 'Pasar Djadoel Ahad Legi',
-      category: 'HERITAGE',
-      location: 'Kabupaten Ngawi',
-      dateRange: '01 Jan 2024 - 31 Dec 2024',
-      region: 'Jawa Timur',
-      accentColor: Color(0xFF2563EB),
-      routeName: RouteNames.homeSiditaPasarDjadoel,
-    ),
-    _SiditaEventItem(
-      title: 'Kurma Festival',
-      category: 'KULINER',
-      location: 'Kabupaten Pasuruan',
-      dateRange: '01 Jan 2024 - 31 Dec 2024',
-      region: 'Jawa Timur',
-      accentColor: Color(0xFF2563EB),
-    ),
-    _SiditaEventItem(
-      title: 'Pentas Padang Bulan Sendratari Arjuna Wiwaha',
-      category: 'PERTUNJUKAN',
-      location: 'Kota Batu',
-      dateRange: '01 Jan 2024 - 31 Dec 2024',
-      region: 'Jawa Timur',
-      accentColor: Color(0xFF2563EB),
-    ),
-    _SiditaEventItem(
-      title: 'Gebyar Ekraf',
-      category: 'EKONOMI KREATIF',
-      location: 'Kabupaten Sidoarjo',
-      dateRange: '01 Jan 2024 - 31 Dec 2024',
-      region: 'Jawa Timur',
-      accentColor: Color(0xFF2563EB),
-    ),
-    _SiditaEventItem(
-      title: 'Festival Bunga Kota Malang',
-      category: 'PARIWISATA',
-      location: 'Kota Malang',
-      dateRange: '05 Feb 2024 - 09 Feb 2024',
-      region: 'Malang',
-      accentColor: Color(0xFF16A34A),
-    ),
-    _SiditaEventItem(
-      title: 'Surabaya Creative Week',
-      category: 'EKONOMI KREATIF',
-      location: 'Kota Surabaya',
-      dateRange: '10 Mar 2024 - 18 Mar 2024',
-      region: 'Surabaya',
-      accentColor: Color(0xFF7C3AED),
-    ),
-  ];
+  // ✅ Menyelaraskan opsi filter UI dengan data seeder backend (Surabaya ganti Banyuwangi rill)
+  static const Map<String, String> _regionOptions = {
+    'Semua': '',
+    'Mojokerto': 'Kabupaten Mojokerto',
+    'Banyuwangi': 'Kabupaten Banyuwangi',
+    'Probolinggo': 'Kabupaten Probolinggo',
+  };
 
   final TextEditingController _searchController = TextEditingController();
-  String _selectedRegion = _regions.first;
+  String _selectedRegion = 'Semua';
 
   @override
   void dispose() {
@@ -90,44 +40,26 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeSiditaMain);
   }
 
-  void _openEventDetail(_SiditaEventItem event) {
-    final routeName = event.routeName;
-    if (routeName != null) {
-      context.pushNamed(routeName);
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Detail ${event.title} akan kita lanjutkan berikutnya.'),
-      ),
+  void _openEventDetail(EventWisataModel event) {
+    context.pushNamed(
+      RouteNames.homeSiditaPasarDjadoel,
+      extra: event,
     );
-  }
-
-  List<_SiditaEventItem> _visibleEvents(List<_SiditaEventItem> events) {
-    final query = _searchController.text.trim().toLowerCase();
-    return events.where((event) {
-      if (_selectedRegion != 'Jawa Timur' && event.region != _selectedRegion) {
-        return false;
-      }
-
-      if (query.isEmpty) {
-        return true;
-      }
-
-      return event.title.toLowerCase().contains(query) ||
-          event.location.toLowerCase().contains(query) ||
-          event.category.toLowerCase().contains(query);
-    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync = ref.watch(_siditaEventsProvider);
+    final eventsAsync = ref.watch(
+      siditaEventProvider(
+        SiditaFilterParams(
+          search: _searchController.text.trim(),
+          kabKota: _regionOptions[_selectedRegion] ?? '',
+        ),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -137,6 +69,7 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
         bottom: false,
         child: Column(
           children: [
+            // APP BAR
             Container(
               width: double.infinity,
               color: AppColors.welcomeAccent,
@@ -155,7 +88,7 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Event',
+                      'Event Jawa Timur',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -166,17 +99,22 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                 ],
               ),
             ),
+
+            // BODY AREA
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // SEARCH FIELD
                     _SearchField(
                       controller: _searchController,
                       onChanged: (_) => setState(() {}),
                     ),
                     const SizedBox(height: 12),
+
+                    // DROPDOWN FILTER LOKASI REGION
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -201,9 +139,9 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                             fontWeight: FontWeight.w500,
                             color: context.appTextColor,
                           ),
-                          items: _regions.map((region) {
+                          items: _regionOptions.keys.map((label) {
                             return DropdownMenuItem<String>(
-                              value: region,
+                              value: label,
                               child: Row(
                                 children: [
                                   Icon(
@@ -212,16 +150,13 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                                     color: context.appMutedTextColor,
                                   ),
                                   const SizedBox(width: 10),
-                                  Text(region),
+                                  Text(label),
                                 ],
                               ),
                             );
                           }).toList(),
                           onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-
+                            if (value == null) return;
                             setState(() {
                               _selectedRegion = value;
                             });
@@ -230,8 +165,9 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                       ),
                     ),
                     const SizedBox(height: 22),
+
                     Text(
-                      'Event Mendatang',
+                      'Event di $_selectedRegion',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -239,32 +175,33 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                       ),
                     ),
                     const SizedBox(height: 18),
+
+                    // BINDING DATA ASYNC VIA RIVERPOD WHEN
                     ...eventsAsync.when<List<Widget>>(
                       loading: () => const [
-                        LazyCardSkeleton(height: 430),
+                        LazyCardSkeleton(height: 400),
                         SizedBox(height: 26),
-                        LazyCardSkeleton(height: 430),
+                        LazyCardSkeleton(height: 200),
                       ],
                       error: (error, stackTrace) => [
                         Padding(
                           padding: const EdgeInsets.only(top: 28),
                           child: LazyLoadErrorState(
-                            message: 'Event gagal dimuat.',
+                            message: 'Gagal memuat daftar event dari server lokal.',
                             onRetry: () {
-                              ref.invalidate(_siditaEventsProvider);
+                              ref.invalidate(siditaEventProvider);
                             },
                           ),
                         ),
                       ],
                       data: (events) {
-                        final visibleEvents = _visibleEvents(events);
-                        if (visibleEvents.isEmpty) {
+                        if (events.isEmpty) {
                           return [
                             Padding(
                               padding: const EdgeInsets.only(top: 36),
                               child: Center(
                                 child: Text(
-                                  'Belum ada event yang cocok.',
+                                  'Belum ada event kebudayaan di $_selectedRegion rill.',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -276,7 +213,7 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
                           ];
                         }
 
-                        return visibleEvents.map((event) {
+                        return events.map((event) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 26),
                             child: _EventCard(
@@ -298,25 +235,7 @@ class _SiditaEventsPageState extends ConsumerState<SiditaEventsPage> {
   }
 }
 
-class _SiditaEventItem {
-  const _SiditaEventItem({
-    required this.title,
-    required this.category,
-    required this.location,
-    required this.dateRange,
-    required this.region,
-    required this.accentColor,
-    this.routeName,
-  });
-
-  final String title;
-  final String category;
-  final String location;
-  final String dateRange;
-  final String region;
-  final Color accentColor;
-  final String? routeName;
-}
+// ==================== SUB-WIDGET COMPONENTS ====================
 
 class _SearchField extends StatelessWidget {
   const _SearchField({required this.controller, required this.onChanged});
@@ -330,7 +249,7 @@ class _SearchField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: 'Cari Event',
+        hintText: 'Cari Event Kebudayaan / Festival',
         hintStyle: GoogleFonts.plusJakartaSans(
           fontSize: 17,
           fontWeight: FontWeight.w500,
@@ -381,11 +300,14 @@ class _SearchField extends StatelessWidget {
 class _EventCard extends StatelessWidget {
   const _EventCard({required this.item, required this.onTap});
 
-  final _SiditaEventItem item;
+  final EventWisataModel item; // ✅ Menggunakan Model Dinamis Asli
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    // Logika warna badge berdasarkan jenis kategori berbayar rill
+    final Color badgeColor = item.isBerbayar ? const Color(0xFFEF4444) : const Color(0xFF10B981);
+
     return Material(
       color: context.appSurfaceColor,
       borderRadius: BorderRadius.circular(24),
@@ -413,9 +335,9 @@ class _EventCard extends StatelessWidget {
                       top: Radius.circular(24),
                     ),
                     child: Image.asset(
-                      'assets/images/dummy_image.png',
+                      'assets/images/dummy_image.png', // Fallback local asset rill
                       width: double.infinity,
-                      height: 268,
+                      height: 240,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -428,15 +350,21 @@ class _EventCard extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 6,
+                            )
+                          ]
                       ),
                       child: Text(
-                        item.category,
+                        item.isBerbayar ? 'TICKETED' : 'FREE EVENT',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: FontWeight.w800,
-                          color: item.accentColor,
+                          color: badgeColor,
                         ),
                       ),
                     ),
@@ -444,12 +372,12 @@ class _EventCard extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 22, 24, 24),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.title,
+                      item.namaEvent,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -457,15 +385,31 @@ class _EventCard extends StatelessWidget {
                         height: 1.25,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.deskripsiAcara,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: context.appMutedTextColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Divider(height: 32),
                     _MetaRow(
                       icon: Icons.location_on_outlined,
-                      text: item.location,
+                      text: '${item.namaTempatLokasi}, ${item.kabupatenKota}',
                     ),
                     const SizedBox(height: 12),
                     _MetaRow(
                       icon: Icons.calendar_today_outlined,
-                      text: item.dateRange,
+                      text: '${item.tanggalMulai} s/d ${item.tanggalSelesai} (${item.jamOperasional})',
+                    ),
+                    const SizedBox(height: 12),
+                    _MetaRow(
+                      icon: Icons.confirmation_number_outlined,
+                      text: 'HTM: ${item.hargaTiket}',
                     ),
                   ],
                 ),
@@ -494,7 +438,7 @@ class _MetaRow extends StatelessWidget {
           child: Text(
             text,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: context.appMutedTextColor,
             ),
