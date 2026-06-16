@@ -179,7 +179,14 @@ class _RoomDetailCard extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(28),
                     ),
-                    child: Image.asset(
+                    child: (room['images'] != null && (room['images'] as List).isNotEmpty && room['images'][0]['image_url'] != null)
+                        ? Image.network(
+                      room['images'][0]['image_url'].toString(),
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.cover,
+                    )
+                        : Image.asset(
                       'assets/images/dummy_image.png',
                       width: double.infinity,
                       height: 300,

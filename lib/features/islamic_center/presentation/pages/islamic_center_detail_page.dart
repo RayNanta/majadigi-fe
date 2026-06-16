@@ -131,9 +131,9 @@ class _IslamicCenterDetailPageState extends State<IslamicCenterDetailPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(28),
-                      child: facility!['thumbnail'] != null
+                      child: facility!['thumbnail_url'] != null
                           ? Image.network(
-                              facility!['thumbnail'],
+                              facility!['thumbnail_url'],
                               width: double.infinity,
                               height: 380,
                               fit: BoxFit.cover,

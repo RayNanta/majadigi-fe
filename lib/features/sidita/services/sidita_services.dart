@@ -24,7 +24,7 @@ class SiditaFilterParams {
 }
 
 class SiditaService {
-  static const String _baseUrl = 'http://127.0.0.1:8080/api';
+  static const String _baseUrl = 'https://capstone-project-majadigi-to-super-app-production.up.railway.app/api';
 
   static const Map<String, String> _headers = {
     'Content-Type': 'application/json',

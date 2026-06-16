@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import '../storage/auth_storage.dart';
 
 class ApiService {
-  // static const String baseUrl = 'https://capstone-project-majadigi-to-super-app-production.up.railway.app/api';
-    static const String baseUrl = 'http://10.0.2.2/api';
+   static const String baseUrl = 'https://capstone-project-majadigi-to-super-app-production.up.railway.app/api';
   static Future<http.Response> get(String endpoint) async {
     final token = await AuthStorage.getToken();
 

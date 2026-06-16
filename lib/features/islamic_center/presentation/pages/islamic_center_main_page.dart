@@ -42,7 +42,7 @@ class FacilityModel {
       description:
       json['description']?.toString() ?? '',
 
-      thumbnail: json['thumbnail']?.toString(),
+      thumbnail: json['thumbnail_url']?.toString(),
 
       averageRating: double.tryParse(
         json['average_rating']?.toString() ?? '0',
