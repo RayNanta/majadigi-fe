@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:majadigi_mobile/features/sinaker/presentation/pages/sinaker_training_registration_list.dart';
 import 'package:majadigi_mobile/features/tbc_screening/presentation/pages/tbc_result_positive_page.dart';
-
 import 'presentation/pages/about_majadigi_page.dart';
 import '../../app/router/route_names.dart';
 import 'presentation/pages/about_jatim_page.dart';
@@ -29,6 +27,7 @@ import '../hoax_clinic/presentation/pages/hoax_latest_reports_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_report_page.dart';
 import '../hoax_clinic/presentation/pages/hoax_track_result_page.dart';
+import '../hoax_clinic/services/hoax_models.dart';
 import '../islamic_center/presentation/pages/islamic_center_detail_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_aula_booking_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_aula_rooms_page.dart';
@@ -41,10 +40,11 @@ import '../islamic_center/presentation/pages/islamic_center_masjid_rooms_page.da
 import '../islamic_center/presentation/pages/islamic_center_main_page.dart';
 import '../islamic_center/presentation/pages/islamic_center_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_main_page.dart';
-import '../khas_jatim/presentation/pages/khas_jatim_manuscripts_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_details_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_page.dart';
 import '../khas_jatim/presentation/pages/khas_jatim_registration_page.dart';
-import '../khas_jatim/presentation/pages/khas_jatim_serat_sri_sedana_page.dart';
+import '../khas_jatim/presentation/pages/khas_jatim_details_details_page.dart';
+import '../khas_jatim/services/khas_jatim_models.dart';
 import '../nawa_bhakti/presentation/pages/jatim_agro_page.dart';
 import '../nawa_bhakti/presentation/pages/jatim_akses_page.dart';
 import '../nawa_bhakti/presentation/pages/jatim_berkah_amanah_page.dart';
@@ -402,7 +402,10 @@ final class HomeRoutes {
     GoRoute(
       path: khasJatimSeratSriSedanaPath,
       name: RouteNames.homeKhasJatimSeratSriSedana,
-      builder: (context, state) => const KhasJatimSeratSriSedanaPage(),
+      builder: (context, state) {
+        final manuscript = state.extra as NaskahKunoModel;
+        return KhasJatimSeratSriSedanaPage(manuscript: manuscript);
+      },
     ),
     GoRoute(
       path: rsudSaifulAnwarPath,
@@ -600,9 +603,12 @@ final class HomeRoutes {
       builder: (context, state) => const HoaxLatestReportsPage(),
     ),
     GoRoute(
-      path: hoaxClinicLatestReportPath,
+      path: 'detail',
       name: RouteNames.homeHoaxClinicLatestReport,
-      builder: (context, state) => const HoaxLatestReportDetailPage(),
+      builder: (context, state) {
+        final reportItem = state.extra as HoaxReportModel;
+        return HoaxLatestReportDetailPage(item: reportItem);
+      },
     ),
     GoRoute(
       path: tbcIdentityFormPath,

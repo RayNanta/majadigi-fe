@@ -1,79 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/hoax_provider.dart';
 
-class HoaxClinicMainPage extends StatelessWidget {
+class HoaxClinicMainPage extends ConsumerWidget {
   const HoaxClinicMainPage({super.key});
-
-  static const _stats = [
-    _HoaxStatItem(
-      title: 'Berita Hoaks',
-      value: '374',
-      icon: Icons.cancel_outlined,
-      iconColor: Color(0xFFFF175A),
-      iconBackground: Color(0xFFFFE2EB),
-    ),
-    _HoaxStatItem(
-      title: 'Disinformasi',
-      value: '25',
-      icon: Icons.wifi_tethering_error_rounded,
-      iconColor: Color(0xFFFF175A),
-      iconBackground: Color(0xFFFFE2EB),
-    ),
-    _HoaxStatItem(
-      title: 'Fakta',
-      value: '22',
-      icon: Icons.verified_rounded,
-      iconColor: AppColors.welcomeAccent,
-      iconBackground: Color(0xFFE7F0FF),
-    ),
-    _HoaxStatItem(
-      title: 'Hate Speech',
-      value: '0',
-      icon: Icons.warning_amber_rounded,
-      iconColor: Color(0xFFFF175A),
-      iconBackground: Color(0xFFFFE2EB),
-    ),
-  ];
-
-  static const _reports = [
-    _HoaxReportItem(
-      badge: 'HOAX',
-      category: 'POLITIK',
-      date: '11 April 2026',
-      title: '[HOAKS] Kabar Donald Trump Sekarat Akibat Serangan Virus Baru...',
-      startColor: Color(0xFF101321),
-      endColor: Color(0xFF323F63),
-      icon: Icons.campaign_rounded,
-    ),
-    _HoaxReportItem(
-      badge: 'HOAX',
-      category: 'POLITIK',
-      date: '08 April 2026',
-      title: '[HOAKS] Tautan Bantuan Sosial Baru Mengatasnamakan Pemerintah...',
-      startColor: Color(0xFF111827),
-      endColor: Color(0xFF3B2C5A),
-      icon: Icons.public_rounded,
-    ),
-  ];
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeHoaxClinic);
-  }
-
-  void _showPlaceholder(BuildContext context, String label) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label akan kita lanjutkan berikutnya.')),
-    );
   }
 
   void _openHoaxReport(BuildContext context) {
@@ -92,8 +35,28 @@ class HoaxClinicMainPage extends StatelessWidget {
     context.pushNamed(RouteNames.homeHoaxClinicLatestReports);
   }
 
+  // ✅ Hitung stats dinamis dari list laporan
+  Map<String, int> _computeStats(List<dynamic> reports) {
+    int hoaks = 0, disinformasi = 0, fakta = 0, hateSpeech = 0;
+    for (final r in reports) {
+      final status = (r['status'] ?? '').toString().toLowerCase();
+      if (status == 'hoax') hoaks++;
+      else if (status == 'disinformasi') disinformasi++;
+      else if (status == 'valid' || status == 'fakta') fakta++;
+      else if (status == 'hate_speech') hateSpeech++;
+    }
+    return {
+      'hoaks': hoaks,
+      'disinformasi': disinformasi,
+      'fakta': fakta,
+      'hate_speech': hateSpeech,
+    };
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reportsAsync = ref.watch(hoaxReportsProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? Theme.of(context).scaffoldBackgroundColor
@@ -132,122 +95,266 @@ class HoaxClinicMainPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 30, 24, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _stats.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1,
-                          ),
-                      itemBuilder: (context, index) {
-                        return _HoaxStatCard(item: _stats[index]);
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                    Text(
-                      'Fitur Utama',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: context.appThemedTextColor(
-                          const Color(0xFF16181D),
+              child: RefreshIndicator(
+                onRefresh: () => ref.refresh(hoaxReportsProvider.future),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 30, 24, 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ✅ DINAMIS: Stats grid dari data real
+                      reportsAsync.when(
+                        loading: () => GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1,
+                          children: const [
+                            _StatSkeleton(),
+                            _StatSkeleton(),
+                            _StatSkeleton(),
+                            _StatSkeleton(),
+                          ],
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    _FeatureActionCard(
-                      title: 'Laporan Hoaks',
-                      description:
-                          'Kirim info yang Kamu temukan, Kami bantu klarifikasi dalam 1×24 jam.',
-                      illustration: const _DocumentOutlineIcon(),
-                      onPressed: () => _openHoaxReport(context),
-                    ),
-                    const SizedBox(height: 18),
-                    _FeatureActionCard(
-                      title: 'Lacak Tiket Laporan',
-                      description:
-                          'Pantau status permohonan klarifikasi yang telah diajukan secara real time.',
-                      illustration: const _SearchOutlineIcon(),
-                      onPressed: () => _openHoaxTracking(context),
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Laporan Terkini',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  color: context.appThemedTextColor(
-                                    const Color(0xFF23262D),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Update klarifikasi terbaru',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: context.appMutedTextColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => _openLatestReports(context),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.welcomeAccent,
-                            textStyle: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          child: const Text('Lihat Semua'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      height: 410,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _reports.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 18),
-                        itemBuilder: (context, index) {
-                          return _ReportCard(
-                            item: _reports[index],
-                            onTap: index == 0
-                                ? () => _openLatestReportDetail(context)
-                                : () => _showPlaceholder(
-                                    context,
-                                    'Detail laporan',
-                                  ),
+                        error: (_, __) => _buildStatsGrid(context, 0, 0, 0, 0),
+                        data: (reports) {
+                          final stats = _computeStats(reports);
+                          return _buildStatsGrid(
+                            context,
+                            stats['hoaks']!,
+                            stats['disinformasi']!,
+                            stats['fakta']!,
+                            stats['hate_speech']!,
                           );
                         },
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 28),
+                      Text(
+                        'Fitur Utama',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: context.appThemedTextColor(const Color(0xFF16181D)),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _FeatureActionCard(
+                        title: 'Laporan Hoaks',
+                        description: 'Kirim info yang Kamu temukan, Kami bantu klarifikasi dalam 1×24 jam.',
+                        illustration: const _DocumentOutlineIcon(),
+                        onPressed: () => _openHoaxReport(context),
+                      ),
+                      const SizedBox(height: 18),
+                      _FeatureActionCard(
+                        title: 'Lacak Tiket Laporan',
+                        description: 'Pantau status permohonan klarifikasi yang telah diajukan secara real time.',
+                        illustration: const _SearchOutlineIcon(),
+                        onPressed: () => _openHoaxTracking(context),
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Laporan Terkini',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    color: context.appThemedTextColor(const Color(0xFF23262D)),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Update klarifikasi terbaru',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: context.appMutedTextColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => _openLatestReports(context),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.welcomeAccent,
+                              textStyle: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            child: const Text('Lihat Semua'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+
+                      SizedBox(
+                        height: 410,
+                        child: reportsAsync.when(
+                          loading: () => const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.welcomeAccent,
+                            ),
+                          ),
+                          error: (err, stack) => Center(
+                            child: Text(
+                              'Gagal mengambil data dari server.',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          data: (rawReports) {
+                            if (rawReports.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'Belum ada laporan aduan hoaks.',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 16,
+                                    color: context.appMutedTextColor,
+                                  ),
+                                ),
+                              );
+                            }
+                            return ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: rawReports.length,
+                              separatorBuilder: (_, __) =>
+                              const SizedBox(width: 18),
+                              itemBuilder: (context, index) {
+                                final report = rawReports[index];
+                                return _ReportCard(
+                                  reportData: report,
+                                  onTap: () => _openLatestReportDetail(context),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ✅ Helper build stats grid dengan nilai dinamis
+  Widget _buildStatsGrid(
+      BuildContext context,
+      int hoaks,
+      int disinformasi,
+      int fakta,
+      int hateSpeech,
+      ) {
+    final stats = [
+      _HoaxStatItem(
+        title: 'Berita Hoaks',
+        value: '$hoaks',
+        icon: Icons.cancel_outlined,
+        iconColor: const Color(0xFFFF175A),
+        iconBackground: const Color(0xFFFFE2EB),
+      ),
+      _HoaxStatItem(
+        title: 'Disinformasi',
+        value: '$disinformasi',
+        icon: Icons.wifi_tethering_error_rounded,
+        iconColor: const Color(0xFFFF175A),
+        iconBackground: const Color(0xFFFFE2EB),
+      ),
+      _HoaxStatItem(
+        title: 'Fakta',
+        value: '$fakta',
+        icon: Icons.verified_rounded,
+        iconColor: AppColors.welcomeAccent,
+        iconBackground: const Color(0xFFE7F0FF),
+      ),
+      _HoaxStatItem(
+        title: 'Hate Speech',
+        value: '$hateSpeech',
+        icon: Icons.warning_amber_rounded,
+        iconColor: const Color(0xFFFF175A),
+        iconBackground: const Color(0xFFFFE2EB),
+      ),
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: stats.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1,
+      ),
+      itemBuilder: (context, index) => _HoaxStatCard(item: stats[index]),
+    );
+  }
+}
+
+// ==================== SUB-WIDGETS ====================
+
+class _StatSkeleton extends StatelessWidget {
+  const _StatSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: context.appSurfaceColor,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: context.isDarkMode
+                  ? Colors.white12
+                  : const Color(0xFFE8EAED),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            height: 14,
+            width: 80,
+            decoration: BoxDecoration(
+              color: context.isDarkMode
+                  ? Colors.white12
+                  : const Color(0xFFE8EAED),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 28,
+            width: 50,
+            decoration: BoxDecoration(
+              color: context.isDarkMode
+                  ? Colors.white12
+                  : const Color(0xFFE8EAED),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -271,7 +378,6 @@ class _HoaxStatItem {
 
 class _HoaxStatCard extends StatelessWidget {
   const _HoaxStatCard({required this.item});
-
   final _HoaxStatItem item;
 
   @override
@@ -424,60 +530,23 @@ class _FeatureActionCard extends StatelessWidget {
   }
 }
 
-class _DocumentOutlineIcon extends StatelessWidget {
-  const _DocumentOutlineIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 130,
-      height: 130,
-      child: CustomPaint(painter: _DocumentPainter()),
-    );
-  }
-}
-
-class _SearchOutlineIcon extends StatelessWidget {
-  const _SearchOutlineIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 140,
-      height: 140,
-      child: CustomPaint(painter: _SearchPainter()),
-    );
-  }
-}
-
-class _HoaxReportItem {
-  const _HoaxReportItem({
-    required this.badge,
-    required this.category,
-    required this.date,
-    required this.title,
-    required this.startColor,
-    required this.endColor,
-    required this.icon,
-  });
-
-  final String badge;
-  final String category;
-  final String date;
-  final String title;
-  final Color startColor;
-  final Color endColor;
-  final IconData icon;
-}
-
 class _ReportCard extends StatelessWidget {
-  const _ReportCard({required this.item, required this.onTap});
+  const _ReportCard({required this.reportData, required this.onTap});
 
-  final _HoaxReportItem item;
+  final dynamic reportData;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final String ticket = reportData['nomor_tiket'] ?? 'KH-0000';
+    final String status =
+    (reportData['status'] ?? 'PROSES').toString().toUpperCase();
+    final String content =
+        reportData['deskripsi_laporan'] ?? 'Tidak ada deskripsi laporan.';
+    final String rawDate = reportData['created_at'] ?? '';
+    final String formattedDate =
+    rawDate.length > 10 ? rawDate.substring(0, 10) : 'Baru Saja';
+
     return SizedBox(
       width: 340,
       child: Material(
@@ -504,9 +573,9 @@ class _ReportCard extends StatelessWidget {
                 Container(
                   height: 252,
                   width: double.infinity,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [item.startColor, item.endColor],
+                      colors: [Color(0xFF111827), Color(0xFF3B2C5A)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -522,11 +591,15 @@ class _ReportCard extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFC61B2E),
+                            color: status == 'VALID' || status == 'FAKTA'
+                                ? const Color(0xFF10B981)
+                                : status == 'PROSES'
+                                ? const Color(0xFFFFA928)
+                                : const Color(0xFFC61B2E),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
-                            item.badge,
+                            status,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
@@ -539,7 +612,7 @@ class _ReportCard extends StatelessWidget {
                         right: 18,
                         bottom: 12,
                         child: Icon(
-                          item.icon,
+                          Icons.campaign_rounded,
                           size: 138,
                           color: Colors.white.withValues(alpha: 0.14),
                         ),
@@ -553,6 +626,16 @@ class _ReportCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.16),
                             borderRadius: BorderRadius.circular(18),
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            ticket,
+                            style: GoogleFonts.robotoMono(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -572,9 +655,9 @@ class _ReportCard extends StatelessWidget {
                             color: AppColors.welcomeAccent,
                           ),
                           children: [
-                            TextSpan(text: item.category),
+                            const TextSpan(text: 'KLINIK HOAKS'),
                             TextSpan(
-                              text: '  •  ${item.date}',
+                              text: '  •  $formattedDate',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -588,7 +671,7 @@ class _ReportCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        item.title,
+                        content,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.plusJakartaSans(
@@ -608,6 +691,30 @@ class _ReportCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DocumentOutlineIcon extends StatelessWidget {
+  const _DocumentOutlineIcon();
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 130,
+      height: 130,
+      child: CustomPaint(painter: _DocumentPainter()),
+    );
+  }
+}
+
+class _SearchOutlineIcon extends StatelessWidget {
+  const _SearchOutlineIcon();
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 140,
+      height: 140,
+      child: CustomPaint(painter: _SearchPainter()),
     );
   }
 }
@@ -650,7 +757,6 @@ class _SearchPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 12
       ..color = const Color(0xFFD6DAE3);
-
     canvas.drawCircle(
       Offset(size.width * 0.45, size.height * 0.45),
       size.width * 0.24,
@@ -659,16 +765,6 @@ class _SearchPainter extends CustomPainter {
     canvas.drawLine(
       Offset(size.width * 0.62, size.height * 0.62),
       Offset(size.width * 0.84, size.height * 0.84),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.35, size.height * 0.45),
-      Offset(size.width * 0.43, size.height * 0.53),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width * 0.43, size.height * 0.53),
-      Offset(size.width * 0.57, size.height * 0.36),
       paint,
     );
   }

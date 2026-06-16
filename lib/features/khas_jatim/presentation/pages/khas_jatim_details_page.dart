@@ -9,12 +9,8 @@ import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
 import '../../../../shared/widgets/lazy_load_states.dart';
-
-final _khasJatimManuscriptsProvider =
-    FutureProvider.autoDispose<List<_ManuscriptItem>>((ref) async {
-      await Future<void>.delayed(Duration.zero);
-      return _KhasJatimManuscriptsPageState._manuscripts;
-    });
+import '../../services/khas_jatim_models.dart';
+import '../../services/khas_jatim_services.dart';
 
 class KhasJatimManuscriptsPage extends ConsumerStatefulWidget {
   const KhasJatimManuscriptsPage({super.key});
@@ -27,264 +23,37 @@ class KhasJatimManuscriptsPage extends ConsumerStatefulWidget {
 class _KhasJatimManuscriptsPageState
     extends ConsumerState<KhasJatimManuscriptsPage> {
   static const _pageSize = 6;
-  static const _manuscripts = [
-    _ManuscriptItem(
-      title: 'Serat Sri\nSedana',
-      source: 'Koleksi Museum Mpu\nTantular',
-      category: 'MASA PRA ISLAM',
-      region: 'Sidoarjo',
-      year: 'Abad 14',
-      script: 'Kawi',
-      language: 'Jawa Kuno',
-    ),
-    _ManuscriptItem(
-      title: 'Mantra Mantra\nTengger',
-      source: 'Arsip Komunitas Adat\nTengger',
-      category: 'PRIMBON & MANTRA',
-      region: 'Probolinggo',
-      year: 'Abad 18',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Primbon Suku\nTengger',
-      source: 'Dokumen Sejarah\nProbolinggo',
-      category: 'ERA KERAJAAN',
-      region: 'Probolinggo',
-      year: 'Abad 17',
-      script: 'Pegon',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Centhini\nJilid II',
-      source: 'Salinan Naskah\nPonorogo',
-      category: 'SERAT',
-      region: 'Ponorogo',
-      year: 'Abad 19',
-      script: 'Latin',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Kakawin\nSutasoma',
-      source: 'Fragmentasi Naskah\nTrowulan',
-      category: 'MASA PRA ISLAM',
-      region: 'Mojokerto',
-      year: 'Abad 14',
-      script: 'Kawi',
-      language: 'Jawa Kuno',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Panji\nAngreni',
-      source: 'Koleksi Keraton\nSumenep',
-      category: 'ERA KERAJAAN',
-      region: 'Sumenep',
-      year: 'Abad 18',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Babad\nBlambangan',
-      source: 'Arsip Banyuwangi\nHeritage',
-      category: 'ERA KERAJAAN',
-      region: 'Banyuwangi',
-      year: 'Abad 18',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Primbon\nBetaljemur',
-      source: 'Koleksi Pustaka\nMataraman',
-      category: 'PRIMBON & MANTRA',
-      region: 'Madiun',
-      year: 'Abad 19',
-      script: 'Pegon',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Wulangreh',
-      source: 'Salinan Pesantren\nJombang',
-      category: 'SERAT',
-      region: 'Jombang',
-      year: 'Abad 19',
-      script: 'Arab Pegon',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Kidung\nTantu Panggelaran',
-      source: 'Naskah Arkeologi\nMalang',
-      category: 'MASA PRA ISLAM',
-      region: 'Malang',
-      year: 'Abad 15',
-      script: 'Kawi',
-      language: 'Jawa Kuno',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Damar\nWulan',
-      source: 'Koleksi Kadipaten\nMadura',
-      category: 'SERAT',
-      region: 'Pamekasan',
-      year: 'Abad 18',
-      script: 'Jawa',
-      language: 'Madura',
-    ),
-    _ManuscriptItem(
-      title: 'Mantra Tolak\nBala',
-      source: 'Dokumen Komunitas\nOsing',
-      category: 'PRIMBON & MANTRA',
-      region: 'Banyuwangi',
-      year: 'Abad 17',
-      script: 'Latin',
-      language: 'Osing',
-    ),
-    _ManuscriptItem(
-      title: 'Babad Arya\nWiraraja',
-      source: 'Koleksi Daerah\nSumenep',
-      category: 'ERA KERAJAAN',
-      region: 'Sumenep',
-      year: 'Abad 16',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Wirid\nHidayat Jati',
-      source: 'Salinan Pondok\nKediri',
-      category: 'SERAT',
-      region: 'Kediri',
-      year: 'Abad 19',
-      script: 'Arab Pegon',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Kakawin\nRamayana',
-      source: 'Koleksi Arkeologi\nMojokerto',
-      category: 'MASA PRA ISLAM',
-      region: 'Mojokerto',
-      year: 'Abad 15',
-      script: 'Kawi',
-      language: 'Jawa Kuno',
-    ),
-    _ManuscriptItem(
-      title: 'Primbon\nPawukon',
-      source: 'Perpustakaan\nSurabaya',
-      category: 'PRIMBON & MANTRA',
-      region: 'Surabaya',
-      year: 'Abad 18',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Serat Menak\nJawa Timur',
-      source: 'Koleksi Museum\nLamongan',
-      category: 'SERAT',
-      region: 'Lamongan',
-      year: 'Abad 19',
-      script: 'Latin',
-      language: 'Jawa',
-    ),
-    _ManuscriptItem(
-      title: 'Babad\nMajapahit',
-      source: 'Arsip Sejarah\nTrowulan',
-      category: 'ERA KERAJAAN',
-      region: 'Mojokerto',
-      year: 'Abad 16',
-      script: 'Jawa',
-      language: 'Jawa',
-    ),
-  ];
 
-  late final TextEditingController _searchController;
+  final TextEditingController _searchController = TextEditingController();
   bool _showFilters = false;
-  String? _selectedCategory;
-  String? _selectedRegion;
-  String? _selectedYear;
-  String? _selectedScript;
-  String? _selectedLanguage;
+
+  String? _selectedKategori;
+  String? _selectedAsalDaerah;
+  String? _selectedPerkiraanTahun;
+  String? _selectedJenisAksara;
+  String? _selectedJenisBahasa;
   int _currentPage = 1;
 
-  List<String> _categories(List<_ManuscriptItem> manuscripts) =>
-      manuscripts.map((item) => item.category).toSet().toList()..sort();
-
-  List<String> _regions(List<_ManuscriptItem> manuscripts) =>
-      manuscripts.map((item) => item.region).toSet().toList()..sort();
-
-  List<String> _years(List<_ManuscriptItem> manuscripts) =>
-      manuscripts.map((item) => item.year).toSet().toList()..sort();
-
-  List<String> _scripts(List<_ManuscriptItem> manuscripts) =>
-      manuscripts.map((item) => item.script).toSet().toList()..sort();
-
-  List<String> _languages(List<_ManuscriptItem> manuscripts) =>
-      manuscripts.map((item) => item.language).toSet().toList()..sort();
-
-  List<_ManuscriptItem> _filteredItems(List<_ManuscriptItem> manuscripts) {
-    final query = _searchController.text.trim().toLowerCase();
-
-    return manuscripts.where((item) {
-      final matchesQuery =
-          query.isEmpty ||
-          item.title.toLowerCase().contains(query) ||
-          item.source.toLowerCase().contains(query) ||
-          item.region.toLowerCase().contains(query);
-
-      final matchesCategory =
-          _selectedCategory == null || item.category == _selectedCategory;
-      final matchesRegion =
-          _selectedRegion == null || item.region == _selectedRegion;
-      final matchesYear = _selectedYear == null || item.year == _selectedYear;
-      final matchesScript =
-          _selectedScript == null || item.script == _selectedScript;
-      final matchesLanguage =
-          _selectedLanguage == null || item.language == _selectedLanguage;
-
-      return matchesQuery &&
-          matchesCategory &&
-          matchesRegion &&
-          matchesYear &&
-          matchesScript &&
-          matchesLanguage;
-    }).toList();
-  }
-
-  int _totalPages(List<_ManuscriptItem> filteredItems) =>
-      math.max(1, (filteredItems.length / _pageSize).ceil());
-
-  List<_ManuscriptItem> _currentItems(List<_ManuscriptItem> filteredItems) {
-    final start = (_currentPage - 1) * _pageSize;
-    final end = math.min(start + _pageSize, filteredItems.length);
-
-    if (start >= filteredItems.length) {
-      return const [];
-    }
-
-    return filteredItems.sublist(start, end);
-  }
-
-  int _rangeStart(List<_ManuscriptItem> filteredItems) =>
-      filteredItems.isEmpty ? 0 : ((_currentPage - 1) * _pageSize) + 1;
-
-  int _rangeEnd(List<_ManuscriptItem> filteredItems) => filteredItems.isEmpty
-      ? 0
-      : math.min(_currentPage * _pageSize, filteredItems.length);
+  // ✅ Build params untuk FutureProvider.family
+  KhasJatimFilterParams get _currentParams => KhasJatimFilterParams(
+    search: _searchController.text.trim(),
+    kategori: _selectedKategori,
+    asalDaerah: _selectedAsalDaerah,
+    perkiraanTahun: _selectedPerkiraanTahun,
+    jenisAksara: _selectedJenisAksara,
+    jenisBahasa: _selectedJenisBahasa,
+  );
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController()
-      ..addListener(_handleSearchChanged);
+    _searchController.addListener(() => setState(() => _currentPage = 1));
   }
 
   @override
   void dispose() {
-    _searchController
-      ..removeListener(_handleSearchChanged)
-      ..dispose();
+    _searchController.dispose();
     super.dispose();
-  }
-
-  void _handleSearchChanged() {
-    setState(() {
-      _currentPage = 1;
-    });
   }
 
   void _handleBack() {
@@ -292,75 +61,50 @@ class _KhasJatimManuscriptsPageState
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeKhasJatimMain);
   }
 
-  void _toggleFilters() {
-    setState(() {
-      _showFilters = !_showFilters;
-    });
-  }
+  void _toggleFilters() => setState(() => _showFilters = !_showFilters);
 
-  void _applyFilters() {
-    setState(() {
-      _currentPage = 1;
-      _showFilters = false;
-    });
-  }
+  void _applyFilters() => setState(() {
+    _currentPage = 1;
+    _showFilters = false;
+  });
 
-  void _resetFilters() {
-    setState(() {
-      _selectedCategory = null;
-      _selectedRegion = null;
-      _selectedYear = null;
-      _selectedScript = null;
-      _selectedLanguage = null;
-      _currentPage = 1;
-    });
-  }
+  void _resetFilters() => setState(() {
+    _selectedKategori = null;
+    _selectedAsalDaerah = null;
+    _selectedPerkiraanTahun = null;
+    _selectedJenisAksara = null;
+    _selectedJenisBahasa = null;
+    _currentPage = 1;
+  });
 
-  void _openDetail(_ManuscriptItem item) {
-    if (item.title == 'Serat Sri\nSedana') {
-      context.pushNamed(RouteNames.homeKhasJatimSeratSriSedana);
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Detail ${item.title.replaceAll('\n', ' ')} akan segera tersedia.',
-        ),
-      ),
+  // ✅ Navigasi ke detail page dinamis dengan pass object
+  void _openDetail(NaskahKunoModel item) {
+    context.pushNamed(
+      RouteNames.homeKhasJatimSeratSriSedana,
+      extra: item,
     );
   }
 
-  void _changePage(int page) {
-    final manuscripts = ref
-        .read(_khasJatimManuscriptsProvider)
-        .maybeWhen(
-          data: (items) => items,
-          orElse: () => const <_ManuscriptItem>[],
-        );
-    final totalPages = _totalPages(_filteredItems(manuscripts));
-
-    setState(() {
-      _currentPage = page.clamp(1, totalPages).toInt();
-    });
+  List<NaskahKunoModel> _paginated(List<NaskahKunoModel> all) {
+    final start = (_currentPage - 1) * _pageSize;
+    final end = math.min(start + _pageSize, all.length);
+    if (start >= all.length) return [];
+    return all.sublist(start, end);
   }
+
+  int _totalPages(List<NaskahKunoModel> all) =>
+      math.max(1, (all.length / _pageSize).ceil());
 
   @override
   Widget build(BuildContext context) {
-    final manuscriptsAsync = ref.watch(_khasJatimManuscriptsProvider);
-    final manuscripts = manuscriptsAsync.maybeWhen(
-      data: (items) => items,
-      orElse: () => const <_ManuscriptItem>[],
+    // ✅ FutureProvider.family dengan KhasJatimFilterParams
+    final manuscriptsAsync = ref.watch(
+      khasJatimManuscriptsProvider(_currentParams),
     );
-    final filteredItems = _filteredItems(manuscripts);
-    final currentItems = _currentItems(filteredItems);
-    final totalPages = _totalPages(filteredItems);
-    final isInitialLoading = manuscriptsAsync.isLoading && manuscripts.isEmpty;
-    final loadError = manuscriptsAsync.hasError && manuscripts.isEmpty;
+
     final filterPanelWidth = MediaQuery.of(context).size.width * 0.82;
 
     return Scaffold(
@@ -373,6 +117,7 @@ class _KhasJatimManuscriptsPageState
           children: [
             Column(
               children: [
+                // APP BAR
                 Container(
                   width: double.infinity,
                   color: AppColors.welcomeAccent,
@@ -402,75 +147,128 @@ class _KhasJatimManuscriptsPageState
                     ],
                   ),
                 ),
+
+                // BODY — gunakan Expanded + SingleChildScrollView
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 26, 24, 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _SearchBar(
-                          controller: _searchController,
-                          onFilterTap: _toggleFilters,
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          isInitialLoading
-                              ? 'Memuat naskah kuno...'
-                              : 'Menampilkan ${_rangeStart(filteredItems)}-${_rangeEnd(filteredItems)} dari ${filteredItems.length} hasil',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: context.appThemedMutedTextColor(
-                              const Color(0xFF8A8F9C),
+                  child: manuscriptsAsync.when(
+                    // ✅ FIX: loading state bebas overflow — tidak pakai Expanded di dalam Column
+                    loading: () => SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 26, 24, 28),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _SearchBar(
+                            controller: _searchController,
+                            onFilterTap: _toggleFilters,
+                          ),
+                          const SizedBox(height: 24),
+                          const LazyCardSkeleton(height: 460),
+                          const SizedBox(height: 20),
+                          const LazyCardSkeleton(height: 460),
+                        ],
+                      ),
+                    ),
+                    error: (error, _) => SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 26, 24, 28),
+                      child: Column(
+                        children: [
+                          _SearchBar(
+                            controller: _searchController,
+                            onFilterTap: _toggleFilters,
+                          ),
+                          const SizedBox(height: 24),
+                          LazyLoadErrorState(
+                            message: 'Gagal memuat naskah kuno. Coba lagi.',
+                            onRetry: () => ref.invalidate(
+                              khasJatimManuscriptsProvider,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        if (isInitialLoading) ...[
-                          const LazyCardSkeleton(height: 458),
-                          const SizedBox(height: 26),
-                          const LazyCardSkeleton(height: 458),
-                        ] else if (loadError) ...[
-                          LazyLoadErrorState(
-                            message:
-                                'Data naskah kuno belum berhasil dimuat. Silakan coba lagi.',
-                            onRetry: () =>
-                                ref.invalidate(_khasJatimManuscriptsProvider),
-                          ),
-                        ] else ...[
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: currentItems.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
+                        ],
+                      ),
+                    ),
+                    data: (allItems) {
+                      final paginated = _paginated(allItems);
+                      final totalPages = _totalPages(allItems);
+                      final rangeStart = allItems.isEmpty
+                          ? 0
+                          : (_currentPage - 1) * _pageSize + 1;
+                      final rangeEnd = allItems.isEmpty
+                          ? 0
+                          : math.min(
+                          _currentPage * _pageSize, allItems.length);
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 26, 24, 28),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SearchBar(
+                              controller: _searchController,
+                              onFilterTap: _toggleFilters,
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Menampilkan $rangeStart-$rangeEnd dari ${allItems.length} hasil',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: context.appMutedTextColor,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            if (allItems.isEmpty)
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 36),
+                                  child: Text(
+                                    'Tidak ada naskah yang cocok.',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: context.appMutedTextColor,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else ...[
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: paginated.length,
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 18,
                                   mainAxisSpacing: 26,
-                                  mainAxisExtent: 458,
+                                  mainAxisExtent: 470,
                                 ),
-                            itemBuilder: (context, index) {
-                              final item = currentItems[index];
-
-                              return _ManuscriptCard(
-                                item: item,
-                                onDetailTap: () => _openDetail(item),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 26),
-                          _PaginationBar(
-                            currentPage: _currentPage,
-                            totalPages: totalPages,
-                            onPageSelected: _changePage,
-                          ),
-                        ],
-                      ],
-                    ),
+                                itemBuilder: (context, index) {
+                                  final item = paginated[index];
+                                  return _ManuscriptCard(
+                                    item: item,
+                                    onDetailTap: () => _openDetail(item),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 26),
+                              _PaginationBar(
+                                currentPage: _currentPage,
+                                totalPages: totalPages,
+                                onPageSelected: (page) => setState(
+                                      () => _currentPage =
+                                      page.clamp(1, totalPages),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
             ),
+
+            // FILTER OVERLAY
             if (_showFilters)
               Positioned.fill(
                 child: GestureDetector(
@@ -506,18 +304,13 @@ class _KhasJatimManuscriptsPageState
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w700,
-                                    color: context.appThemedTextColor(
-                                      const Color(0xFF2E3038),
-                                    ),
+                                    color: context.appTextColor,
                                   ),
                                 ),
                               ),
                               IconButton(
                                 onPressed: _toggleFilters,
-                                style: IconButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(32, 32),
-                                ),
+                                padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.close_rounded),
                               ),
                             ],
@@ -525,60 +318,67 @@ class _KhasJatimManuscriptsPageState
                           const SizedBox(height: 22),
                           Expanded(
                             child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _FilterField(
-                                    label: 'Kategori',
-                                    value: _selectedCategory,
-                                    options: _categories(manuscripts),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedCategory = value;
-                                      });
-                                    },
-                                  ),
-                                  _FilterField(
-                                    label: 'Asal Daerah',
-                                    value: _selectedRegion,
-                                    options: _regions(manuscripts),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedRegion = value;
-                                      });
-                                    },
-                                  ),
-                                  _FilterField(
-                                    label: 'Tahun Penulisan',
-                                    value: _selectedYear,
-                                    options: _years(manuscripts),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedYear = value;
-                                      });
-                                    },
-                                  ),
-                                  _FilterField(
-                                    label: 'Aksara',
-                                    value: _selectedScript,
-                                    options: _scripts(manuscripts),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedScript = value;
-                                      });
-                                    },
-                                  ),
-                                  _FilterField(
-                                    label: 'Bahasa',
-                                    value: _selectedLanguage,
-                                    options: _languages(manuscripts),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedLanguage = value;
-                                      });
-                                    },
-                                  ),
-                                ],
+                              child: manuscriptsAsync.maybeWhen(
+                                data: (allItems) => Column(
+                                  children: [
+                                    _FilterDropdown(
+                                      label: 'Kategori',
+                                      value: _selectedKategori,
+                                      options: allItems
+                                          .map((e) => e.kategori)
+                                          .toSet()
+                                          .toList()
+                                        ..sort(),
+                                      onChanged: (v) => setState(
+                                              () => _selectedKategori = v),
+                                    ),
+                                    _FilterDropdown(
+                                      label: 'Asal Daerah',
+                                      value: _selectedAsalDaerah,
+                                      options: allItems
+                                          .map((e) => e.asalDaerah)
+                                          .toSet()
+                                          .toList()
+                                        ..sort(),
+                                      onChanged: (v) => setState(
+                                              () => _selectedAsalDaerah = v),
+                                    ),
+                                    _FilterDropdown(
+                                      label: 'Perkiraan Tahun',
+                                      value: _selectedPerkiraanTahun,
+                                      options: allItems
+                                          .map((e) => e.perkiraanTahun)
+                                          .toSet()
+                                          .toList()
+                                        ..sort(),
+                                      onChanged: (v) => setState(
+                                              () => _selectedPerkiraanTahun = v),
+                                    ),
+                                    _FilterDropdown(
+                                      label: 'Jenis Aksara',
+                                      value: _selectedJenisAksara,
+                                      options: allItems
+                                          .map((e) => e.jenisAksara)
+                                          .toSet()
+                                          .toList()
+                                        ..sort(),
+                                      onChanged: (v) => setState(
+                                              () => _selectedJenisAksara = v),
+                                    ),
+                                    _FilterDropdown(
+                                      label: 'Jenis Bahasa',
+                                      value: _selectedJenisBahasa,
+                                      options: allItems
+                                          .map((e) => e.jenisBahasa)
+                                          .toSet()
+                                          .toList()
+                                        ..sort(),
+                                      onChanged: (v) => setState(
+                                              () => _selectedJenisBahasa = v),
+                                    ),
+                                  ],
+                                ),
+                                orElse: () => const SizedBox.shrink(),
                               ),
                             ),
                           ),
@@ -613,9 +413,7 @@ class _KhasJatimManuscriptsPageState
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: context.appThemedMutedTextColor(
-                                    const Color(0xFF4E5565),
-                                  ),
+                                  color: context.appMutedTextColor,
                                 ),
                               ),
                             ),
@@ -634,9 +432,10 @@ class _KhasJatimManuscriptsPageState
   }
 }
 
+// ==================== SUB-WIDGET COMPONENTS ====================
+
 class _SearchBar extends StatelessWidget {
   const _SearchBar({required this.controller, required this.onFilterTap});
-
   final TextEditingController controller;
   final VoidCallback onFilterTap;
 
@@ -645,7 +444,7 @@ class _SearchBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.isDarkMode
-            ? context.appSubtleSurfaceColor
+            ? context.appSearchSurfaceColor
             : const Color(0xFFF0F1F5),
         borderRadius: BorderRadius.circular(22),
       ),
@@ -654,14 +453,14 @@ class _SearchBar extends StatelessWidget {
         style: GoogleFonts.plusJakartaSans(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: context.appThemedTextColor(const Color(0xFF2E3038)),
+          color: context.appTextColor,
         ),
         decoration: InputDecoration(
           hintText: 'Cari Naskah',
           hintStyle: GoogleFonts.plusJakartaSans(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
+            color: context.appMutedTextColor,
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -669,7 +468,6 @@ class _SearchBar extends StatelessWidget {
             vertical: 20,
           ),
           suffixIcon: IconButton(
-            key: const Key('khas-jatim-filter-button'),
             onPressed: onFilterTap,
             icon: const Icon(
               Icons.filter_list_rounded,
@@ -685,8 +483,7 @@ class _SearchBar extends StatelessWidget {
 
 class _ManuscriptCard extends StatelessWidget {
   const _ManuscriptCard({required this.item, required this.onDetailTap});
-
-  final _ManuscriptItem item;
+  final NaskahKunoModel item;
   final VoidCallback onDetailTap;
 
   @override
@@ -731,12 +528,11 @@ class _ManuscriptCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      item.category,
+                      item.kategori.toUpperCase(),
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
-                        letterSpacing: 0.2,
                       ),
                     ),
                   ),
@@ -744,73 +540,68 @@ class _ManuscriptCard extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      height: 1.32,
-                      color: context.appThemedTextColor(
-                        const Color(0xFF2C2F38),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.judul,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    height: 1.32,
+                    color: context.appTextColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  item.sumberNaskah,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    height: 1.45,
+                    color: context.appMutedTextColor,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: FilledButton(
+                    onPressed: onDetailTap,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.welcomeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    item.source,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      height: 1.45,
-                      color: context.appThemedMutedTextColor(
-                        const Color(0xFF9AA0AE),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 46,
-                    child: FilledButton(
-                      onPressed: onDetailTap,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.welcomeAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Lihat Detail',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Lihat Detail',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 20,
-                              color: Colors.white,
-                            ),
-                          ],
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 18,
+                          color: Colors.white,
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -825,30 +616,25 @@ class _PaginationBar extends StatelessWidget {
     required this.totalPages,
     required this.onPageSelected,
   });
-
   final int currentPage;
   final int totalPages;
   final ValueChanged<int> onPageSelected;
 
   @override
   Widget build(BuildContext context) {
-    final visiblePages = List.generate(
-      math.min(totalPages, 3),
-      (index) => index + 1,
-    );
-
+    final visiblePages = List.generate(math.min(totalPages, 3), (i) => i + 1);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         for (final page in visiblePages) ...[
-          _PaginationChip(
+          _PageChip(
             label: '$page',
             isSelected: currentPage == page,
             onTap: () => onPageSelected(page),
           ),
           const SizedBox(width: 12),
         ],
-        _PaginationChip(
+        _PageChip(
           label: '›',
           isSelected: false,
           onTap: currentPage < totalPages
@@ -860,13 +646,12 @@ class _PaginationBar extends StatelessWidget {
   }
 }
 
-class _PaginationChip extends StatelessWidget {
-  const _PaginationChip({
+class _PageChip extends StatelessWidget {
+  const _PageChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
-
   final String label;
   final bool isSelected;
   final VoidCallback? onTap;
@@ -877,7 +662,7 @@ class _PaginationChip extends StatelessWidget {
       color: isSelected
           ? AppColors.welcomeAccent
           : context.isDarkMode
-          ? context.appSubtleSurfaceColor
+          ? context.appSearchSurfaceColor
           : const Color(0xFFE7E8ED),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
@@ -892,9 +677,7 @@ class _PaginationChip extends StatelessWidget {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: isSelected
-                    ? Colors.white
-                    : context.appThemedTextColor(const Color(0xFF4A4E57)),
+                color: isSelected ? Colors.white : context.appTextColor,
               ),
             ),
           ),
@@ -904,14 +687,13 @@ class _PaginationChip extends StatelessWidget {
   }
 }
 
-class _FilterField extends StatelessWidget {
-  const _FilterField({
+class _FilterDropdown extends StatelessWidget {
+  const _FilterDropdown({
     required this.label,
     required this.value,
     required this.options,
     required this.onChanged,
   });
-
   final String label;
   final String? value;
   final List<String> options;
@@ -929,7 +711,7 @@ class _FilterField extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: context.appThemedMutedTextColor(const Color(0xFF808694)),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 10),
@@ -937,7 +719,7 @@ class _FilterField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: context.isDarkMode
-                  ? context.appSubtleSurfaceColor
+                  ? context.appSearchSurfaceColor
                   : const Color(0xFFF0F1F5),
               borderRadius: BorderRadius.circular(18),
             ),
@@ -950,31 +732,21 @@ class _FilterField extends StatelessWidget {
                 hint: Text(
                   'Pilih',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: context.appThemedMutedTextColor(
-                      const Color(0xFF666C78),
-                    ),
+                    fontSize: 15,
+                    color: context.appMutedTextColor,
                   ),
                 ),
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: context.appThemedMutedTextColor(
-                    const Color(0xFF666C78),
-                  ),
+                  color: context.appMutedTextColor,
                 ),
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: context.appThemedTextColor(const Color(0xFF2E3038)),
+                  color: context.appTextColor,
                 ),
                 items: options
-                    .map(
-                      (option) => DropdownMenuItem<String>(
-                        value: option,
-                        child: Text(option),
-                      ),
-                    )
+                    .map((o) => DropdownMenuItem(value: o, child: Text(o)))
                     .toList(),
                 onChanged: onChanged,
               ),
@@ -984,24 +756,4 @@ class _FilterField extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ManuscriptItem {
-  const _ManuscriptItem({
-    required this.title,
-    required this.source,
-    required this.category,
-    required this.region,
-    required this.year,
-    required this.script,
-    required this.language,
-  });
-
-  final String title;
-  final String source;
-  final String category;
-  final String region;
-  final String year;
-  final String script;
-  final String language;
 }

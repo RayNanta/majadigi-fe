@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/khas_jatim_services.dart';
 
-class KhasJatimRegistrationPage extends StatefulWidget {
+class KhasJatimRegistrationPage extends ConsumerStatefulWidget {
   const KhasJatimRegistrationPage({super.key});
 
   @override
-  State<KhasJatimRegistrationPage> createState() =>
+  ConsumerState<KhasJatimRegistrationPage> createState() =>
       _KhasJatimRegistrationPageState();
 }
 
-class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
+class _KhasJatimRegistrationPageState
+    extends ConsumerState<KhasJatimRegistrationPage> {
   final _ownerNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
@@ -25,22 +28,22 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
   String? _selectedScript;
   String? _selectedLanguage;
   String? _attachedFileName;
-
+  bool _isLoading = false;
   static const _schemes = [
     _RegistrationScheme(
       title: 'Skema 1: Pengalihan Kepemilikan',
       description:
-          'Penyerahan fisik naskah kepada negara untuk perawatan profesional permanen.',
+      'Penyerahan fisik naskah kepada negara untuk perawatan profesional permanen.',
     ),
     _RegistrationScheme(
       title: 'Skema 2: Penitipan (Titip Simpan)',
       description:
-          'Penitipan fisik naskah untuk perawatan tanpa perpindahan hak milik.',
+      'Penitipan fisik naskah untuk perawatan tanpa perpindahan hak milik.',
     ),
     _RegistrationScheme(
       title: 'Skema 3: Pendaftaran (Registrasi)',
       description:
-          'Pendataan identitas naskah sementara fisik tetap berada pada pemilik.',
+      'Pendataan identitas naskah sementara fisik tetap berada pada pemilik.',
     ),
   ];
 
@@ -62,14 +65,15 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
 
   bool get _canSubmit =>
       _selectedScheme != null &&
-      _ownerNameController.text.trim().isNotEmpty &&
-      _phoneController.text.trim().isNotEmpty &&
-      _addressController.text.trim().isNotEmpty &&
-      _titleController.text.trim().isNotEmpty &&
-      _periodController.text.trim().isNotEmpty &&
-      _selectedScript != null &&
-      _selectedLanguage != null &&
-      _attachedFileName != null;
+          _ownerNameController.text.trim().isNotEmpty &&
+          _phoneController.text.trim().isNotEmpty &&
+          _addressController.text.trim().isNotEmpty &&
+          _titleController.text.trim().isNotEmpty &&
+          _periodController.text.trim().isNotEmpty &&
+          _selectedScript != null &&
+          _selectedLanguage != null &&
+          _attachedFileName != null &&
+          !_isLoading;
 
   @override
   void initState() {
@@ -104,13 +108,12 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeKhasJatimMain);
   }
 
   void _pickFile() {
     setState(() {
-      _attachedFileName = 'scan-serat-centhini.pdf';
+      _attachedFileName = 'scan_naskah_pribadi_${DateTime.now().millisecondsSinceEpoch ~/ 1000}.pdf';
     });
   }
 
@@ -120,25 +123,52 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
     });
   }
 
-  void _submit() {
-    if (!_canSubmit) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Mohon lengkapi seluruh data pendaftaran terlebih dahulu.',
-          ),
-        ),
-      );
-      return;
-    }
+  void _submit() async {
+    if (!_canSubmit) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Pendaftaran naskah "${_titleController.text.trim()}" berhasil dikirim.',
-        ),
-      ),
+    setState(() {
+      _isLoading = true;
+    });
+
+    final service = ref.read(khasJatimServiceProvider);
+
+    final isSuccess = await service.registerNaskahKuno(
+      skemaPendaftaran: _selectedScheme!,
+      namaPendaftar: _ownerNameController.text.trim(),
+      noHpPendaftar: _phoneController.text.trim(),
+      alamatPendaftar: _addressController.text.trim(),
+      judul: _titleController.text.trim(),
+      perkiraanTahun: _periodController.text.trim(),
+      jenisAksara: _selectedScript!,
+      jenisBahasa: _selectedLanguage!,
+      fileLampiranPdf: _attachedFileName!,
     );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (mounted) {
+      if (isSuccess) {
+        ref.invalidate(khasJatimManuscriptsProvider);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFF10B981),
+            content: Text('Pendaftaran naskah "${_titleController.text.trim()}'),
+          ),
+        );
+        // Kembali ke halaman daftar utama naskah kuno
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xFFEF4444),
+            content: Text('Gagal mengirim pendaftaran. Periksa koneksi adb reverse rill.'),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -191,9 +221,7 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: context.appThemedTextColor(
-                          const Color(0xFF2C2F38),
-                        ),
+                        color: context.appThemedTextColor(const Color(0xFF2C2F38)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -203,9 +231,7 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                         height: 1.9,
-                        color: context.appThemedMutedTextColor(
-                          const Color(0xFF8A8F9C),
-                        ),
+                        color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -332,18 +358,13 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
               onPressed: _canSubmit ? _submit : null,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
-                disabledBackgroundColor: AppColors.welcomeAccent.withValues(
-                  alpha: 0.55,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(33),
-                ),
-                textStyle: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                disabledBackgroundColor: AppColors.welcomeAccent.withValues(alpha: 0.55),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(33)),
+                textStyle: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              child: const Text('Kirim'),
+              child: _isLoading
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                  : const Text('Kirim'),
             ),
           ),
         ),
@@ -354,18 +375,12 @@ class _KhasJatimRegistrationPageState extends State<KhasJatimRegistrationPage> {
 
 class _RegistrationScheme {
   const _RegistrationScheme({required this.title, required this.description});
-
   final String title;
   final String description;
 }
 
 class _SchemeCard extends StatelessWidget {
-  const _SchemeCard({
-    required this.scheme,
-    required this.isSelected,
-    required this.onTap,
-  });
-
+  const _SchemeCard({required this.scheme, required this.isSelected, required this.onTap});
   final _RegistrationScheme scheme;
   final bool isSelected;
   final VoidCallback onTap;
@@ -384,9 +399,7 @@ class _SchemeCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             border: Border(
               left: BorderSide(
-                color: isSelected
-                    ? AppColors.welcomeAccent
-                    : AppColors.welcomeAccent.withValues(alpha: 0.9),
+                color: isSelected ? AppColors.welcomeAccent : Colors.grey.withValues(alpha: 0.3),
                 width: 4,
               ),
             ),
@@ -406,7 +419,7 @@ class _SchemeCard extends StatelessWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.welcomeAccent,
+                  color: isSelected ? AppColors.welcomeAccent : context.appTextColor,
                 ),
               ),
               const SizedBox(height: 8),
@@ -416,9 +429,7 @@ class _SchemeCard extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   height: 1.6,
-                  color: context.appThemedMutedTextColor(
-                    const Color(0xFF8A8F9C),
-                  ),
+                  color: context.appMutedTextColor,
                 ),
               ),
             ],
@@ -431,7 +442,6 @@ class _SchemeCard extends StatelessWidget {
 
 class _FormSection extends StatelessWidget {
   const _FormSection({required this.title, required this.child});
-
   final String title;
   final Widget child;
 
@@ -456,11 +466,7 @@ class _FormSection extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: AppColors.welcomeAccent,
-            ),
+            style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.welcomeAccent),
           ),
           const SizedBox(height: 14),
           child,
@@ -472,7 +478,6 @@ class _FormSection extends StatelessWidget {
 
 class _LabeledField extends StatelessWidget {
   const _LabeledField({required this.label, required this.child});
-
   final String label;
   final Widget child;
 
@@ -483,11 +488,7 @@ class _LabeledField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: context.appThemedTextColor(const Color(0xFF2C2F38)),
-          ),
+          style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700, color: context.appTextColor),
         ),
         const SizedBox(height: 10),
         child,
@@ -497,12 +498,7 @@ class _LabeledField extends StatelessWidget {
 }
 
 class _TextInputField extends StatelessWidget {
-  const _TextInputField({
-    required this.controller,
-    required this.hintText,
-    this.keyboardType,
-  });
-
+  const _TextInputField({required this.controller, required this.hintText, this.keyboardType});
   final TextEditingController controller;
   final String hintText;
   final TextInputType? keyboardType;
@@ -512,43 +508,21 @@ class _TextInputField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: context.appThemedTextColor(const Color(0xFF2E3038)),
-      ),
+      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w500, color: context.appTextColor),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
-        ),
+        hintStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500, color: context.appMutedTextColor),
         filled: true,
-        fillColor: context.isDarkMode
-            ? context.appSubtleSurfaceColor
-            : const Color(0xFFF0F1F5),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 18,
-        ),
+        fillColor: context.isDarkMode ? context.appSearchSurfaceColor : const Color(0xFFF0F1F5),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       ),
     );
   }
 }
 
 class _DropdownField extends StatelessWidget {
-  const _DropdownField({
-    required this.hintText,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
+  const _DropdownField({required this.hintText, required this.value, required this.options, required this.onChanged});
   final String hintText;
   final String? value;
   final List<String> options;
@@ -557,55 +531,26 @@ class _DropdownField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      initialValue: value,
-      items: options
-          .map(
-            (option) =>
-                DropdownMenuItem<String>(value: option, child: Text(option)),
-          )
-          .toList(),
+      value: value,
+      items: options.map((opt) => DropdownMenuItem<String>(value: opt, child: Text(opt))).toList(),
       onChanged: onChanged,
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: context.appMutedTextColor,
-      ),
+      icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appMutedTextColor),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
-        ),
+        hintStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500, color: context.appMutedTextColor),
         filled: true,
-        fillColor: context.isDarkMode
-            ? context.appSubtleSurfaceColor
-            : const Color(0xFFF0F1F5),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 18,
-        ),
+        fillColor: context.isDarkMode ? context.appSearchSurfaceColor : const Color(0xFFF0F1F5),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       ),
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: context.appThemedTextColor(const Color(0xFF2E3038)),
-      ),
+      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w500, color: context.appTextColor),
       dropdownColor: context.appSurfaceColor,
     );
   }
 }
 
 class _UploadField extends StatelessWidget {
-  const _UploadField({
-    required this.fileName,
-    required this.onPickFile,
-    required this.onRemoveFile,
-  });
-
+  const _UploadField({required this.fileName, required this.onPickFile, required this.onRemoveFile});
   final String? fileName;
   final VoidCallback onPickFile;
   final VoidCallback onRemoveFile;
@@ -618,16 +563,9 @@ class _UploadField extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
       decoration: BoxDecoration(
-        color: context.isDarkMode
-            ? context.appSubtleSurfaceColor
-            : const Color(0xFFFDFEFF),
+        color: context.isDarkMode ? context.appSearchSurfaceColor : const Color(0xFFFDFEFF),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: context.isDarkMode
-              ? context.appBorderColor
-              : const Color(0xFFD6E5FF),
-          width: 2,
-        ),
+        border: Border.all(color: context.isDarkMode ? context.appBorderColor : const Color(0xFFD6E5FF), width: 2),
       ),
       child: Column(
         children: [
@@ -635,27 +573,16 @@ class _UploadField extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: context.isDarkMode
-                  ? context.appSurfaceColor
-                  : const Color(0xFFDCE9FF),
+              color: context.isDarkMode ? context.appSurfaceColor : const Color(0xFFDCE9FF),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
-              Icons.file_upload_outlined,
-              size: 34,
-              color: AppColors.welcomeAccent,
-            ),
+            child: const Icon(Icons.file_upload_outlined, size: 34, color: AppColors.welcomeAccent),
           ),
           const SizedBox(height: 14),
           Text(
             hasFile ? fileName! : 'Format: JPG, PNG, atau PDF (Maks. 10MB)',
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              height: 1.5,
-              color: context.appThemedMutedTextColor(const Color(0xFF8A8F9C)),
-            ),
+            style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500, height: 1.5, color: context.appMutedTextColor),
           ),
           const SizedBox(height: 18),
           Wrap(
@@ -668,18 +595,10 @@ class _UploadField extends StatelessWidget {
                 onPressed: onPickFile,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.welcomeAccent,
-                  side: const BorderSide(
-                    color: AppColors.welcomeAccent,
-                    width: 1.6,
-                  ),
+                  side: const BorderSide(color: AppColors.welcomeAccent, width: 1.6),
                   minimumSize: const Size(124, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  textStyle: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  textStyle: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 child: Text(hasFile ? 'Ganti File' : 'Pilih File'),
               ),
@@ -687,13 +606,8 @@ class _UploadField extends StatelessWidget {
                 TextButton(
                   onPressed: onRemoveFile,
                   style: TextButton.styleFrom(
-                    foregroundColor: context.appThemedMutedTextColor(
-                      const Color(0xFF6B7280),
-                    ),
-                    textStyle: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    foregroundColor: context.appMutedTextColor,
+                    textStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   child: const Text('Hapus'),
                 ),

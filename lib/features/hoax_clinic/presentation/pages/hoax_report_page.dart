@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 🟢 Tambahkan Riverpod
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/hoax_services.dart';
 
-class HoaxReportPage extends StatefulWidget {
+class HoaxReportPage extends ConsumerStatefulWidget {
   const HoaxReportPage({super.key});
 
   @override
-  State<HoaxReportPage> createState() => _HoaxReportPageState();
+  ConsumerState<HoaxReportPage> createState() => _HoaxReportPageState();
 }
 
-class _HoaxReportPageState extends State<HoaxReportPage> {
+class _HoaxReportPageState extends ConsumerState<HoaxReportPage> {
   late final TextEditingController _fullNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _whatsAppController;
@@ -22,6 +24,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
   late final TextEditingController _sourceController;
 
   String? _selectedAttachmentName;
+  bool _isLoading = false; // 🟢 State loading saat kirim ke Laravel
 
   @override
   void initState() {
@@ -48,7 +51,8 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
         _emailController.text.trim().isNotEmpty &&
         _whatsAppController.text.trim().isNotEmpty &&
         _reportController.text.trim().isNotEmpty &&
-        _sourceController.text.trim().isNotEmpty;
+        _sourceController.text.trim().isNotEmpty &&
+        !_isLoading;
   }
 
   void _handleBack(BuildContext context) {
@@ -56,27 +60,53 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeHoaxClinicMain);
   }
-
-  void _handleSubmit(BuildContext context) {
+void _handleSubmit(BuildContext context) async {
     if (!_isFormComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lengkapi dulu semua isian wajib laporan hoaks.'),
-        ),
+        const SnackBar(content: Text('Lengkapi dulu semua isian wajib laporan hoaks.')),
       );
       return;
     }
 
-    final reporterName = _fullNameController.text.trim();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Draft laporan hoaks untuk $reporterName siap diproses.'),
-      ),
+    setState(() {
+      _isLoading = true;
+    });
+
+    final service = ref.read(hoaxServiceProvider);
+
+    final isSuccess = await service.postLaporHoax(
+      namaPelapor: _fullNameController.text.trim(),
+      deskripsiLaporan: _reportController.text.trim(),
+      urlBukti: _sourceController.text.trim(),
     );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (mounted) {
+      if (isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFF10B981),
+            content: Text('Laporan hoaks "${_titleTruncate(_fullNameController.text)}" berhasil terkirim!'),
+          ),
+        );
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Color(0xFFEF4444),
+            content: Text('Gagal mengirim laporan. Coba cek route:post Laravel-mu.'),
+          ),
+        );
+      }
+    }
   }
+
+  String _titleTruncate(String text) => text.length > 15 ? '${text.substring(0, 15)}...' : text;
 
   void _handleChooseAttachment() {
     setState(() {
@@ -171,7 +201,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                       ),
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Nama Lengkap'),
+                    const _FieldLabel(label: 'Nama Lengkap'),
                     const SizedBox(height: 10),
                     _ReportInputField(
                       controller: _fullNameController,
@@ -180,7 +210,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                       textCapitalization: TextCapitalization.words,
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Email Aktif'),
+                    const _FieldLabel(label: 'Email Aktif'),
                     const SizedBox(height: 10),
                     _ReportInputField(
                       controller: _emailController,
@@ -189,7 +219,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                       textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Nomor WhatsApp'),
+                    const _FieldLabel(label: 'Nomor WhatsApp'),
                     const SizedBox(height: 10),
                     _ReportInputField(
                       controller: _whatsAppController,
@@ -199,25 +229,25 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Narasi Laporan'),
+                    const _FieldLabel(label: 'Narasi Laporan'),
                     const SizedBox(height: 10),
                     _ReportInputField(
                       controller: _reportController,
-                      hintText: 'Isi laporan',
+                      hintText: 'Isi laporan dugaan berita hoaks',
                       minLines: 4,
                       maxLines: 6,
                       textCapitalization: TextCapitalization.sentences,
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Tautan Sumber'),
+                    const _FieldLabel(label: 'Tautan Sumber'),
                     const SizedBox(height: 10),
                     _ReportInputField(
                       controller: _sourceController,
-                      hintText: 'Link bukti/alamat website',
+                      hintText: 'Link bukti/alamat website berita',
                       keyboardType: TextInputType.url,
                     ),
                     const SizedBox(height: 26),
-                    const _FieldLabel('Lampiran Tangkapan Layar'),
+                    const _FieldLabel(label: 'Lampiran Tangkapan Layar'),
                     const SizedBox(height: 14),
                     _AttachmentPicker(
                       selectedAttachmentName: _selectedAttachmentName,
@@ -228,7 +258,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       child: Text(
-                        'Laporan Anda akan dienkripsi secara aman untuk menjaga privasi narasumber',
+                        'Laporan Anda akan dienkripsi secara aman untuk menjaga privasi narasumber tim Majadidi',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 17,
@@ -252,18 +282,16 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
           child: SizedBox(
             height: 66,
             child: FilledButton(
-              onPressed: () => _handleSubmit(context),
+              onPressed: _isFormComplete ? () => _handleSubmit(context) : null, // 🟢 Sesuai kelengkapan form
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.welcomeAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(33),
-                ),
-                textStyle: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                disabledBackgroundColor: AppColors.welcomeAccent.withValues(alpha: 0.55),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(33)),
+                textStyle: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700),
               ),
-              child: const Text('Kirim'),
+              child: _isLoading
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                  : const Text('Kirim'),
             ),
           ),
         ),
@@ -273,8 +301,7 @@ class _HoaxReportPageState extends State<HoaxReportPage> {
 }
 
 class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.label);
-
+  const _FieldLabel({required this.label});
   final String label;
 
   @override
@@ -321,49 +348,22 @@ class _ReportInputField extends StatelessWidget {
       inputFormatters: inputFormatters,
       minLines: minLines,
       maxLines: maxLines,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        color: context.appThemedTextColor(const Color(0xFF2F3136)),
-      ),
+      style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w500, color: context.appTextColor),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-          color: context.appThemedMutedTextColor(const Color(0xFFB0B3BA)),
-        ),
+        hintStyle: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w400, color: context.appMutedTextColor),
         filled: true,
-        fillColor: context.isDarkMode
-            ? context.appSubtleSurfaceColor
-            : const Color(0xFFF0F0F2),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 18,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
-          borderSide: const BorderSide(
-            color: AppColors.welcomeAccent,
-            width: 2,
-          ),
-        ),
+        fillColor: context.isDarkMode ? context.appSubtleSurfaceColor : const Color(0xFFF0F0F2),
+        contentPadding: const EdgeInsets.all(18),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: const BorderSide(color: AppColors.welcomeAccent, width: 2)),
       ),
     );
   }
 }
 
 class _AttachmentPicker extends StatelessWidget {
-  const _AttachmentPicker({
-    required this.selectedAttachmentName,
-    required this.onPick,
-    required this.onRemove,
-  });
-
+  const _AttachmentPicker({required this.selectedAttachmentName, required this.onPick, required this.onRemove});
   final String? selectedAttachmentName;
   final VoidCallback onPick;
   final VoidCallback onRemove;
@@ -377,44 +377,23 @@ class _AttachmentPicker extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(18, 28, 18, 24),
         decoration: BoxDecoration(
-          color: context.isDarkMode
-              ? context.appSubtleSurfaceColor
-              : const Color(0xFFF4F4F5),
+          color: context.isDarkMode ? context.appSubtleSurfaceColor : const Color(0xFFF4F4F5),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: context.isDarkMode
-                ? context.appBorderColor
-                : const Color(0xFFD3D5DB),
-            width: 2,
-            strokeAlign: BorderSide.strokeAlignInside,
-          ),
+          border: Border.all(color: context.isDarkMode ? context.appBorderColor : const Color(0xFFD3D5DB), width: 2),
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.file_upload_outlined,
-              size: 46,
-              color: AppColors.welcomeAccent,
-            ),
+            const Icon(Icons.file_upload_outlined, size: 46, color: AppColors.welcomeAccent),
             const SizedBox(height: 16),
             Text(
               selectedAttachmentName == null ? 'Choose File' : 'File terlampir',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: context.appThemedTextColor(const Color(0xFF2F3136)),
-              ),
+              style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w700, color: context.appTextColor),
             ),
             const SizedBox(height: 14),
             Text(
               selectedAttachmentName ?? 'MAKSIMAL 2MB (JPG/PNG)',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: context.appMutedTextColor,
-                letterSpacing: 0.2,
-              ),
+              style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500, color: context.appMutedTextColor),
             ),
             if (selectedAttachmentName != null) ...[
               const SizedBox(height: 18),
@@ -423,22 +402,11 @@ class _AttachmentPicker extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFFEF4444),
                   side: const BorderSide(color: Color(0xFFEF4444), width: 1.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
                 icon: const Icon(Icons.close_rounded, size: 18),
-                label: Text(
-                  'Hapus lampiran',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                label: Text('Hapus lampiran', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w700)),
               ),
             ],
           ],
