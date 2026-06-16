@@ -5,21 +5,63 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/hoax_models.dart';
 
 class HoaxLatestReportDetailPage extends StatelessWidget {
-  const HoaxLatestReportDetailPage({super.key});
+  // 🟢 Terima objek model dinamis dari GoRouter extra argumen rill
+  final HoaxReportModel item;
+
+  const HoaxLatestReportDetailPage({
+    super.key,
+    required this.item,
+  });
 
   void _handleBack(BuildContext context) {
     if (Navigator.of(context).canPop()) {
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeHoaxClinicMain);
+  }
+
+  // Helper dinamis warna status
+  Color _getAccentColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'valid':
+      case 'fakta':
+        return AppColors.welcomeAccent;
+      case 'edukasi':
+        return const Color(0xFF9B4FB5);
+      case 'hoax':
+        return const Color(0xFFC61B2E);
+      default:
+        return const Color(0xFF6E7395);
+    }
+  }
+
+  // Helper background status chip
+  Color _getBgStatusColor(BuildContext context, String status) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    switch (status.toLowerCase()) {
+      case 'valid':
+      case 'fakta':
+        return isDark ? const Color(0xFF0F3A20) : const Color(0xFFE2F6E9);
+      case 'edukasi':
+        return isDark ? const Color(0xFF381440) : const Color(0xFFF3E4F9);
+      case 'hoax':
+        return isDark ? const Color(0xFF4A1720) : const Color(0xFFFBE4EA);
+      default:
+        return isDark ? const Color(0xFF232533) : const Color(0xFFECEFF5);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final Color currentAccent = _getAccentColor(item.status);
+    final String formattedDate = item.createdAt.length > 19
+        ? item.createdAt.substring(0, 19)
+        : item.createdAt;
+
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? Theme.of(context).scaffoldBackgroundColor
@@ -28,6 +70,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
+            // APP BAR LAYOUT
             Container(
               width: double.infinity,
               color: AppColors.welcomeAccent,
@@ -46,7 +89,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Laporan Terkini',
+                      'Detail Laporan rill',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -57,64 +100,73 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                 ],
               ),
             ),
+
+            // DETAIL BODY CONTENT
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 34, 24, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // STATUS BADGE CHIP
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: context.isDarkMode
-                            ? const Color(0xFF4A1720)
-                            : const Color(0xFFFBE4EA),
+                        color: _getBgStatusColor(context, item.status),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        'HOAKS',
+                        item.status.toUpperCase(),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFFB81A2D),
+                          color: currentAccent,
                         ),
                       ),
                     ),
                     const SizedBox(height: 30),
+
+                    // DESKRIPSI UTAMA SEBAGAI JUDUL
                     Text(
-                      'Kabar Donald Trump\nSekarat Akibat Melawan\nIran',
+                      item.deskripsiLaporan,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 34,
+                        fontSize: 26,
                         fontWeight: FontWeight.w800,
                         height: 1.42,
                         color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 34),
+
+                    // META INFO DARI BACKEND
                     Wrap(
                       spacing: 26,
                       runSpacing: 14,
-                      children: const [
+                      children: [
                         _MetaInfoChip(
                           icon: Icons.calendar_today_outlined,
-                          label: '2026-04-11 10:51:13',
+                          label: formattedDate,
                         ),
                         _MetaInfoChip(
-                          icon: Icons.visibility_outlined,
-                          label: '28 Views',
+                          icon: Icons.confirmation_number_outlined,
+                          label: item.nomorTiket,
                         ),
                       ],
                     ),
                     const SizedBox(height: 30),
-                    const _HoaxPosterPreview(),
+
+                    // CUSTOM POSTER PREVIEW (Dinamis Data Model)
+                    _HoaxPosterPreview(item: item, accentColor: currentAccent),
                     const SizedBox(height: 34),
+
+                    // LINK RUJUKAN BUKTI
                     Text(
-                      'Link Rujukan',
+                      'Link Rujukan Bukti',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: context.appTextColor,
                       ),
@@ -128,9 +180,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: context.appThemedCardShadows([
                           BoxShadow(
-                            color: const Color(
-                              0xFF111827,
-                            ).withValues(alpha: 0.04),
+                            color: const Color(0xFF111827).withValues(alpha: 0.04),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -144,9 +194,7 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: context.isDarkMode
-                                  ? AppColors.welcomeAccent.withValues(
-                                      alpha: 0.18,
-                                    )
+                                  ? AppColors.welcomeAccent.withValues(alpha: 0.18)
                                   : const Color(0xFFDDEBFF),
                             ),
                             child: Icon(
@@ -158,20 +206,28 @@ class HoaxLatestReportDetailPage extends StatelessWidget {
                           const SizedBox(width: 18),
                           Expanded(
                             child: Text(
-                              'https://tirto.id/',
+                              item.urlBukti != null && item.urlBukti!.isNotEmpty
+                                  ? item.urlBukti!
+                                  : 'Tidak ada lampiran link rujukan rill.',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.welcomeAccent,
+                                color: item.urlBukti != null && item.urlBukti!.isNotEmpty
+                                    ? AppColors.welcomeAccent
+                                    : context.appMutedTextColor,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Icon(
-                            Icons.open_in_new_rounded,
-                            size: 34,
-                            color: context.appMutedTextColor,
-                          ),
+                          if (item.urlBukti != null && item.urlBukti!.isNotEmpty) ...[
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.open_in_new_rounded,
+                              size: 34,
+                              color: context.appMutedTextColor,
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -197,12 +253,12 @@ class _MetaInfoChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 28, color: context.appMutedTextColor),
+        Icon(icon, size: 24, color: context.appMutedTextColor),
         const SizedBox(width: 12),
         Text(
           label,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
             color: context.appMutedTextColor,
           ),
@@ -213,7 +269,13 @@ class _MetaInfoChip extends StatelessWidget {
 }
 
 class _HoaxPosterPreview extends StatelessWidget {
-  const _HoaxPosterPreview();
+  final HoaxReportModel item;
+  final Color accentColor;
+
+  const _HoaxPosterPreview({
+    required this.item,
+    required this.accentColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +284,7 @@ class _HoaxPosterPreview extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
       decoration: BoxDecoration(
         color: context.appSurfaceColor,
-        borderRadius: BorderRadius.circular(0),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: context.appThemedCardShadows([
           BoxShadow(
             color: const Color(0xFF111827).withValues(alpha: 0.03),
@@ -240,8 +302,8 @@ class _HoaxPosterPreview extends StatelessWidget {
                 label: 'KOMINFO JATIM',
                 accent: AppColors.welcomeAccent,
               ),
-              const SizedBox(width: 10),
-              _PosterLogo(label: 'JAWA TIMUR', accent: const Color(0xFF0E7B34)),
+              const SizedBox(width: 8),
+              _PosterLogo(label: 'MAJADIGI APP', accent: const Color(0xFF0E7B34)),
               const Spacer(),
               _PosterLogo(
                 label: 'KLINIK HOAKS',
@@ -254,53 +316,52 @@ class _HoaxPosterPreview extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFD81B2C), Color(0xFF6E131D)],
+                gradient: LinearGradient(
+                  colors: [accentColor, accentColor.withValues(alpha: 0.7)],
                 ),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                'HOAX',
+                item.status.toUpperCase(),
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 22,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          Center(
-            child: Text(
-              'KABAR DONALD TRUMP SEKARAT\nAKIBAT MELAWAN IRAN',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 21,
-                fontWeight: FontWeight.w800,
-                height: 1.25,
-                color: context.appTextColor,
-              ),
+          const SizedBox(height: 22),
+          Text(
+            'Isi Pengaduan Masuk:',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: accentColor,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           Text(
-            'Sebuah unggahan menyebar dengan foto yang menampilkan Donald Trump terbaring di atas brankar, dikelilingi personel medis. Narasi yang menyertainya mengklaim Trump sedang sekarat dan mengalami stroke berat akibat kekalahan dalam perang melawan Iran.',
+            item.deskripsiLaporan,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               height: 1.65,
-              color: context.appMutedTextColor,
+              color: context.appTextColor,
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Setelah ditelusuri, fotonya bukan foto nyata, ini hasil rekayasa AI. Ada sejumlah kejanggalan pada gambar seperti para personel medis tampak tidak natural dan mirip satu sama lain.',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              height: 1.65,
-              color: context.appMutedTextColor,
-            ),
+          Row(
+            children: [
+              Text(
+                'Pelapor: ',
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                item.namaPelapor,
+                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: context.appMutedTextColor),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           Container(
@@ -312,7 +373,7 @@ class _HoaxPosterPreview extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,18 +381,18 @@ class _HoaxPosterPreview extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '11 April 2026',
+                      'Validitas Sistem',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      '085141169526',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
+                      item.nomorTiket,
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -339,50 +400,43 @@ class _HoaxPosterPreview extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 14),
+
+                // BOX CONTAINER PLACEHOLDER BUKTI GAMBAR JIKA ADA
                 Container(
-                  height: 200,
+                  width: double.infinity,
+                  height: 140,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.42),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.black.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: const Color(0xFFE11D2E),
-                      width: 4,
+                      color: accentColor,
+                      width: 2,
                     ),
                   ),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFF7D583A),
-                                      Color(0xFF1E293B),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(color: const Color(0xFF24262D)),
-                            ),
-                          ],
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          item.urlBukti != null && item.urlBukti!.isNotEmpty
+                              ? Icons.image_outlined
+                              : Icons.gavel_rounded,
+                          color: Colors.white70,
+                          size: 36,
                         ),
-                      ),
-                      const Positioned(
-                        right: 14,
-                        bottom: 14,
-                        child: _MiniHoaxBadge(),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          'ID Laporan: #${item.id}',
+                          style: GoogleFonts.robotoMono(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Row(
                   children: const [
                     Expanded(
@@ -398,15 +452,6 @@ class _HoaxPosterPreview extends StatelessWidget {
                       child: _FooterStrip(color: Color(0xFF2E3192)),
                     ),
                   ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Tautan Rujukan : https://tirto.id/hoaks-kabar-donald-trump-sekarat-akibat-melawan-iran-htvw',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
                 ),
               ],
             ),
@@ -434,40 +479,17 @@ class _PosterLogo extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.verified_rounded, size: 18, color: accent),
+          Icon(Icons.verified_rounded, size: 14, color: accent),
           const SizedBox(width: 6),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.w800,
               color: accent,
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MiniHoaxBadge extends StatelessWidget {
-  const _MiniHoaxBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFD81B2C),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        'HOAX',
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-        ),
       ),
     );
   }

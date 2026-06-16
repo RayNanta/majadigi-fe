@@ -6,6 +6,7 @@ import '../../features/auth/routes.dart';
 import '../../features/home/routes.dart';
 import '../../features/splash/routes.dart';
 import '../../features/welcome/routes.dart';
+import '../../features/splash/routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final sharedPreferencesService = ref.watch(sharedPreferencesServiceProvider);

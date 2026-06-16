@@ -5,9 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_theme_extensions.dart';
+import '../../services/khas_jatim_models.dart';
 
 class KhasJatimSeratSriSedanaPage extends StatefulWidget {
-  const KhasJatimSeratSriSedanaPage({super.key});
+  // ✅ Terima NaskahKunoModel dari halaman manuscripts
+  final NaskahKunoModel manuscript;
+
+  const KhasJatimSeratSriSedanaPage({
+    super.key,
+    required this.manuscript,
+  });
 
   @override
   State<KhasJatimSeratSriSedanaPage> createState() =>
@@ -18,25 +25,39 @@ class _KhasJatimSeratSriSedanaPageState
     extends State<KhasJatimSeratSriSedanaPage> {
   final TextEditingController _commentController = TextEditingController();
 
-  static const _metadata = [
-    _MetadataItem(label: 'KATEGORI', value: 'Masa Pra Islam'),
-    _MetadataItem(label: 'SUMBER / PEMILIK', value: 'Sdr. Suroleksono'),
-    _MetadataItem(label: 'ASAL DAERAH', value: 'Kabupaten Lamongan'),
-    _MetadataItem(label: 'JUMLAH HALAMAN', value: '260'),
-    _MetadataItem(label: 'BAHASA', value: 'Jawa'),
-    _MetadataItem(label: 'AKSARA', value: 'Jawa'),
+  // ✅ DINAMIS: metadata dari NaskahKunoModel
+  List<_MetadataItem> get _metadata => [
+    _MetadataItem(label: 'KATEGORI', value: widget.manuscript.kategori),
+    _MetadataItem(
+        label: 'SUMBER / PEMILIK', value: widget.manuscript.sumberNaskah),
+    _MetadataItem(
+        label: 'ASAL DAERAH', value: widget.manuscript.asalDaerah),
+    _MetadataItem(
+        label: 'JUMLAH HALAMAN',
+        value: '${widget.manuscript.jumlahHalaman}'),
+    _MetadataItem(
+        label: 'BAHASA', value: widget.manuscript.jenisBahasa),
+    _MetadataItem(
+        label: 'AKSARA', value: widget.manuscript.jenisAksara),
+    _MetadataItem(
+        label: 'PERKIRAAN TAHUN',
+        value: widget.manuscript.perkiraanTahun),
+    _MetadataItem(
+        label: 'STATUS',
+        value: widget.manuscript.statusPengajuan.toUpperCase()),
   ];
 
+  // Komentar tetap statis karena belum ada endpoint POST komentar
   static const _comments = [
     _CommentItem(
       name: 'Alex Rivera',
       comment:
-          'Koleksi yang komprehensif. Saya menggunakan referensi ini untuk tesis saya. Antarmuka pencariannya sangat memudahkan menemukan kata kunci spesifik dalam naskah.',
+      'Koleksi yang komprehensif. Saya menggunakan referensi ini untuk tesis saya. Antarmuka pencariannya sangat memudahkan menemukan kata kunci spesifik dalam naskah.',
     ),
     _CommentItem(
-      name: 'Alex Rivera',
+      name: 'Nadia Putri',
       comment:
-          'Sangat membantu untuk riset sejarah. Detail pada naskah digital ini luar biasa jernih, memudahkan pembacaan aksara kuno yang biasanya sulit diidentifikasi. Terima kasih tim pengarsip!',
+      'Sangat membantu untuk riset sejarah. Detail pada naskah digital ini luar biasa jernih, memudahkan pembacaan aksara kuno yang biasanya sulit diidentifikasi.',
     ),
   ];
 
@@ -45,19 +66,13 @@ class _KhasJatimSeratSriSedanaPageState
   @override
   void initState() {
     super.initState();
-    _commentController.addListener(_handleCommentChanged);
+    _commentController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _commentController
-      ..removeListener(_handleCommentChanged)
-      ..dispose();
+    _commentController.dispose();
     super.dispose();
-  }
-
-  void _handleCommentChanged() {
-    setState(() {});
   }
 
   void _handleBack() {
@@ -65,7 +80,6 @@ class _KhasJatimSeratSriSedanaPageState
       context.pop();
       return;
     }
-
     context.goNamed(RouteNames.homeKhasJatimManuscripts);
   }
 
@@ -92,13 +106,12 @@ class _KhasJatimSeratSriSedanaPageState
                   children: [
                     Expanded(
                       child: Text(
-                        'Pratinjau Naskah',
+                        // ✅ DINAMIS: judul naskah
+                        'Pratinjau: ${widget.manuscript.judul}',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: context.appThemedTextColor(
-                            const Color(0xFF2B2F38),
-                          ),
+                          color: context.appTextColor,
                         ),
                       ),
                     ),
@@ -120,14 +133,12 @@ class _KhasJatimSeratSriSedanaPageState
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Fitur pembaca naskah detail akan kita lanjutkan pada tahap berikutnya.',
+                  'Fitur pembaca naskah detail akan tersedia pada tahap berikutnya.',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.6,
-                    color: context.appThemedMutedTextColor(
-                      const Color(0xFF737987),
-                    ),
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],
@@ -139,21 +150,18 @@ class _KhasJatimSeratSriSedanaPageState
   }
 
   void _submitComment() {
-    if (!_canSubmit) {
-      return;
-    }
-
+    if (!_canSubmit) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Komentar untuk Serat Sri Sedana berhasil dikirim.',
+            // ✅ DINAMIS: nama naskah di notifikasi
+            'Komentar untuk ${widget.manuscript.judul} berhasil dikirim.',
             style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
           ),
         ),
       );
-
     _commentController.clear();
   }
 
@@ -167,6 +175,7 @@ class _KhasJatimSeratSriSedanaPageState
         bottom: false,
         child: Column(
           children: [
+            // APP BAR — ✅ DINAMIS: judul naskah
             Container(
               width: double.infinity,
               color: AppColors.welcomeAccent,
@@ -185,34 +194,56 @@ class _KhasJatimSeratSriSedanaPageState
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Serat Sri Sedana',
+                      widget.manuscript.judul,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ✅ DINAMIS: judul naskah
                     Text(
-                      'Serat Sri Sedana',
+                      widget.manuscript.judul,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: context.appThemedTextColor(
-                          const Color(0xFF2B2F38),
+                        color: context.appTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ✅ DINAMIS: kategori badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF27C36D),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        widget.manuscript.kategori.toUpperCase(),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    // FOTO — klik untuk preview
                     GestureDetector(
                       onTap: _openReaderPreview,
                       child: ClipRRect(
@@ -226,35 +257,30 @@ class _KhasJatimSeratSriSedanaPageState
                       ),
                     ),
                     const SizedBox(height: 18),
+
+                    // INFO KLIK
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 16,
-                      ),
+                          horizontal: 18, vertical: 16),
                       decoration: BoxDecoration(
                         color: context.isDarkMode
-                            ? context.appSubtleSurfaceColor
+                            ? context.appSearchSurfaceColor
                             : const Color(0xFFE8F1FF),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.info_rounded,
-                            color: AppColors.welcomeAccent,
-                            size: 26,
-                          ),
+                          const Icon(Icons.info_rounded,
+                              color: AppColors.welcomeAccent, size: 26),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Keterangan: Klik gambar untuk membaca',
+                              'Klik gambar untuk membaca pratinjau naskah',
                               style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: context.appThemedMutedTextColor(
-                                  const Color(0xFF5D6472),
-                                ),
+                                color: context.appMutedTextColor,
                               ),
                             ),
                           ),
@@ -262,31 +288,35 @@ class _KhasJatimSeratSriSedanaPageState
                       ),
                     ),
                     const SizedBox(height: 22),
+
+                    // ✅ DINAMIS: deskripsi naskah
                     Text(
-                      'Artefak sastra bersejarah dari era Pra-Islam di Jawa, dipelihara dengan cermat untuk memberikan gambaran tentang warisan budaya dan linguistik Jawa Timur.',
+                      widget.manuscript.deskripsi.isNotEmpty
+                          ? widget.manuscript.deskripsi
+                          : 'Artefak sastra bersejarah yang dipelihara dengan cermat untuk memberikan gambaran tentang warisan budaya dan linguistik Jawa Timur.',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         height: 1.8,
-                        color: context.appThemedMutedTextColor(
-                          const Color(0xFF7D8391),
-                        ),
+                        color: context.appMutedTextColor,
                       ),
                     ),
                     const SizedBox(height: 26),
+
+                    // ✅ DINAMIS: metadata cards
                     for (final item in _metadata) ...[
                       _MetadataCard(item: item),
                       if (item != _metadata.last) const SizedBox(height: 12),
                     ],
                     const SizedBox(height: 28),
+
+                    // KOMENTAR SECTION
                     Text(
                       'Komentar',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: context.appThemedTextColor(
-                          const Color(0xFF2B2F38),
-                        ),
+                        color: context.appTextColor,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -298,9 +328,8 @@ class _KhasJatimSeratSriSedanaPageState
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: context.appThemedCardShadows([
                           BoxShadow(
-                            color: const Color(
-                              0xFF111827,
-                            ).withValues(alpha: 0.04),
+                            color: const Color(0xFF111827)
+                                .withValues(alpha: 0.04),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
@@ -313,9 +342,7 @@ class _KhasJatimSeratSriSedanaPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: context.appThemedTextColor(
-                                const Color(0xFF2B2F38),
-                              ),
+                              color: context.appTextColor,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -325,22 +352,18 @@ class _KhasJatimSeratSriSedanaPageState
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
-                              color: context.appThemedTextColor(
-                                const Color(0xFF2E3038),
-                              ),
+                              color: context.appTextColor,
                             ),
                             decoration: InputDecoration(
                               hintText: 'Tambahkan komentar...',
                               hintStyle: GoogleFonts.plusJakartaSans(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: context.appThemedMutedTextColor(
-                                  const Color(0xFF9AA0AE),
-                                ),
+                                color: context.appMutedTextColor,
                               ),
                               filled: true,
                               fillColor: context.isDarkMode
-                                  ? context.appSubtleSurfaceColor
+                                  ? context.appSearchSurfaceColor
                                   : const Color(0xFFF4F5F8),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(18),
@@ -383,7 +406,8 @@ class _KhasJatimSeratSriSedanaPageState
                     const SizedBox(height: 20),
                     for (final comment in _comments) ...[
                       _CommentCard(item: comment),
-                      if (comment != _comments.last) const SizedBox(height: 18),
+                      if (comment != _comments.last)
+                        const SizedBox(height: 18),
                     ],
                   ],
                 ),
@@ -396,9 +420,10 @@ class _KhasJatimSeratSriSedanaPageState
   }
 }
 
+// ==================== SUB-WIDGETS ====================
+
 class _MetadataCard extends StatelessWidget {
   const _MetadataCard({required this.item});
-
   final _MetadataItem item;
 
   @override
@@ -419,7 +444,7 @@ class _MetadataCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
-              color: context.appThemedMutedTextColor(const Color(0xFF6B7280)),
+              color: context.appMutedTextColor,
             ),
           ),
           const SizedBox(height: 10),
@@ -428,7 +453,7 @@ class _MetadataCard extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: context.appThemedTextColor(const Color(0xFF757D8A)),
+              color: context.appMutedTextColor,
             ),
           ),
         ],
@@ -439,7 +464,6 @@ class _MetadataCard extends StatelessWidget {
 
 class _CommentCard extends StatelessWidget {
   const _CommentCard({required this.item});
-
   final _CommentItem item;
 
   @override
@@ -464,9 +488,9 @@ class _CommentCard extends StatelessWidget {
           CircleAvatar(
             radius: 22,
             backgroundColor: context.isDarkMode
-                ? context.appSubtleSurfaceColor
+                ? context.appSearchSurfaceColor
                 : const Color(0xFFE9F1FF),
-            child: Icon(
+            child: const Icon(
               Icons.person_rounded,
               color: AppColors.welcomeAccent,
               size: 24,
@@ -482,7 +506,7 @@ class _CommentCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: context.appThemedTextColor(const Color(0xFF2B2F38)),
+                    color: context.appTextColor,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -492,9 +516,7 @@ class _CommentCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     height: 1.8,
-                    color: context.appThemedMutedTextColor(
-                      const Color(0xFF8A8F9C),
-                    ),
+                    color: context.appMutedTextColor,
                   ),
                 ),
               ],
@@ -508,14 +530,12 @@ class _CommentCard extends StatelessWidget {
 
 class _MetadataItem {
   const _MetadataItem({required this.label, required this.value});
-
   final String label;
   final String value;
 }
 
 class _CommentItem {
   const _CommentItem({required this.name, required this.comment});
-
   final String name;
   final String comment;
 }
